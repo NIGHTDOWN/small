@@ -20,13 +20,13 @@ return [
     'hostname'        => Env::get('database.hostname', '127.0.0.1'),
     // 数据库名
     //'database'        => Env::get('database.database', 'new_actuive_com'),
-    'database'        => Env::get('database.database', 'tmp_actuive'),
+    'database'        => Env::get('database.database', 'api_new'),
     // 用户名
     //'username'        => Env::get('database.username', 'new_actuive'),
-    'username'        => Env::get('database.username', 'tmp_actuive'),
+    'username'        => Env::get('database.username', 'api_new'),
     // 密码
     //'password'        => Env::get('database.password', 'epz8BKRrw4RmHhx6'),
-    'password'        => Env::get('database.password', 'XaSmY3sYeGCpTdw7'),
+    'password'        => Env::get('database.password', '2CPaiNMHzkZwzBPp'),
     // 端口
     'hostport'        => Env::get('database.hostport', ''),
     // 连接dsn
@@ -34,7 +34,7 @@ return [
     // 数据库连接参数
     'params'          => [],
     // 数据库编码默认采用utf8
-    'charset'         => Env::get('database.charset', 'utf8'),
+    'charset'         => Env::get('database.charset', 'utf8mb4'),
     // 数据库表前缀
     'prefix'          => Env::get('database.prefix', 'xyx_'),
     // 数据库调试模式

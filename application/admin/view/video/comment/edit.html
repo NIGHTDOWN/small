@@ -1,0 +1,76 @@
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Video_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-video_id" data-rule="required" data-source="video/index" class="form-control selectpage form-control" name="row[video_id]" type="text" value="{$row.video_id}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('User_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-user_id" data-rule="required" data-source="user/user/index" data-field="nickname" class="form-control selectpage form-control" name="row[user_id]" type="text" value="{$row.user_id}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Video_comment')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-video_comment" data-rule="required" class="form-control form-control" name="row[video_comment]" type="text" value="{$row.video_comment}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Replace_comment')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-replace_comment" data-rule="required" class="form-control form-control" name="row[replace_comment]" type="text" value="{$row.replace_comment}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Create_time')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-create_time" data-rule="required" class="form-control datetimepicker form-control" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[create_time]" type="text" value="{$row.create_time|datetime}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Update_time')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-update_time" data-rule="required" class="form-control datetimepicker form-control" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[update_time]" type="text" value="{$row.update_time|datetime}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Is_parent')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-is_parent" data-rule="required" class="form-control form-control" name="row[is_parent]" type="number" value="{$row.is_parent}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Full_parent_ids')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <textarea id="c-full_parent_ids" data-rule="required" class="form-control  form-control" rows="5" name="row[full_parent_ids]" cols="50">{$row.full_parent_ids}</textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Is_robot')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-is_robot" data-rule="required" class="form-control form-control" name="row[is_robot]" type="number" value="{$row.is_robot}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Like_total')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-like_total" data-rule="required" class="form-control form-control" name="row[like_total]" type="number" value="{$row.like_total}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Status')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-status" data-rule="required" class="form-control form-control" name="row[status]" type="number" value="{$row.status}">
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

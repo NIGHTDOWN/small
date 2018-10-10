@@ -289,13 +289,19 @@ return [
     // +----------------------------------------------------------------------
     'token'                  => [
         // 驱动方式
-        'type'     => 'Mysql',
+        'type'      => 'redis',
         // 缓存前缀
-        'key'      => 'i3d6o32wo8fvs1fvdpwens',
+        'key'       => 'i3d6o32wo8fvs1fvdpwens',
         // 加密方式
-        'hashalgo' => 'ripemd160',
+        'hashalgo'  => 'ripemd160',
         // 缓存有效期 0表示永久缓存
-        'expire'   => 0,
+        'expire'    => 2592000,
+        // 服务器地址
+        'host'      => '39.108.13.101',
+        'select'    => 1,
+        'prefix'    => 'think_',
+        'port'      => '6999',
+        'password'  => 'aX8cWC2h0GUmY0AV',
     ],
     //FastAdmin配置
     'fastadmin'              => [

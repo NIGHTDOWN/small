@@ -187,7 +187,8 @@ return [
             'expire' => 0,
             'select' => 1,
             'port'    => '6999',
-            'password' => 'XaSmY3sYeGCpTdw7',
+            'prefix' => 'think_',
+            'password' => 'aX8cWC2h0GUmY0AV',
         ],
         // 文件缓存
         'file'   =>  [
@@ -220,8 +221,9 @@ return [
             // 缓存有效期 0表示永久缓存
             'expire' => 0,
             'select' => 1,
+            'prefix' => 'think_',
             'port'    => '6999',
-            'password' => 'XaSmY3sYeGCpTdw7',
+            'password' => 'aX8cWC2h0GUmY0AV',
         ]
     ],
     // +----------------------------------------------------------------------

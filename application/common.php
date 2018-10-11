@@ -300,3 +300,160 @@ if (!function_exists('var_export_short')) {
     }
 
 }
+
+/**
+ * 获取随机字符串
+ * @param int $length  长度
+ * @param int $type   类型  0 混合 1 数字 2 字母
+ * @param int $upper  大写  0 小写 1 大写
+ * @return string
+ */
+function get_rand_string($length,$type=0,$upper = 0){
+    $leters1 = range('a','z');
+    $leters2 = range('0','9');
+    $letters = [];
+    if($type == 0){
+        $letters = array_merge($leters1,$leters2);
+    }elseif ($type == 1){
+        $letters = $leters2;
+    }elseif ($type == 2){
+        $letters = $leters1;
+    }
+    $pos = [];
+    $max = count($letters) - 1;
+    for($i = 0; $i < $length;$i++){
+        $pos[] = mt_rand(0,$max);
+    }
+    $temp = [];
+    foreach($pos as $v){
+        $temp[] = $letters[$v];
+    }
+    $temp = implode('',$temp);
+    if($upper) $temp = strtoupper($temp);
+    return $temp;
+}
+
+/**
+ * 格式化时间
+ * @param int $time
+ * @return string
+ */
+function format_time($time){
+    $time=(int)$time;
+    $t=time()-$time;
+    $f=array(
+        '604800'=>'一周',
+        '86400'=>'天',
+        '3600'=>'小时',
+        '60'=>'分钟',
+        '1'=>'秒'
+    );
+    foreach ($f as $k=>$v)    {
+        if (0 !=$c=floor($t/(int)$k)) {
+            if ($k=='604800'){
+                $str=date('Y-m-d',$time);
+            }else{
+                $str=$c.$v.'前';
+            }
+            return $str;
+        }
+    }
+}
+
+/**
+ * 创建密码
+ * @param string $pwd  密码
+ * @return bool|string
+ */
+function create_password($pwd){
+    return  password_hash($pwd, PASSWORD_DEFAULT);
+}
+
+
+/**
+ * 验证密码
+ * @param string $pwd  密码
+ * @param string $hash_pwd  加密串
+ * @return bool
+ */
+function verify_password($pwd,$hash_pwd){
+    return password_verify($pwd,$hash_pwd);
+}
+
+
+/**
+ * 消息入队列
+ * @param array $msg_body  数据
+ * @param int $time  延迟生效时间
+ * @return bool
+ */
+function publish_message($msg_body,$time = 0){
+    $data = serialize($msg_body);
+    $config = config('ali.message_service');
+    $queue_name = $config['queue'][mt_rand(0,count($config['queue'])-1)];
+    $client = new \Aliyun\MNS\Client($config['end_point'],$config['access_key'],$config['access_secret']);
+    $queue = $client->getQueueRef($queue_name);
+    $now = time();
+    if ( ($time > 0) && ($time >  $now ) ){
+        $request = new \Aliyun\MNS\Requests\SendMessageRequest($data,$time - $now);
+    }else{
+        $request = new \Aliyun\MNS\Requests\SendMessageRequest($data);
+    }
+    try
+    {
+        $res = $queue->sendMessage($request);
+        return $res->getMessageId();
+    }
+    catch (Aliyun\MNS\Exception\MnsException $e)
+    {
+        // 4. 可能因为网络错误，或MessageBody过大等原因造成发送消息失败，这里CatchException并做对应的处理。
+        return false;
+    }
+}
+
+/**
+ * 安全显示手机号码
+ * @param string $mobile
+ * @return string
+ */
+function mobile_safe_display($mobile = '')
+{
+    return mb_substr($mobile,0,3) . str_repeat('*',5) . mb_substr($mobile,strlen($mobile)-3);
+}
+
+/**
+ * 安全显示真实姓名
+ * @param string $real_name
+ * @return string
+ */
+function real_name_safe_display($real_name = '')
+{
+    $len = mb_strlen($real_name);
+    if (!$len) return $real_name;
+    $first = mb_substr($real_name,0,1);
+    return $first . str_repeat('*',mb_strlen($real_name) - 1);
+}
+
+/**
+ * 安全显示邮箱
+ * @param string $email
+ * @return string
+ */
+function email_safe_display($email = '' )
+{
+    $rs = explode('@',$email);
+    $str = $rs[0];
+    $len = mb_strlen($str);
+    if($len < 3 ) return $email;
+    return mb_substr($str,0,2).str_repeat('*',$len - 2) . '@'.$rs[1];
+}
+
+/**
+ * 特殊字符反转义
+ * @param string $value
+ * @return string
+ */
+function special_chars_decode($value)
+{
+    return htmlspecialchars_decode($value);
+}

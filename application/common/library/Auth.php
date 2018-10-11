@@ -164,7 +164,6 @@ class Auth
         ];
         $params = array_merge($data, [
             'nickname'  => $username,
-            'salt'      => Random::alnum(),
             'jointime'  => $time,
             'joinip'    => $ip,
             'logintime' => $time,
@@ -172,7 +171,7 @@ class Auth
             'prevtime'  => $time,
             'status'    => 'normal'
         ]);
-        $params['password'] = $this->getEncryptPassword($password, $params['salt']);
+        $params['password'] = self::createPassword($password);
         $params = array_merge($params, $extend);
 
         ////////////////同步到Ucenter////////////////
@@ -241,7 +240,8 @@ class Auth
             $this->setError('Account is locked');
             return FALSE;
         }
-        if ($user->password != $this->getEncryptPassword($password, $user->salt))
+
+        if (!self::verifyPassword($password, $user->password))
         {
             $this->setError('Password is incorrect');
             return FALSE;
@@ -289,11 +289,10 @@ class Auth
             return false;
         }
         //判断旧密码是否正确
-        if ($this->_user->password == $this->getEncryptPassword($oldpassword, $this->_user->salt) || $ignoreoldpassword)
+        if (self::verifyPassword($oldpassword, $this->_user->password) || $ignoreoldpassword)
         {
-            $salt = Random::alnum();
-            $newpassword = $this->getEncryptPassword($newpassword, $salt);
-            $this->_user->save(['password' => $newpassword, 'salt' => $salt]);
+            $newpassword = self::createPassword($newpassword);
+            $this->_user->save(['password' => $newpassword]);
 
             Token::delete($this->_token);
             //修改密码成功的事件
@@ -526,6 +525,24 @@ class Auth
         return md5(md5($password) . $salt);
     }
 
+    /**
+     * 创建密码
+     * @param $password
+     * @return bool|string
+     */
+    public static function createPassword($password){
+        return  password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    /**
+     * 验证密码
+     * @param $password
+     * @param $hash_password
+     * @return bool
+     */
+    public static function verifyPassword($password, $hash_password){
+        return password_verify($password, $hash_password);
+    }
     /**
      * 检测当前控制器和方法是否匹配传递的数组
      *

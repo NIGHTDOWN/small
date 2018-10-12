@@ -56,8 +56,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             field: 'operate',
                             title: __('Operate'),
                             table: table,
-                            events: Table.api.events.operate,
-                             buttons: [
+                            buttons: [
                                 {
                                     name: 'set_category',
                                     title: __('设置分类'),
@@ -83,9 +82,75 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     text: __('增加点赞数'),
                                     classname: 'btn btn-xs btn-primary btn-dialog',
                                     url: 'video/video/add_like_total'
+                                },
+                                {
+                                    name: 'set_title',
+                                    title: __('视频标题'),
+                                    text: __('视频标题'),
+                                    classname: 'btn btn-xs btn-primary btn-dialog',
+                                    url: 'video/video/set_title'
+                                },
+                                {
+                                    name: 'edit_cover_img',
+                                    title: __('编辑封面'),
+                                    text: __('编辑封面'),
+                                    classname: 'btn btn-xs btn-primary btn-dialog',
+                                    url: 'video/video/edit_cover_img'
+                                },
+                                {
+                                    name: 'play',
+                                    title: __('查看视频'),
+                                    classname: 'btn btn-xs btn-primary btn-dialog',
+                                    icon: 'fa fa-play',
+                                    url: 'video/video/play'
+                                },
+                                {
+                                    name: 'show',
+                                    title: __('上架'),
+                                    text: __('上架'),
+                                    classname: 'btn btn-xs btn-warning btn-show',
+                                    hidden: function(row) {
+                                        if (row.status != '1') {
+                                            return true;
+                                        }
+                                    }
+                                },
+                                {
+                                    name: 'hide',
+                                    title: __('下架'),
+                                    text: __('下架'),
+                                    classname: 'btn btn-xs btn-warning btn-hide',
+                                    hidden: function(row) {
+                                        if (row.status != '0') {
+                                            return true;
+                                        }
+                                    }
+                                },
+                                {
+                                    name: 'host',
+                                    title: __('推荐'),
+                                    text: __('推荐'),
+                                    classname: 'btn btn-xs btn-warning btn-set_host',
+                                    hidden: function(row) {
+                                        if (row.status != '1' || row.recommend > '0') {
+                                            return true;
+                                        }
+                                    }
+                                },
+                                {
+                                    name: 'unhost',
+                                    title: __('取消推荐'),
+                                    text: __('取消推荐'),
+                                    classname: 'btn btn-xs btn-warning btn-unhost',
+                                    hidden: function(row) {
+                                        if (row.status != '1' || row.recommend == '0') {
+                                            return true;
+                                        }
+                                    }
                                 }
                             ],
-                            formatter: Table.api.formatter.operate
+                            events: Controller.api.events.operate,
+                            formatter: Controller.api.formatter.operate
                         }
                     ]
                 ]
@@ -111,9 +176,147 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         add_like_total: function () {
             Controller.api.bindevent();
         },
+        set_title: function () {
+            Controller.api.bindevent();
+        },
+        play: function () {
+            Controller.api.bindevent();
+        },
+        edit_cover_img: function () {
+            Controller.api.bindevent();
+        },
         api: {
             bindevent: function () {
                 Form.api.bindevent($("form[role=form]"));
+            },
+            events: {
+                operate: {
+                    'click .btn-delone': function (e, value, row, index) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        var that = this;
+                        var top = $(that).offset().top - $(window).scrollTop();
+                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
+                        if (top + 154 > $(window).height()) {
+                            top = top - 154;
+                        }
+                        if ($(window).width() < 480) {
+                            top = left = undefined;
+                        }
+                        Layer.confirm(
+                            __('Are you sure you want to delete this item?'),
+                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            function (index) {
+                                var table = $(that).closest('table');
+                                var options = table.bootstrapTable('getOptions');
+                                Table.api.multi("del", row[options.pk], table, that);
+                                Layer.close(index);
+                            }
+                        );
+                    },
+                    // 上架
+                    'click .btn-show': function (e, value, row, index) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        var that = this;
+                        var top = $(that).offset().top - $(window).scrollTop();
+                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
+                        if (top + 154 > $(window).height()) {
+                            top = top - 154;
+                        }
+                        if ($(window).width() < 480) {
+                            top = left = undefined;
+                        }
+                        Layer.confirm(
+                            __('确定要上架吗?'),
+                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            function (index) {
+                                var table = $(that).closest('table');
+                                var options = table.bootstrapTable('getOptions');
+                                Fast.api.ajax({
+                                    url: 'video/video/show',
+                                    type: 'POST'
+                                }, function (data, result) {
+                                    Layer.close(index);
+                                }, function (data, result) {
+                                    Layer.close(index);
+                                })
+                            }
+                        );
+                    },
+                    // 下架
+                    'click .btn-hide': function (e, value, row, index) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        var that = this;
+                        var top = $(that).offset().top - $(window).scrollTop();
+                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
+                        if (top + 154 > $(window).height()) {
+                            top = top - 154;
+                        }
+                        if ($(window).width() < 480) {
+                            top = left = undefined;
+                        }
+                        Layer.confirm(
+                            __('确定要下架吗?'),
+                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            function (index) {
+                                var table = $(that).closest('table');
+                                var options = table.bootstrapTable('getOptions');
+                                Fast.api.ajax({
+                                    url: 'video/video/hide',
+                                    type: 'POST'
+                                }, function (data, result) {
+                                    Layer.close(index);
+                                }, function (data, result) {
+                                    Layer.close(index);
+                                })
+                            }
+                        );
+                    },
+                    // 推荐
+                    'click .btn-set_host': function (e, value, row, index) {
+                        Fast.api.ajax({
+                            url: 'video/video/host',
+                            type: 'POST'
+                        }, function (data, result) {
+                        }, function (data, result) {
+                        })
+                    },
+                    // 取消推荐
+                    'click .btn-unhost': function (e, value, row, index) {
+                        Fast.api.ajax({
+                            url: 'video/video/unhost',
+                            type: 'POST'
+                        }, function (data, result) {
+                        }, function (data, result) {
+                        })
+                    }
+                }
+            },
+            formatter: {
+                operate: function (value, row, index) {
+                    var table = this.table;
+                    // 操作配置
+                    var options = table ? table.bootstrapTable('getOptions') : {};
+                    // 默认按钮组
+                    var buttons = $.extend([], this.buttons || []);
+                    // 所有按钮名称
+                    var names = [];
+                    buttons.forEach(function (item) {
+                        names.push(item.name);
+                    });
+                    if (options.extend.del_url !== '' && names.indexOf('del') === -1) {
+                        buttons.push({
+                            name: 'del',
+                            icon: 'fa fa-trash',
+                            title: __('Del'),
+                            extend: 'data-toggle="tooltip"',
+                            classname: 'btn btn-xs btn-danger btn-delone'
+                        });
+                    }
+                    return Table.api.buttonlink(this, buttons, value, row, index, 'operate');
+                }
             }
         }
     };

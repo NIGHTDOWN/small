@@ -157,4 +157,103 @@ class Video extends Backend
         }
     }
 
+    /**
+     * 添加点赞数
+     * 
+     * @param string $ids [description]
+     */
+    public function add_like_total($ids = "")
+    {
+        if ($ids) {
+            $row = Db::name('video')->where(['id' => $ids])->find();
+            if ($this->request->isPost()) {
+                $params = $this->request->post("number");
+                $this->success();
+            }
+
+            $this->view->assign("row", $row);
+            return $this->view->fetch();
+        }
+    }
+
+    /**
+     * 设置标题
+     * 
+     * @param string $ids [description]
+     */
+    public function set_title($ids = "")
+    {
+        if ($ids) {
+            $row = Db::name('video')->where(['id' => $ids])->find();
+            if ($this->request->isPost()) {
+                $params = $this->request->post("title");
+                $this->success();
+            }
+
+            $this->view->assign("row", $row);
+            return $this->view->fetch();
+        }
+    }
+
+    /**
+     * 查看视频
+     * 
+     * @param  string $ids [description]
+     * @return [type]      [description]
+     */
+    public function play($ids = "")
+    {
+        if ($ids) {
+            $row = Db::name('video')->where(['id' => $ids])->find();
+            if (!$row) {
+                $this->error('视频Id错误');
+            }
+
+            // $play_url=$qiniuConfig['public_video_bkt_protocol'].'://'.$qiniuConfig['public_video_bkt_domain'].'/'.$key;
+            
+            $play_url = 'https://videopub.actuive.com/' . $row['key'];
+            $this->view->assign("play_url", $play_url);
+            return $this->view->fetch();
+        }
+    }
+
+    /**
+     * 上架
+     * 
+     * @return [type] [description]
+     */
+    public function show()
+    {
+        $this->error();
+    }
+
+    /**
+     * 下架
+     * 
+     * @return [type] [description]
+     */
+    public function hide()
+    {
+        $this->success();
+    }
+
+    public function host()
+    {
+        $this->success();
+    }
+
+    public function unhost()
+    {
+        $this->success();
+    }
+
+    public function edit_cover_img($ids = '')
+    {
+        if ($ids) {
+            if ($this->request->isPost()) {
+                $this->success();
+            }
+            return $this->view->fetch();
+        }
+    }
 }

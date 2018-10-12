@@ -5,6 +5,7 @@ return [
     'User_id'  =>  '用户ID',
     'Key'  =>  '对应文件key',
     'Hash'  =>  '文件hash值',
+    'category_text' => '分类',
     'Category_id'  =>  '分类ID',
     'Original_bit_rate'  =>  '原视频码率',
     'Direction'  =>  '拍摄方向',

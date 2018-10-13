@@ -6,10 +6,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.init({
                 extend: {
                     index_url: 'video/video/index',
-                    add_url: 'video/video/add',
-                    edit_url: 'video/video/edit',
+                    // add_url: 'video/video/add',
+                    // edit_url: 'video/video/edit',
                     del_url: 'video/video/del',
-                    multi_url: 'video/video/multi',
+                    // multi_url: 'video/video/multi',
+                    // aaa_bbb: 'video/video/aaaBbb',
                     table: 'video',
                 }
             });
@@ -27,29 +28,29 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true},
                         {field: 'id', title: __('Id')},
                         {field: 'title', title: __('Title')},
-                        {field: 'user_id', title: __('User_id'), operate: false},
-                        {field: 'category_text', title: __('category_text'), operate: false, },
+                        {field: 'user.nickname', title: __('User_id'), operate: false},
+                        {field: 'category_text', title: __('category_text'), operate: false},
                         {field: 'category_id', title: __('Category_id'), visible: false},
                         {field: 'user_view_total', title: __('User_view_total'), operate: false},
                         {field: 'user_like_total', title: __('User_like_total'), operate: false},
                         {field: 'user_comment_total', title: __('User_comment_total'), operate: false},
                         {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
-                        {field: 'update_time', title: __('Update_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: 'RANGE'},
+                        {field: 'update_time', title: __('Update_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
+                        {field: 'process_done_time', title: __('时间'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: 'RANGE', visible: false},
                         {field: 'status_text', title: __('Status'), operate: false},
                         {
                             field: 'status',
                             title: __('Status'), 
-                            searchList: 
-                                {
-                                    '-1': __('删除'),
-                                    '0': __('未发布'),
-                                    '1': __('已发布'),
-                                    '2': __('机器审核未通过'),
-                                    '3': __('违规'),
-                                    '8': __('机器审核通过'),
-                                    '9': __('审核不通过'),
-                                    '10': __('草稿')
-                                },
+                            searchList: {
+                                '-1': __('删除'),
+                                '0': __('未发布'),
+                                '1': __('已发布'),
+                                '2': __('机器审核未通过'),
+                                '3': __('违规'),
+                                '8': __('机器审核通过'),
+                                '9': __('审核不通过'),
+                                '10': __('草稿')
+                            },
                             visible: false
                         },
                         {
@@ -133,17 +134,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     classname: 'btn btn-xs btn-warning btn-set_host',
                                     hidden: function(row) {
                                         if (row.status != '1' || row.recommend > '0') {
-                                            return true;
-                                        }
-                                    }
-                                },
-                                {
-                                    name: 'unhost',
-                                    title: __('取消推荐'),
-                                    text: __('取消推荐'),
-                                    classname: 'btn btn-xs btn-warning btn-unhost',
-                                    hidden: function(row) {
-                                        if (row.status != '1' || row.recommend == '0') {
                                             return true;
                                         }
                                     }
@@ -232,10 +222,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
                             function (index) {
                                 var table = $(that).closest('table');
-                                var options = table.bootstrapTable('getOptions');
                                 Fast.api.ajax({
                                     url: 'video/video/show',
-                                    type: 'POST'
+                                    type: 'POST',
+                                    data: {
+                                        id: row.id
+                                    }
                                 }, function (data, result) {
                                     Layer.close(index);
                                 }, function (data, result) {

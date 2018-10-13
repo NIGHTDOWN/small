@@ -11,5 +11,5 @@ return [
     'Full_parent_ids'  =>  '父评论id集合',
     'Is_robot'  =>  '是否机器人',
     'Like_total'  =>  '点赞总数',
-    'Status'  =>  '状态 0 隐藏 1 显示'
+    'Status'  =>  '状态'
 ];

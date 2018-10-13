@@ -51,18 +51,22 @@ class Video extends Backend
                 ->count();
 
             $list = $this->model
+                ->with('user')
                 ->where($where)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
 
-            $list = collection($list)->toArray();
+
+            
             $categoryList = Db::name('category')->where(['status' => 1])->column('name', 'id');
             
             foreach ($list as $key => $value) {
                 $list[$key]['status_text'] = $this->model::STATUSTEXT[$value['status']];
                 $list[$key]['category_text'] = !isset($categoryList[$value['category_id']]) ? '' : $categoryList[$value['category_id']];
             }
+
+            $list = collection($list)->toArray();
             $result = array("total" => $total, "rows" => $list);
 
             return json($result);
@@ -144,7 +148,7 @@ class Video extends Backend
             $row = Db::name('video')->where(['id' => $ids])->find();
             if ($this->request->isPost()) {
                 $params = $this->request->post("row/a");
-                $result = $this->model->check_video($row['id'], $params['stauts'], $params['remark']);
+                $result = $this->model->checkVideo($row['id'], $params['stauts'], $params['remark']);
                 if ($result) {
                     $this->success();
                 } else {
@@ -196,7 +200,7 @@ class Video extends Backend
     }
 
     /**
-     * 查看视频
+     * 播放视频
      * 
      * @param  string $ids [description]
      * @return [type]      [description]
@@ -255,5 +259,10 @@ class Video extends Backend
             }
             return $this->view->fetch();
         }
+    }
+
+    public function aaa_bbb()
+    {
+        return $this->view->fetch();
     }
 }

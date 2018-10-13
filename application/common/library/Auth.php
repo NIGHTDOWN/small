@@ -5,6 +5,7 @@ namespace app\common\library;
 use app\common\model\User;
 use app\common\model\UserRule;
 use fast\Random;
+use think\Cache;
 use think\Config;
 use think\Db;
 use think\Hook;
@@ -18,6 +19,7 @@ class Auth
     protected $_error = '';
     protected $_logined = FALSE;
     protected $_user = NULL;
+    protected $_userid = 0;
     protected $_token = '';
     //Token默认有效时长
     protected $keeptime = 2592000;
@@ -26,7 +28,9 @@ class Auth
     //默认配置
     protected $config = [];
     protected $options = [];
-    protected $allowFields = ['id', 'username', 'nickname', 'mobile', 'avatar', 'score'];
+    protected $allowFields = ['id', 'username', 'nickname', 'mobile', 'avatar', 'score', 'status'];
+    protected static $userinfo_prefix = 'ui';
+    protected static $userinfo_keeptime = 86400;
 
     public function __construct($options = [])
     {
@@ -52,23 +56,33 @@ class Auth
         return self::$instance;
     }
 
+    public function initUserData()
+    {
+        if($this->_userid && !$this->_user)
+        {
+            $this->_user = User::get($this->_userid);
+        }
+    }
+
     /**
      * 获取User模型
      * @return User
      */
     public function getUser()
     {
+        $this->initUserData();
         return $this->_user;
     }
 
     /**
      * 兼容调用user模型的属性
-     * 
+     *
      * @param string $name
      * @return mixed
      */
     public function __get($name)
     {
+        $this->initUserData();
         return $this->_user ? $this->_user->$name : NULL;
     }
 
@@ -94,7 +108,9 @@ class Auth
         $user_id = intval($data['user_id']);
         if ($user_id > 0)
         {
-            $user = User::get($user_id);
+            $this->_userid = $user_id;
+            $user = $this->getUserinfo();
+//            $user = User::get($user_id);
             if (!$user)
             {
                 $this->setError('Account not exist');
@@ -105,12 +121,12 @@ class Auth
                 $this->setError('Account is locked');
                 return FALSE;
             }
-            $this->_user = $user;
+//            $this->_user = $user;
             $this->_logined = TRUE;
             $this->_token = $token;
 
             //初始化成功的事件
-            Hook::listen("user_init_successed", $this->_user);
+            Hook::listen("user_init_successed", $this->_userid);
 
             return TRUE;
         }
@@ -255,7 +271,7 @@ class Auth
 
     /**
      * 注销
-     * 
+     *
      * @return boolean
      */
     public function logout()
@@ -270,7 +286,7 @@ class Auth
         //删除Token
         Token::delete($this->_token);
         //注销成功的事件
-        Hook::listen("user_logout_successed", $this->_user);
+        Hook::listen("user_logout_successed", $this->_userid);
         return TRUE;
     }
 
@@ -289,6 +305,7 @@ class Auth
             return false;
         }
         //判断旧密码是否正确
+        $this->initUserData();
         if (self::verifyPassword($oldpassword, $this->_user->password) || $ignoreoldpassword)
         {
             $newpassword = self::createPassword($newpassword);
@@ -347,6 +364,7 @@ class Auth
             $user->save();
 
             $this->_user = $user;
+            $this->_userid = $user->id;
 
             $this->_token = Random::uuid();
             Token::set($this->_token, $user->id, $this->keeptime);
@@ -412,11 +430,34 @@ class Auth
      */
     public function getUserinfo()
     {
-        $data = $this->_user->toArray();
-        $allowFields = $this->getAllowFields();
-        $userinfo = array_intersect_key($data, array_flip($allowFields));
-        $userinfo = array_merge($userinfo, Token::get($this->_token));
+        $userinfo = array_merge($this->getUserinfoCache($this->_userid), Token::get($this->_token));
         return $userinfo;
+    }
+
+    public function getUserinfoCache($user_id)
+    {
+        $userinfo = [];
+        if($user_id)
+        {
+            $redis = Cache::store("redis")->handler();
+            $userinfo = $redis->get(self::getUserinfoKey($user_id));
+            if(!$userinfo)
+            {
+                $this->initUserData();
+                $data = $this->_user->toArray();
+                $allowFields = $this->getAllowFields();
+                $userinfo = array_intersect_key($data, array_flip($allowFields));
+                $redis->setex(self::getUserinfoKey($user_id), self::$userinfo_keeptime, json_encode($userinfo));
+            }else{
+                $userinfo = json_decode($userinfo, true);
+            }
+        }
+        return $userinfo;
+    }
+
+    public static function getUserinfoKey($user_id)
+    {
+        return self::$userinfo_prefix . ':' . $user_id;
     }
 
     /**
@@ -427,6 +468,7 @@ class Auth
     {
         if ($this->rules)
             return $this->rules;
+        $this->initUserData();
         $group = $this->_user->group;
         if (!$group)
         {

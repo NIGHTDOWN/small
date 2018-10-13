@@ -54,7 +54,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             table: table, 
                             buttons: [
                                 {
-                                    name: 'ajax',
+                                    name: 'hide',
                                     text: __('隐藏'),
                                     title: __('隐藏'),
                                     classname: 'btn btn-xs btn-danger btn-hide',
@@ -65,7 +65,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     },
                                 },
                                 {
-                                    name: 'ajax',
+                                    name: 'show',
                                     text: __('显示'),
                                     title: __('显示'),
                                     classname: 'btn btn-xs btn-success btn-show',
@@ -102,20 +102,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             events: {
                 operate: {
                     'click .btn-delone': function (e, value, row, index) {
-                        e.stopPropagation();
-                        e.preventDefault();
                         var that = this;
-                        var top = $(that).offset().top - $(window).scrollTop();
-                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
-                        if (top + 154 > $(window).height()) {
-                            top = top - 154;
-                        }
-                        if ($(window).width() < 480) {
-                            top = left = undefined;
-                        }
                         Layer.confirm(
                             __('Are you sure you want to delete this item?'),
-                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(that), shadeClose: true},
                             function (index) {
                                 var table = $(that).closest('table');
                                 var options = table.bootstrapTable('getOptions');
@@ -127,54 +117,26 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     // 隐藏
                     'click .btn-hide': function (e, value, row, index) {
                         layer.prompt(
-                            {title: '请填写备注信息'}, 
+                            {icon: 3, title: '请填写备注信息', offset: Controller.api.method.windowSize(this), shadeClose: true}, 
                             function (text, index) {
-                                Fast.api.ajax({
-                                    url: 'video/comment/hide',
-                                    type: 'POST',
-                                    data: {
+                                Controller.api.method.sendAjax(
+                                    index,
+                                    'video/comment/hide',
+                                    {
                                         replace_comment: text,
                                         id: row.video_comment.id
                                     }
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                    $('.btn-refresh').trigger('click');
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                })
+                                );
                             }
                         );
                     },
                     // 显示
                     'click .btn-show': function (e, value, row, index) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var that = this;
-                        var top = $(that).offset().top - $(window).scrollTop();
-                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
-                        if (top + 154 > $(window).height()) {
-                            top = top - 154;
-                        }
-                        if ($(window).width() < 480) {
-                            top = left = undefined;
-                        }
                         Layer.confirm(
                             __('确定要显示吗?'),
-                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
                             function (index) {
-                                var table = $(that).closest('table');
-                                Fast.api.ajax({
-                                    url: 'video/comment/show',
-                                    type: 'POST',
-                                    data: {
-                                        id: row.video_comment.id
-                                    }
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                    $('.btn-refresh').trigger('click');
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                })
+                                Controller.api.method.sendAjax(index, 'video/comment/show', {id: row.video_comment.id});
                             }
                         );
                     }
@@ -187,21 +149,32 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     var options = table ? table.bootstrapTable('getOptions') : {};
                     // 默认按钮组
                     var buttons = $.extend([], this.buttons || []);
-                    // 所有按钮名称
-                    var names = [];
-                    buttons.forEach(function (item) {
-                        names.push(item.name);
-                    });
-                    if (options.extend.del_url !== '' && names.indexOf('del') === -1) {
-                        buttons.push({
-                            name: 'del',
-                            icon: 'fa fa-trash',
-                            title: __('Del'),
-                            extend: 'data-toggle="tooltip"',
-                            classname: 'btn btn-xs btn-danger btn-delone'
-                        });
-                    }
                     return Table.api.buttonlink(this, buttons, value, row, index, 'operate');
+                }
+            },
+            method: {
+                windowSize: function (obj) {
+                    var top = $(obj).offset().top - $(window).scrollTop();
+                    var left = $(obj).offset().left - $(window).scrollLeft() - 260;
+                    if (top + 154 > $(window).height()) {
+                        top = top - 154;
+                    }
+                    if ($(window).width() < 480) {
+                        top = left = undefined;
+                    }
+                    return [top, left];
+                },
+                sendAjax: function (index, url, data = {}) {
+                    Fast.api.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: data
+                    }, function (data, result) {
+                        Layer.close(index);
+                        $('.btn-refresh').trigger('click');
+                    }, function (data, result) {
+                        Layer.close(index);
+                    })
                 }
             }
         }

@@ -95,20 +95,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             events: {
                 operate: {
                     'click .btn-delone': function (e, value, row, index) {
-                        e.stopPropagation();
-                        e.preventDefault();
                         var that = this;
-                        var top = $(that).offset().top - $(window).scrollTop();
-                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
-                        if (top + 154 > $(window).height()) {
-                            top = top - 154;
-                        }
-                        if ($(window).width() < 480) {
-                            top = left = undefined;
-                        }
                         Layer.confirm(
                             __('Are you sure you want to delete this item?'),
-                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(that), shadeClose: true},
                             function (index) {
                                 var table = $(that).closest('table');
                                 var options = table.bootstrapTable('getOptions');
@@ -119,33 +109,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     },
                     // 取消推荐
                     'click .btn-unhost': function (e, value, row, index) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var that = this;
-                        var top = $(that).offset().top - $(window).scrollTop();
-                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
-                        if (top + 154 > $(window).height()) {
-                            top = top - 154;
-                        }
-                        if ($(window).width() < 480) {
-                            top = left = undefined;
-                        }
                         Layer.confirm(
                             __('确定要取消推荐吗?'),
-                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
                             function (index) {
-                                var table = $(that).closest('table');
-                                Fast.api.ajax({
-                                    url: 'video/video/hide',
-                                    type: 'POST',
-                                    data: {
-                                        id: row.video_id
-                                    }
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                })
+                                Controller.api.method.sendAjax(index, 'video/video/hide', {id: row.video_id});
                             }
                         );
                     },
@@ -160,19 +128,32 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     var buttons = $.extend([], this.buttons || []);
                     // 所有按钮名称
                     var names = [];
-                    buttons.forEach(function (item) {
-                        names.push(item.name);
-                    });
-                    if (options.extend.del_url !== '' && names.indexOf('del') === -1) {
-                        buttons.push({
-                            name: 'del',
-                            icon: 'fa fa-trash',
-                            title: __('Del'),
-                            extend: 'data-toggle="tooltip"',
-                            classname: 'btn btn-xs btn-danger btn-delone'
-                        });
-                    }
                     return Table.api.buttonlink(this, buttons, value, row, index, 'operate');
+                }
+            },
+            method: {
+                windowSize: function (obj) {
+                    var top = $(obj).offset().top - $(window).scrollTop();
+                    var left = $(obj).offset().left - $(window).scrollLeft() - 260;
+                    if (top + 154 > $(window).height()) {
+                        top = top - 154;
+                    }
+                    if ($(window).width() < 480) {
+                        top = left = undefined;
+                    }
+                    return [top, left];
+                },
+                sendAjax: function (index, url, data = {}) {
+                    Fast.api.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: data
+                    }, function (data, result) {
+                        Layer.close(index);
+                        $('.btn-refresh').trigger('click');
+                    }, function (data, result) {
+                        Layer.close(index);
+                    })
                 }
             }
         }

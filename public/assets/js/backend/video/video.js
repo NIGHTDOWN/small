@@ -10,7 +10,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     // edit_url: 'video/video/edit',
                     del_url: 'video/video/del',
                     // multi_url: 'video/video/multi',
-                    // aaa_bbb: 'video/video/aaaBbb',
                     table: 'video',
                 }
             });
@@ -182,20 +181,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             events: {
                 operate: {
                     'click .btn-delone': function (e, value, row, index) {
-                        e.stopPropagation();
-                        e.preventDefault();
                         var that = this;
-                        var top = $(that).offset().top - $(window).scrollTop();
-                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
-                        if (top + 154 > $(window).height()) {
-                            top = top - 154;
-                        }
-                        if ($(window).width() < 480) {
-                            top = left = undefined;
-                        }
                         Layer.confirm(
                             __('Are you sure you want to delete this item?'),
-                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(that), shadeClose: true},
                             function (index) {
                                 var table = $(that).closest('table');
                                 var options = table.bootstrapTable('getOptions');
@@ -206,83 +195,43 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     },
                     // 上架
                     'click .btn-show': function (e, value, row, index) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var that = this;
-                        var top = $(that).offset().top - $(window).scrollTop();
-                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
-                        if (top + 154 > $(window).height()) {
-                            top = top - 154;
-                        }
-                        if ($(window).width() < 480) {
-                            top = left = undefined;
-                        }
                         Layer.confirm(
                             __('确定要上架吗?'),
-                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
                             function (index) {
-                                var table = $(that).closest('table');
-                                Fast.api.ajax({
-                                    url: 'video/video/show',
-                                    type: 'POST',
-                                    data: {
-                                        id: row.id
-                                    }
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                })
+                                Controller.api.method.sendAjax(index, 'video/video/show', {id: row.id});
                             }
                         );
                     },
                     // 下架
                     'click .btn-hide': function (e, value, row, index) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var that = this;
-                        var top = $(that).offset().top - $(window).scrollTop();
-                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
-                        if (top + 154 > $(window).height()) {
-                            top = top - 154;
-                        }
-                        if ($(window).width() < 480) {
-                            top = left = undefined;
-                        }
                         Layer.confirm(
                             __('确定要下架吗?'),
-                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
                             function (index) {
-                                var table = $(that).closest('table');
-                                var options = table.bootstrapTable('getOptions');
-                                Fast.api.ajax({
-                                    url: 'video/video/hide',
-                                    type: 'POST'
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                })
+                                Controller.api.method.sendAjax(index, 'video/video/hide');
                             }
                         );
                     },
                     // 推荐
                     'click .btn-set_host': function (e, value, row, index) {
-                        Fast.api.ajax({
-                            url: 'video/video/host',
-                            type: 'POST'
-                        }, function (data, result) {
-                        }, function (data, result) {
-                        })
+                        Layer.confirm(
+                            __('确定要推荐吗?'),
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
+                            function (index) {
+                                Controller.api.method.sendAjax(index, 'video/video/host');
+                            }
+                        );
                     },
                     // 取消推荐
                     'click .btn-unhost': function (e, value, row, index) {
-                        Fast.api.ajax({
-                            url: 'video/video/unhost',
-                            type: 'POST'
-                        }, function (data, result) {
-                        }, function (data, result) {
-                        })
+                        Layer.confirm(
+                             __('确定要取消推荐吗?'),
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
+                            function (index) {
+                                Controller.api.method.sendAjax(index, 'video/video/unhost');
+                            }
+                        );
                     }
                 }
             },
@@ -308,6 +257,31 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         });
                     }
                     return Table.api.buttonlink(this, buttons, value, row, index, 'operate');
+                }
+            },
+            method: {
+                windowSize: function (obj) {
+                    var top = $(obj).offset().top - $(window).scrollTop();
+                    var left = $(obj).offset().left - $(window).scrollLeft() - 260;
+                    if (top + 154 > $(window).height()) {
+                        top = top - 154;
+                    }
+                    if ($(window).width() < 480) {
+                        top = left = undefined;
+                    }
+                    return [top, left];
+                },
+                sendAjax: function (index, url, data = {}) {
+                    Fast.api.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: data
+                    }, function (data, result) {
+                        Layer.close(index);
+                        $('.btn-refresh').trigger('click');
+                    }, function (data, result) {
+                        Layer.close(index);
+                    })
                 }
             }
         }

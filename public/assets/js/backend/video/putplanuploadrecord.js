@@ -6,10 +6,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.init({
                 extend: {
                     index_url: 'video/putplanuploadrecord/index',
-                    add_url: 'video/putplanuploadrecord/add',
-                    edit_url: 'video/putplanuploadrecord/edit',
-                    del_url: 'video/putplanuploadrecord/del',
-                    multi_url: 'video/putplanuploadrecord/multi',
                     table: 'video_put_plan_upload_record',
                 }
             });
@@ -18,6 +14,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             // 初始化表格
             table.bootstrapTable({
+                search: false,
+                showToggle: false,
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
@@ -26,11 +24,27 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true},
                         {field: 'id', title: __('Id')},
                         {field: 'file_name', title: __('File_name')},
-                        {field: 'file_key', title: __('File_key')},
-                        {field: 'file_md5', title: __('File_md5')},
+                        {field: 'error_info', title: __('Error_info'), operate: false},
                         {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        {field: 'status', title: __('Status')},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                        {
+                            field: 'status',
+                            title: __('Status'),
+                            formatter: function (data) {
+                                if (data == '0') {
+                                    return '待处理';
+                                } else if (data == '1') {
+                                    return '完成';
+                                } else {
+                                    return '错误';
+                                }
+                            },
+                            searchList: {
+                                '0' : __('待处理'),
+                                '1' : __('完成'),
+                                '2' : __('错误'),
+                            }
+                        },
+                        // {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]
             });
@@ -39,12 +53,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             // 为表格绑定事件
             Table.api.bindevent(table);
-        },
-        add: function () {
-            Controller.api.bindevent();
-        },
-        edit: function () {
-            Controller.api.bindevent();
         },
         api: {
             bindevent: function () {

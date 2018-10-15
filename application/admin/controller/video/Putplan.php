@@ -3,6 +3,7 @@
 namespace app\admin\controller\video;
 
 use app\common\controller\Backend;
+use think\Db;
 
 /**
  * 视频发布计划
@@ -31,5 +32,126 @@ class Putplan extends Backend
      * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
      */
     
+
+    /**
+     * 查看
+     */
+    public function index()
+    {
+        //设置过滤方法
+        $this->request->filter(['strip_tags']);
+        if ($this->request->isAjax()) {
+            //如果发送的来源是Selectpage，则转发到Selectpage
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            $total = $this->model
+                ->where($where)
+                ->order($sort, $order)
+                ->count();
+
+            $list = $this->model
+                ->where($where)
+                ->order($sort, $order)
+                ->limit($offset, $limit)
+                ->field(['id', 'title', 'status', 'plan_time', 'put_time', 'create_time'])
+                ->select();
+
+            $list = collection($list)->toArray();
+            $result = array("total" => $total, "rows" => $list);
+
+            return json($result);
+        }
+        return $this->view->fetch();
+    }
+    
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        $this->error(__('不能删除'));
+        // if ($ids) {
+            // $pk = $this->model->getPk();
+            // $adminIds = $this->getDataLimitAdminIds();
+            // if (is_array($adminIds)) {
+            //     $count = $this->model->where($this->dataLimitField, 'in', $adminIds);
+            // }
+            // $list = $this->model->where($pk, 'in', $ids)->select();
+            // $count = 0;
+            // foreach ($list as $k => $v) {
+            //     $count += $v->delete();
+            // }
+            // if ($count) {
+            //     $this->success();
+            // } else {
+            //     $this->error(__('No rows were deleted'));
+            // }
+        // }
+        // $this->error(__('Parameter %s can not be empty', 'ids'));
+    }
+
+    public function play($ids = '')
+    {
+        if ($ids) {
+            $info = Db::name('VideoPutPlan')->where(['id' => $ids])->find();
+            if (!$info) {
+                $this->error('ID错误');
+            }
+
+            $palyUrl = $this->model->getVideoPayUrl($info['key'], $info['status']);
+            $this->view->assign("palyUrl", $palyUrl);
+            return $this->view->fetch();
+        }
+    }
+
+    public function setParam()
+    {
+        return $this->view->fetch();
+    }
+
+    public function set_param()
+    {
+        if ($this->request->isPost()) {
+            $data = $this->request->only(['interval_time_min','interval_time_max','start_time']);
+            $ret = $this->model->setParam($data);
+            if ($ret) {
+                $this->success();
+            } else {
+                $this->error($this->model->getError());
+            }
+        }
+
+        return $this->view->fetch();
+    }
+
+    /**
+     * 批量开始
+     */
+    public function batch_start()
+    {
+        $ids = input('ids/a');
+        $ret = $this->model->batchStart($ids);
+        if ($ret) {
+            $this->success();
+        } else {
+            $this->error($this->model->getError());
+        }
+    }
+
+    /**
+     * 批量取消
+     */
+    public function batch_cancel()
+    {
+        $ids = input('ids/a');
+        $ret = $this->model->batchCancel($ids);
+        if ($ret) {
+            $this->success();
+        } else {
+            $this->error($this->model->getError());
+        }
+    }
 
 }

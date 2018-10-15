@@ -46,6 +46,7 @@ class Video extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
+                ->with('user')
                 ->where($where)
                 ->order($sort, $order)
                 ->count();
@@ -57,8 +58,6 @@ class Video extends Backend
                 ->limit($offset, $limit)
                 ->select();
 
-
-            
             $categoryList = Db::name('category')->where(['status' => 1])->column('name', 'id');
             
             foreach ($list as $key => $value) {
@@ -79,24 +78,6 @@ class Video extends Backend
      */
     public function del($ids = "")
     {
-        // if ($ids) {
-        //     $pk = $this->model->getPk();
-        //     $adminIds = $this->getDataLimitAdminIds();
-        //     if (is_array($adminIds)) {
-        //         $count = $this->model->where($this->dataLimitField, 'in', $adminIds);
-        //     }
-        //     $list = $this->model->where($pk, 'in', $ids)->select();
-        //     $count = 0;
-        //     foreach ($list as $k => $v) {
-        //         $count += $v->delete();
-        //     }
-        //     if ($count) {
-        //         $this->success();
-        //     } else {
-        //         $this->error(__('No rows were deleted'));
-        //     }
-        // }
-        // $this->error(__('Parameter %s can not be empty', 'ids'));
         $this->error(__('滚犊子吧，删什么删'));
     }
 
@@ -190,8 +171,17 @@ class Video extends Backend
         if ($ids) {
             $row = Db::name('video')->where(['id' => $ids])->find();
             if ($this->request->isPost()) {
-                $params = $this->request->post("title");
-                $this->success();
+                $title = $this->request->post("title");
+                $data = [
+                    'title' => $title,
+                    'video_id' => $row['id']
+                ];
+                $result = $this->model->editTitle($data);
+                if ($result) {
+                    $this->success();
+                } else {
+                    $this->error($this->model->getError());
+                }
             }
 
             $this->view->assign("row", $row);
@@ -212,10 +202,7 @@ class Video extends Backend
             if (!$row) {
                 $this->error('视频Id错误');
             }
-
-            // $play_url=$qiniuConfig['public_video_bkt_protocol'].'://'.$qiniuConfig['public_video_bkt_domain'].'/'.$key;
-            
-            $play_url = 'https://videopub.actuive.com/' . $row['key'];
+            $play_url = \app\admin\model\VideoPutPlan::getVideoPayUrl($row['key'], $row['status']);
             $this->view->assign("play_url", $play_url);
             return $this->view->fetch();
         }

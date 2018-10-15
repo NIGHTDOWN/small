@@ -3,6 +3,7 @@
 namespace app\admin\model;
 
 use think\Model;
+use app\common\model\User as UserCommonModel;
 
 class User extends Model
 {
@@ -12,13 +13,11 @@ class User extends Model
     // 自动写入时间戳字段
     protected $autoWriteTimestamp = 'int';
     // 定义时间戳字段名
-    protected $createTime = 'createtime';
-    protected $updateTime = 'updatetime';
+    protected $createTime = 'create_time';
+    protected $updateTime = 'update_time';
     // 追加属性
     protected $append = [
-        'prevtime_text',
-        'logintime_text',
-        'jointime_text'
+        'head_img_url',
     ];
 
     protected static function init()
@@ -46,42 +45,98 @@ class User extends Model
         return ['normal' => __('Normal'), 'hidden' => __('Hidden')];
     }
 
-    public function getPrevtimeTextAttr($value, $data)
+    public function getStatusTextAttr($value, $data)
     {
-        $value = $value ? $value : $data['prevtime'];
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+        $value = $value ? $value : $data['status'];
+        return UserCommonModel::getStatusText($value);
     }
 
-    public function getLogintimeTextAttr($value, $data)
+    public function getIsRobotTextAttr($value, $data)
     {
-        $value = $value ? $value : $data['logintime'];
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+        $value = $value ? $value : $data['is_robot'];
+        return $value?'是':'否';
     }
 
-    public function getJointimeTextAttr($value, $data)
+    public function getTypeTextAttr($value, $data)
     {
-        $value = $value ? $value : $data['jointime'];
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+        $value = $value ? $value : $data['type'];
+        return UserCommonModel::getTypeText($value);
     }
 
-    protected function setPrevtimeAttr($value)
+    public function getHeadImgUrlAttr($value, $data)
     {
-        return $value && !is_numeric($value) ? strtotime($value) : $value;
+        $value = $value ? $value : $data['head_img'];
+        return UserCommonModel::getHeadImgUrl($value);
     }
 
-    protected function setLogintimeAttr($value)
+    public function burse()
     {
-        return $value && !is_numeric($value) ? strtotime($value) : $value;
+        return $this->belongsTo('UserBurse', 'id', 'user_id', [], 'LEFT')->setEagerlyType(0);
     }
 
-    protected function setJointimeAttr($value)
+    /**
+     * 编辑
+     * @param array $data
+     * @return bool
+     */
+    public function edit($data)
     {
-        return $value && !is_numeric($value) ? strtotime($value) : $value;
+        $row=$this->where('id',$data['id'])->find();
+        //密码处理
+        if (isset($data['password'])){
+            if ($data['password']){
+                $data['password']=create_password($data['password']);
+            }else{
+                unset($data['password']);
+            }
+        }
+        //头像处理
+        if (isset($data['head_img'])){
+            if ($data['head_img']){
+                $old_head_img=$row->getAttr('head_img');
+                if ($old_head_img&&($data['head_img']!=$old_head_img)){
+                    UserCommonModel::deleteHeadImgFile($old_head_img);
+                }
+            }else{
+                unset($data['head_img']);
+            }
+        }
+        try{
+            $this->allowField(['nickname','head_img','password','mobile','type','status'])->update($data);
+            if ($data['status']==UserCommonModel::STATUS['normal']){
+                //更新用户缓存
+                UserCommonModel::updateUserCache($data['id'],['nickname'=>$data['nickname'],'head_img'=>$data['head_img'],'mobile'=>$data['mobile'],'type'=>$data['type']]);
+            }else{
+                //删除用户缓存
+                UserCommonModel::deleteUserCache($data['id']);
+            }
+            return true;
+        }catch (\Exception $e){
+            $this->error='失败';
+            return false;
+        }
     }
 
-    public function group()
+    /**
+     * 编辑vip
+     * @param int $id
+     * @param int $action 0取消 1设置
+     * @return bool
+     */
+    public function editVip($id,$action)
     {
-        return $this->belongsTo('UserGroup', 'group_id', 'id', [], 'LEFT')->setEagerlyType(0);
+        $data=[
+            'type'=>$action?UserCommonModel::TYPE['vip']:UserCommonModel::TYPE['normal']
+        ];
+        try{
+            $this->where('id','=',$id)->update($data);
+            //更新用户缓存
+            UserCommonModel::updateUserCache($id,$data);
+            return true;
+        }catch (\Exception $e){
+            $this->error='失败';
+            return false;
+        }
     }
 
 }

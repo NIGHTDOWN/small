@@ -457,3 +457,12 @@ function special_chars_decode($value)
 {
     return htmlspecialchars_decode($value);
 }
+
+/**
+ * 是否为手机号
+ * @param string $mobile
+ * @return bool
+ */
+function is_mobile($mobile){
+    return preg_match("/^[1][3-9][0-9]{9}$/",$mobile) ? true : false;
+}

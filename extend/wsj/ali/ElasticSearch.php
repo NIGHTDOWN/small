@@ -138,7 +138,7 @@ class ElasticSearch
      * 更新
      * @param $id
      * @param $data
-     * @return array|bool
+     * @return int|bool
      */
     public function update($id,$data)
     {

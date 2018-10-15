@@ -129,4 +129,22 @@ class User extends Backend
         }
     }
 
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        if ($ids) {
+            /** @var \app\admin\model\User $model */
+            $model=model('User');
+            $ret=$model->del($ids);
+            if ($ret) {
+                $this->success();
+            } else {
+                $this->error($model->getError());
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
+    }
+
 }

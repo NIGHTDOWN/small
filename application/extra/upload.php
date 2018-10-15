@@ -25,5 +25,5 @@ return [
     /**
      * 是否支持批量上传
      */
-    'multiple'  => false,
+    'multiple'  => false, 
 ];

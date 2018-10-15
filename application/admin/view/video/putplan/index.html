@@ -7,22 +7,17 @@
                 <div class="widget-body no-padding">
                     <div id="toolbar" class="toolbar">
                         <a href="javascript:;" class="btn btn-primary btn-refresh" title="{:__('Refresh')}" ><i class="fa fa-refresh"></i> </a>
-                        <a href="javascript:;" class="btn btn-success btn-add {:$auth->check('video/putplan/add')?'':'hide'}" title="{:__('Add')}" ><i class="fa fa-plus"></i> {:__('Add')}</a>
-                        <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled {:$auth->check('video/putplan/edit')?'':'hide'}" title="{:__('Edit')}" ><i class="fa fa-pencil"></i> {:__('Edit')}</a>
+                        <a href="javascript:;" class="btn btn-success btn-set_param {:$auth->check('video/putplan/set_param')?'':'hide'}" title="设置参数" ><i class="fa fa-cog"></i> 设置参数</a>
+                        <a href="javascript:;" class="btn btn-success btn-batch_start btn-disabled disabled {:$auth->check('video/putplan/batch_start')?'':'hide'}" title="批量开始" ><i class=""></i> 批量开始</a>
+                        <a href="javascript:;" class="btn btn-success btn-batch_cancel btn-disabled disabled {:$auth->check('video/putplan/batch_cancel')?'':'hide'}" title="批量取消" ><i class=""></i> 批量取消</a>
                         <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled {:$auth->check('video/putplan/del')?'':'hide'}" title="{:__('Delete')}" ><i class="fa fa-trash"></i> {:__('Delete')}</a>
-                        <a href="javascript:;" class="btn btn-danger btn-import {:$auth->check('video/putplan/import')?'':'hide'}" title="{:__('Import')}" id="btn-import-file" data-url="ajax/upload" data-mimetype="csv,xls,xlsx" data-multiple="false"><i class="fa fa-upload"></i> {:__('Import')}</a>
-
-                        <div class="dropdown btn-group {:$auth->check('video/putplan/multi')?'':'hide'}">
-                            <a class="btn btn-primary btn-more dropdown-toggle btn-disabled disabled" data-toggle="dropdown"><i class="fa fa-cog"></i> {:__('More')}</a>
-                            <ul class="dropdown-menu text-left" role="menu">
-                                <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="status=normal"><i class="fa fa-eye"></i> {:__('Set to normal')}</a></li>
-                                <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="status=hidden"><i class="fa fa-eye-slash"></i> {:__('Set to hidden')}</a></li>
-                            </ul>
-                        </div>
                     </div>
                     <table id="table" class="table table-striped table-bordered table-hover table-nowrap"
-                           data-operate-edit="{:$auth->check('video/putplan/edit')}" 
                            data-operate-del="{:$auth->check('video/putplan/del')}" 
+                           data-operate-play="{:$auth->check('video/putplan/play')}" 
+                           data-operate-set_param="{:$auth->check('video/putplan/set_param')}" 
+                           data-operate-set_param="{:$auth->check('video/putplan/batch_start')}" 
+                           data-operate-set_param="{:$auth->check('video/putplan/batch_cancel')}"  
                            width="100%">
                     </table>
                 </div>

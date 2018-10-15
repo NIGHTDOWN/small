@@ -80,6 +80,59 @@ class Video extends Model
         return $this->belongsTo('user', 'user_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
 
+    /**
+     * 获取视频播放地址
+     * @param $key
+     * @param $status
+     * @return string
+     */
+    public static function getVideoPayUrl($key, $status)
+    {
+        $pay_url='';
+        if ($key) {
+            if ($status===self::STATUS['PUT_SUCCESS']) {
+                $pay_url=config('qiniu.original_video_bkt_protocol').'://'.config('qiniu.original_video_bkt_domain').'/'.$key;
+            } else {
+                $pay_url=self::getRemoteVideoProtocol().'://'.self::getRemoteVideoDomain().'/'.$key;
+            }
+        }
+        return $pay_url;
+    }
+
+    /**
+     * 编辑标题
+     * @param $data
+     * @return bool
+     */
+    public function editTitle($data)
+    {
+        //数据验证
+        if (!$data['video_id']) {
+            $this->error = '缺少视频id';
+            return false;
+        }
+        if (mb_strlen($data['title']) > 16) {
+            $this->error = '视频标题最长不超过16字';
+            return false;
+        }
+        //视频主表
+        $ret = $this
+            ->where('id', $data['video_id'])
+            ->update([
+                'title' => $data['title'],
+                'update_time' => time(),
+            ]);
+        if (!$ret) {
+            $this->error = '编辑失败';
+            return false;
+        }
+
+        //更新es
+        // $this->updateEs($data['video_id'],['title'=>$data['title']]);
+
+        return true;
+    }
+
     
     // public function getProcessDoneTimeTextAttr($value, $data)
     // {

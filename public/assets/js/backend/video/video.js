@@ -6,10 +6,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.init({
                 extend: {
                     index_url: 'video/video/index',
-                    add_url: 'video/video/add',
-                    edit_url: 'video/video/edit',
+                    // add_url: 'video/video/add',
+                    // edit_url: 'video/video/edit',
                     del_url: 'video/video/del',
-                    multi_url: 'video/video/multi',
+                    // multi_url: 'video/video/multi',
                     table: 'video',
                 }
             });
@@ -27,29 +27,29 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true},
                         {field: 'id', title: __('Id')},
                         {field: 'title', title: __('Title')},
-                        {field: 'user_id', title: __('User_id'), operate: false},
-                        {field: 'category_text', title: __('category_text'), operate: false, },
+                        {field: 'user.nickname', title: __('User_id'), operate: false},
+                        {field: 'category_text', title: __('category_text'), operate: false},
                         {field: 'category_id', title: __('Category_id'), visible: false},
                         {field: 'user_view_total', title: __('User_view_total'), operate: false},
                         {field: 'user_like_total', title: __('User_like_total'), operate: false},
                         {field: 'user_comment_total', title: __('User_comment_total'), operate: false},
                         {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
-                        {field: 'update_time', title: __('Update_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: 'RANGE'},
+                        {field: 'update_time', title: __('Update_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
+                        {field: 'process_done_time', title: __('时间'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: 'RANGE', visible: false},
                         {field: 'status_text', title: __('Status'), operate: false},
                         {
                             field: 'status',
                             title: __('Status'), 
-                            searchList: 
-                                {
-                                    '-1': __('删除'),
-                                    '0': __('未发布'),
-                                    '1': __('已发布'),
-                                    '2': __('机器审核未通过'),
-                                    '3': __('违规'),
-                                    '8': __('机器审核通过'),
-                                    '9': __('审核不通过'),
-                                    '10': __('草稿')
-                                },
+                            searchList: {
+                                '-1': __('删除'),
+                                '0': __('未发布'),
+                                '1': __('已发布'),
+                                '2': __('机器审核未通过'),
+                                '3': __('违规'),
+                                '8': __('机器审核通过'),
+                                '9': __('审核不通过'),
+                                '10': __('草稿')
+                            },
                             visible: false
                         },
                         {
@@ -136,17 +136,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                             return true;
                                         }
                                     }
-                                },
-                                {
-                                    name: 'unhost',
-                                    title: __('取消推荐'),
-                                    text: __('取消推荐'),
-                                    classname: 'btn btn-xs btn-warning btn-unhost',
-                                    hidden: function(row) {
-                                        if (row.status != '1' || row.recommend == '0') {
-                                            return true;
-                                        }
-                                    }
                                 }
                             ],
                             events: Controller.api.events.operate,
@@ -192,20 +181,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             events: {
                 operate: {
                     'click .btn-delone': function (e, value, row, index) {
-                        e.stopPropagation();
-                        e.preventDefault();
                         var that = this;
-                        var top = $(that).offset().top - $(window).scrollTop();
-                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
-                        if (top + 154 > $(window).height()) {
-                            top = top - 154;
-                        }
-                        if ($(window).width() < 480) {
-                            top = left = undefined;
-                        }
                         Layer.confirm(
                             __('Are you sure you want to delete this item?'),
-                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(that), shadeClose: true},
                             function (index) {
                                 var table = $(that).closest('table');
                                 var options = table.bootstrapTable('getOptions');
@@ -216,81 +195,43 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     },
                     // 上架
                     'click .btn-show': function (e, value, row, index) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var that = this;
-                        var top = $(that).offset().top - $(window).scrollTop();
-                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
-                        if (top + 154 > $(window).height()) {
-                            top = top - 154;
-                        }
-                        if ($(window).width() < 480) {
-                            top = left = undefined;
-                        }
                         Layer.confirm(
                             __('确定要上架吗?'),
-                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
                             function (index) {
-                                var table = $(that).closest('table');
-                                var options = table.bootstrapTable('getOptions');
-                                Fast.api.ajax({
-                                    url: 'video/video/show',
-                                    type: 'POST'
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                })
+                                Controller.api.method.sendAjax(index, 'video/video/show', {id: row.id});
                             }
                         );
                     },
                     // 下架
                     'click .btn-hide': function (e, value, row, index) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        var that = this;
-                        var top = $(that).offset().top - $(window).scrollTop();
-                        var left = $(that).offset().left - $(window).scrollLeft() - 260;
-                        if (top + 154 > $(window).height()) {
-                            top = top - 154;
-                        }
-                        if ($(window).width() < 480) {
-                            top = left = undefined;
-                        }
                         Layer.confirm(
                             __('确定要下架吗?'),
-                            {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
                             function (index) {
-                                var table = $(that).closest('table');
-                                var options = table.bootstrapTable('getOptions');
-                                Fast.api.ajax({
-                                    url: 'video/video/hide',
-                                    type: 'POST'
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                }, function (data, result) {
-                                    Layer.close(index);
-                                })
+                                Controller.api.method.sendAjax(index, 'video/video/hide');
                             }
                         );
                     },
                     // 推荐
                     'click .btn-set_host': function (e, value, row, index) {
-                        Fast.api.ajax({
-                            url: 'video/video/host',
-                            type: 'POST'
-                        }, function (data, result) {
-                        }, function (data, result) {
-                        })
+                        Layer.confirm(
+                            __('确定要推荐吗?'),
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
+                            function (index) {
+                                Controller.api.method.sendAjax(index, 'video/video/host');
+                            }
+                        );
                     },
                     // 取消推荐
                     'click .btn-unhost': function (e, value, row, index) {
-                        Fast.api.ajax({
-                            url: 'video/video/unhost',
-                            type: 'POST'
-                        }, function (data, result) {
-                        }, function (data, result) {
-                        })
+                        Layer.confirm(
+                             __('确定要取消推荐吗?'),
+                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
+                            function (index) {
+                                Controller.api.method.sendAjax(index, 'video/video/unhost');
+                            }
+                        );
                     }
                 }
             },
@@ -316,6 +257,31 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         });
                     }
                     return Table.api.buttonlink(this, buttons, value, row, index, 'operate');
+                }
+            },
+            method: {
+                windowSize: function (obj) {
+                    var top = $(obj).offset().top - $(window).scrollTop();
+                    var left = $(obj).offset().left - $(window).scrollLeft() - 260;
+                    if (top + 154 > $(window).height()) {
+                        top = top - 154;
+                    }
+                    if ($(window).width() < 480) {
+                        top = left = undefined;
+                    }
+                    return [top, left];
+                },
+                sendAjax: function (index, url, data = {}) {
+                    Fast.api.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: data
+                    }, function (data, result) {
+                        Layer.close(index);
+                        $('.btn-refresh').trigger('click');
+                    }, function (data, result) {
+                        Layer.close(index);
+                    })
                 }
             }
         }

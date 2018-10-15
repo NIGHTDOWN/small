@@ -18,9 +18,9 @@ class Video extends Model
     
     // 追加属性
     protected $append = [
-        'process_done_time_text',
-        'create_time_text',
-        'update_time_text'
+        // 'process_done_time_text',
+        // 'create_time_text',
+        // 'update_time_text'
     ];
 
     public static $status = [
@@ -51,8 +51,13 @@ class Video extends Model
         10 => '草稿',
     ];
 
-    
-    public function check_video($video_id, $status, $remark)
+    /**
+     * 审核视频
+     * 
+     * @param  string $ids [description]
+     * @return [type]      [description]
+     */
+    public function checkVideo($video_id, $status, $remark)
     {
         // 第三方相关操作没写
         $data = [
@@ -65,44 +70,50 @@ class Video extends Model
             $data['status'] = self::$status['CHECK_NO_PASS'];
         }
 
-        $this->where(['id' => $video_id])->save($date);
+        $this->where(['id' => $video_id])->save($data);
         return true;
     }
+
+    public function user()
+    {
+        return $this->belongsTo('user', 'user_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+
     
-    public function getProcessDoneTimeTextAttr($value, $data)
-    {
-        $value = $value ? $value : (isset($data['process_done_time']) ? $data['process_done_time'] : '');
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
-    }
+    // public function getProcessDoneTimeTextAttr($value, $data)
+    // {
+    //     $value = $value ? $value : (isset($data['process_done_time']) ? $data['process_done_time'] : '');
+    //     return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    // }
 
 
-    public function getCreateTimeTextAttr($value, $data)
-    {
-        $value = $value ? $value : (isset($data['create_time']) ? $data['create_time'] : '');
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
-    }
+    // public function getCreateTimeTextAttr($value, $data)
+    // {
+    //     $value = $value ? $value : (isset($data['create_time']) ? $data['create_time'] : '');
+    //     return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    // }
 
 
-    public function getUpdateTimeTextAttr($value, $data)
-    {
-        $value = $value ? $value : (isset($data['update_time']) ? $data['update_time'] : '');
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
-    }
+    // public function getUpdateTimeTextAttr($value, $data)
+    // {
+    //     $value = $value ? $value : (isset($data['update_time']) ? $data['update_time'] : '');
+    //     return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    // }
 
-    protected function setProcessDoneTimeAttr($value)
-    {
-        return $value && !is_numeric($value) ? strtotime($value) : $value;
-    }
+    // protected function setProcessDoneTimeAttr($value)
+    // {
+    //     return $value && !is_numeric($value) ? strtotime($value) : $value;
+    // }
 
-    protected function setCreateTimeAttr($value)
-    {
-        return $value && !is_numeric($value) ? strtotime($value) : $value;
-    }
+    // protected function setCreateTimeAttr($value)
+    // {
+    //     return $value && !is_numeric($value) ? strtotime($value) : $value;
+    // }
 
-    protected function setUpdateTimeAttr($value)
-    {
-        return $value && !is_numeric($value) ? strtotime($value) : $value;
-    }
+    // protected function setUpdateTimeAttr($value)
+    // {
+    //     return $value && !is_numeric($value) ? strtotime($value) : $value;
+    // }
 
 
 }

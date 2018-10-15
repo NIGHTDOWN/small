@@ -13,10 +13,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.init({
                 extend: {
                     index_url: 'user/user/index',
-                    add_url: 'user/user/add',
                     edit_url: 'user/user/edit',
                     del_url: 'user/user/del',
-                    multi_url: 'user/user/multi',
                     table: 'user',
                 }
             });
@@ -98,9 +96,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             // 为表格绑定事件
             Table.api.bindevent(table);
-        },
-        add: function () {
-            Controller.api.bindevent();
         },
         edit: function () {
             Controller.api.bindevent();

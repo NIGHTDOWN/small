@@ -4,6 +4,7 @@ namespace app\common\model;
 
 use think\Cache;
 use think\Model;
+use wsj\ali\ElasticSearch;
 use wsj\WQiniu;
 
 /**
@@ -150,6 +151,17 @@ class User Extends Model
     }
 
     /**
+     * 是否存在用户缓存
+     * @param $user_id
+     * @return bool
+     */
+    public static function existUserCache($user_id)
+    {
+        $cache_key=self::USER_CACHE_KEY_PRE.$user_id;
+        return Cache::has($cache_key);
+    }
+
+    /**
      * 删除用户缓存
      * @param $user_id
      * @return bool
@@ -158,5 +170,65 @@ class User Extends Model
     {
         $cache_key=self::USER_CACHE_KEY_PRE.$user_id;
         return Cache::rm($cache_key);
+    }
+
+    /**
+     * 增加es
+     * @param $user_id
+     * @param $nickname
+     * @return bool|int
+     */
+    public static function addEs($user_id,$nickname)
+    {
+        $data=[
+            'id'=>$user_id,
+            'nickname'=>$nickname,
+        ];
+        $elastic_search = new ElasticSearch();
+        return $elastic_search->name('user')->insert($data);
+    }
+
+    /**
+     * 更新es
+     * @param $user_id
+     * @param $data
+     * @return int|bool
+     */
+    public static function updateEs($user_id,$data)
+    {
+        $elastic_search = new ElasticSearch();
+        return $elastic_search->name('user')->update($user_id,$data);
+    }
+
+    /**
+     * 删除es
+     * @param $user_id
+     * @return bool|int
+     */
+    public static function delEs($user_id)
+    {
+        $elastic_search = new ElasticSearch();
+        return $elastic_search->name('user')->delete($user_id);
+    }
+
+    /**
+     * 同步数据到es
+     */
+    public function syncDataToEs()
+    {
+        $elastic_search = new ElasticSearch();
+        self::where([
+                ['status','=',self::STATUS['normal']],
+            ])
+            ->chunk(100,function ($users) use ($elastic_search){
+                $data=[];
+                foreach ($users as $user){
+                    $data[]=[
+                        'id'=>$user['id'],
+                        'nickname'=>$user['nickname'],
+                    ];
+                }
+                $elastic_search->name('user')->insertAll($data);
+            });
     }
 }

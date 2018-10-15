@@ -103,11 +103,14 @@ class User extends Model
         }
         try{
             $this->allowField(['nickname','head_img','password','mobile','type','status'])->update($data);
+            //昵称变更
+            if ($data['nickname']!==$row->getAttr('nickname')){
+                UserCommonModel::addEs($data['id'],$data['nickname']);
+            }
+            //处理缓存
             if ($data['status']==UserCommonModel::STATUS['normal']){
-                //更新用户缓存
                 UserCommonModel::updateUserCache($data['id'],['nickname'=>$data['nickname'],'head_img'=>$data['head_img'],'mobile'=>$data['mobile'],'type'=>$data['type']]);
             }else{
-                //删除用户缓存
                 UserCommonModel::deleteUserCache($data['id']);
             }
             return true;
@@ -137,6 +140,35 @@ class User extends Model
             $this->error='失败';
             return false;
         }
+    }
+
+    /**
+     * 删除
+     * @param $id
+     * @return int
+     */
+    public function del($id)
+    {
+        //删除es
+        $es_ret=UserCommonModel::delEs($id);
+        if (!$es_ret){
+            $this->error='删除es失败';
+            return false;
+        }
+        //删除缓存
+        if (UserCommonModel::existUserCache($id)){
+            $cache_ret=UserCommonModel::deleteUserCache($id);
+            if (!$cache_ret){
+                $this->error='删除缓存失败';
+                return false;
+            }
+        }
+        $ret = $this->where('id','=',$id)->delete();
+        if (!$ret){
+            $this->error='删除失败';
+            return false;
+        }
+        return true;
     }
 
 }

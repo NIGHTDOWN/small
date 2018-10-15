@@ -27,6 +27,8 @@ class WQiniu{
 
     public static $buketManagerInstance;
 
+    public static $uploadManagerInstance;
+
     public static $PersistentFopInstance;
 
     public static $originalVideoInfos = [];
@@ -80,6 +82,11 @@ class WQiniu{
     public static function getBuketManagerInstance($config=[]){
         if(!self::$buketManagerInstance) self::$buketManagerInstance = new BucketManager(self::getAuthInstance($config));
         return self::$buketManagerInstance;
+    }
+
+    public static function getUploadManagerInstance($config=[]){
+        if(!self::$uploadManagerInstance) self::$uploadManagerInstance = new UploadManager(self::getAuthInstance($config));
+        return self::$uploadManagerInstance;
     }
 
     public static function getPersistentFopInstance($config=[]){
@@ -798,19 +805,17 @@ class WQiniu{
 
     /**
      * 上传文件
-     * @param $bucket
-     * @param $file_path
-     * @param $key
+     * @param string $bucket  文件空间
+     * @param string $file_path  文件路径
+     * @param string $key 文件key
      * @return bool
      */
     public static function putFile($bucket,$file_path,$key)
     {
-        $accessKey =config('qiniu.ak');
-        $secretKey = config('qiniu.sk');
-        $auth = new Auth($accessKey, $secretKey);
+        $auth = self::getAuthInstance();
         $token = $auth->uploadToken($bucket);
-        $uploadMgr = new UploadManager();
-        list($ret, $err) = $uploadMgr->putFile($token, $key, $file_path);
+        $upload_mgr = self::getUploadManagerInstance();
+        list($ret, $err) = $upload_mgr->putFile($token, $key, $file_path);
         if ($err !== null) {
             return false;
         } else {

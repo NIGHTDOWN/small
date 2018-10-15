@@ -98,7 +98,7 @@ class User extends Model
                     UserCommonModel::deleteHeadImgFile($old_head_img);
                 }
             }else{
-                unset($data['head_img']);
+                $data['head_img']=$row->getAttr('head_img');
             }
         }
         try{
@@ -149,12 +149,6 @@ class User extends Model
      */
     public function del($id)
     {
-        //删除es
-        $es_ret=UserCommonModel::delEs($id);
-        if (!$es_ret){
-            $this->error='删除es失败';
-            return false;
-        }
         //删除缓存
         if (UserCommonModel::existUserCache($id)){
             $cache_ret=UserCommonModel::deleteUserCache($id);
@@ -162,6 +156,12 @@ class User extends Model
                 $this->error='删除缓存失败';
                 return false;
             }
+        }
+        //删除es
+        $es_ret=UserCommonModel::delEs($id);
+        if (!$es_ret){
+            $this->error='删除es失败';
+            return false;
         }
         $ret = $this->where('id','=',$id)->delete();
         if (!$ret){

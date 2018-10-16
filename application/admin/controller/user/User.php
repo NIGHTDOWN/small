@@ -29,6 +29,20 @@ class User extends Backend
     }
 
     /**
+     * 表格基础数据
+     */
+    public function tableBaseData()
+    {
+        $data=[];
+        $data['status_list']=$this->model->getStatusList();
+        $data['is_robot']=$this->model->getIsRobotList();
+        /** @var \app\admin\model\UserGroup $group_model */
+        $group_model=model('user_group');
+        $data['group_list']=$group_model->getList();
+        return $data;
+    }
+
+    /**
      * 查看
      */
     public function index()
@@ -44,13 +58,13 @@ class User extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
-                    ->with('burse')
+                    ->with(['burse','userGroup'])
                     ->where($where)
                     ->where('user.status','<>','-1')
                     ->order($sort, $order)
                     ->count();
             $list = $this->model
-                    ->with('burse')
+                    ->with(['burse','userGroup'])
                     ->where($where)
                     ->where('user.status','<>','-1')
                     ->order($sort, $order)
@@ -108,25 +122,11 @@ class User extends Backend
             $this->error(__('Parameter %s can not be empty', ''));
         }
         $this->view->assign("row", $row);
+        $this->view->assign('status_list',$this->model->getStatusList());
+        /** @var \app\admin\model\UserGroup $group_model */
+        $group_model=model('user_group');
+        $this->view->assign('group_list',$group_model->getList());
         return $this->view->fetch();
-    }
-
-    /**
-     * 设置/取消VIP
-     * @param $ids
-     * @param $action 0 取消 1设置
-     * @return string
-     */
-    public function editVip($ids,$action)
-    {
-        /** @var \app\admin\model\User $model */
-        $model=model('User');
-        $ret=$model->editVip($ids,$action);
-        if ($ret){
-            $this->success();
-        }else{
-            $this->error($model->getError());
-        }
     }
 
     /**

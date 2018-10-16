@@ -20,22 +20,28 @@ class User extends Model
         'head_img_url',
     ];
 
+    public function getStatusList()
+    {
+        $status_list=UserCommonModel::STATUS_TEXT;
+        unset($status_list[-1]);
+        return $status_list;
+    }
+
+    public function getIsRobotList()
+    {
+        return UserCommonModel::IS_ROBOT_TEXT;
+    }
+
     public function getStatusTextAttr($value, $data)
     {
         $value = $value ? $value : $data['status'];
-        return UserCommonModel::getStatusText($value);
+        return UserCommonModel::STATUS_TEXT[$value];
     }
 
     public function getIsRobotTextAttr($value, $data)
     {
         $value = $value ? $value : $data['is_robot'];
-        return $value?'是':'否';
-    }
-
-    public function getTypeTextAttr($value, $data)
-    {
-        $value = $value ? $value : $data['type'];
-        return UserCommonModel::getTypeText($value);
+        return UserCommonModel::IS_ROBOT_TEXT[$value];
     }
 
     public function getHeadImgUrlAttr($value, $data)
@@ -47,6 +53,11 @@ class User extends Model
     public function burse()
     {
         return $this->belongsTo('UserBurse', 'id', 'user_id', [], 'LEFT')->setEagerlyType(0);
+    }
+
+    public function userGroup()
+    {
+        return $this->belongsTo('UserGroup', 'group_id', 'id')->setEagerlyType(1);
     }
 
     /**
@@ -77,39 +88,17 @@ class User extends Model
             }
         }
         try{
-            $this->allowField(['nickname','head_img','password','mobile','type','status'])->update($data);
+            $this->allowField(['nickname','head_img','password','mobile','group_id','status'])->update($data);
             //昵称变更
             if ($data['nickname']!==$row->getAttr('nickname')){
                 UserCommonModel::addEs($data['id'],$data['nickname']);
             }
             //处理缓存
             if ($data['status']==UserCommonModel::STATUS['normal']){
-                UserCommonModel::updateUserCache($data['id'],['nickname'=>$data['nickname'],'head_img'=>$data['head_img'],'mobile'=>$data['mobile'],'type'=>$data['type']]);
+                UserCommonModel::updateUserCache($data['id'],['nickname'=>$data['nickname'],'head_img'=>$data['head_img'],'mobile'=>$data['mobile'],'group_id'=>$data['group_id']]);
             }else{
                 UserCommonModel::deleteUserCache($data['id']);
             }
-            return true;
-        }catch (\Exception $e){
-            $this->error='失败';
-            return false;
-        }
-    }
-
-    /**
-     * 编辑vip
-     * @param int $id
-     * @param int $action 0取消 1设置
-     * @return bool
-     */
-    public function editVip($id,$action)
-    {
-        $data=[
-            'type'=>$action?UserCommonModel::TYPE['vip']:UserCommonModel::TYPE['normal']
-        ];
-        try{
-            $this->where('id','=',$id)->update($data);
-            //更新用户缓存
-            UserCommonModel::updateUserCache($id,$data);
             return true;
         }catch (\Exception $e){
             $this->error='失败';

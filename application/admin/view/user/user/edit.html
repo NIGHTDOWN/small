@@ -32,15 +32,15 @@
         </div>
     </div>
     <div class="form-group">
-        <label for="content" class="control-label col-xs-12 col-sm-2">用户类型:</label>
+        <label for="content" class="control-label col-xs-12 col-sm-2">用户组:</label>
         <div class="col-xs-12 col-sm-8">
-            {:build_radios('row[type]', ['1'=>'普通', '2'=>'大V'], $row['type'])}
+            {:build_select('row[group_id]', $group_list, $row['group_id'])}
         </div>
     </div>
     <div class="form-group">
         <label for="content" class="control-label col-xs-12 col-sm-2">{:__('Status')}:</label>
         <div class="col-xs-12 col-sm-8">
-            {:build_radios('row[status]', ['0'=>'禁用', '1'=>'正常'], $row['status'])}
+            {:build_radios('row[status]', $status_list, $row['status'])}
         </div>
     </div>
     <div class="form-group layer-footer">

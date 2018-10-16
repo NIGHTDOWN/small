@@ -34,16 +34,15 @@ class User Extends Model
         1=>'正常',
     ];
 
-    /** 类型 */
-    const TYPE=[
-        'normal'=>1,
-        'vip'=>2,
+    /** 是否机器人 */
+    const IS_ROBOT=[
+        'yes'=>0,
+        'no'=>1,
     ];
 
-    /** 类型文本 */
-    const TYPE_TEXT=[
-        1 => '普通用户',
-        2 => '大V用户',
+    const IS_ROBOT_TEXT=[
+        0 => '否',
+        1 => '是',
     ];
 
     /** 用户缓存key前缀 */
@@ -51,31 +50,6 @@ class User Extends Model
 
     /** 用户缓存有效时间 */
     const USER_CACHE_LIFE_TIME=2592000;
-
-    /**
-     * 获取状态文本
-     * @param int $status
-     * @return string
-     */
-    public static function getStatusText($status){
-        if (!in_array($status,self::STATUS)){
-            return '';
-        }
-        return self::STATUS_TEXT[$status];
-    }
-
-    /**
-     * 获取类型文本
-     * @param int $type
-     * @return string
-     */
-    public static function getTypeText($type)
-    {
-        if (!in_array($type,self::TYPE)){
-            return '';
-        }
-        return self::TYPE_TEXT[$type];
-    }
 
     /**
      * 获取头像链接
@@ -112,14 +86,14 @@ class User Extends Model
         if (!$base_data){
             $base_data=self::get($user_id);
         }
-        $fields=['id','user_name','nickname','head_img','mobile','create_time','single_mission','invitation_user_id','pay_password','type'];
+        $fields=['id','user_name','nickname','head_img','mobile','create_time','single_mission','invitation_user_id','pay_password','group_id'];
         $user_data=[];
         foreach ($fields as $field){
             if (isset($base_data[$field])){
                 if ($field=='pay_password'){
                     $user_data['pay_password']=$base_data['pay_password']?1:0;
-                }elseif ($field=='type'){
-                    $user_data['user_grade']=$base_data['type'];
+                }elseif ($field=='group_id'){
+                    $user_data['user_grade']=$base_data['group_id'];
                 }else{
                     $user_data[$field]=$base_data[$field];
                 }

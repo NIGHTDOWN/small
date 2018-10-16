@@ -57,6 +57,8 @@ abstract class Driver
      */
     abstract function clear($user_id);
 
+    abstract function refresh($token, $expire);
+
     /**
      * 返回句柄对象，可执行其它高级方法
      *

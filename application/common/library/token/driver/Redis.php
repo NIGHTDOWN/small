@@ -11,15 +11,15 @@ class Redis extends Driver
 {
 
     protected $options = [
-        'host'        => '127.0.0.1',
-        'port'        => 6379,
-        'password'    => '',
-        'select'      => 0,
-        'timeout'     => 0,
-        'expire'      => 0,
-        'persistent'  => false,
-        'userprefix'  => 'up:',
-        'tokenprefix' => 'tp:',
+        'host'          => '127.0.0.1',
+        'port'          => 6379,
+        'password'      => '',
+        'select'        => 0,
+        'timeout'       => 0,
+        'expire'        => 0,
+        'persistent'    => false,
+        'userprefix'    => 'up:',
+        'tokenprefix'   => 'tp:',
     ];
 
     /**
@@ -82,6 +82,7 @@ class Redis extends Driver
      */
     public function set($token, $user_id, $expire = 0)
     {
+        $type = \App\common\library\Auth::REQUEST_FROM_TYPE[REQUEST_FROM];
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -95,7 +96,19 @@ class Redis extends Driver
             $result = $this->handler->set($key, $user_id);
         }
         //写入会员关联的token
-        $this->handler->sAdd($this->getUserKey($user_id), $key);
+//        $this->handler->sAdd($this->getUserKey($user_id), $key);
+        $user_key = $this->getUserKey($user_id);
+        $old_token = $this->handler->zRangeByScore($user_key, $type, $type);
+        if($old_token)
+        {
+            foreach ($old_token as $value)
+            {
+                $this->handler->zRem($user_key, $value);
+                $this->handler->del($value);
+            }
+        }
+        $this->handler->zAdd($user_key, $type, $key);
+        $this->handler->expire($user_key, $expire);
         return $result;
     }
 
@@ -144,7 +157,7 @@ class Redis extends Driver
             $key = $this->getEncryptedToken($token);
             $user_id = $data['user_id'];
             $this->handler->del($key);
-            $this->handler->sRem($this->getUserKey($user_id), $key);
+            $this->handler->zRem($this->getUserKey($user_id), $key);
         }
         return true;
 
@@ -157,10 +170,22 @@ class Redis extends Driver
      */
     public function clear($user_id)
     {
-        $keys = $this->handler->sMembers($this->getUserKey($user_id));
+        $keys = $this->handler->zRange($this->getUserKey($user_id), 0, -1);
         $this->handler->del($this->getUserKey($user_id));
         $this->handler->del($keys);
         return true;
     }
 
+    /**
+     * 更新Token有效时间
+     * @param $token
+     * @param $expire
+     */
+    public function refresh($token, $expire)
+    {
+        $key = $this->getEncryptedToken($token);
+        $user_key = $this->getUserKey($this->handler->get($key));
+        $this->handler->expire($key, $expire);
+        $this->handler->expire($user_key, $expire);
+    }
 }

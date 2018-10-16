@@ -101,8 +101,10 @@ class Api
         $controllername = strtolower($this->request->controller());
         $actionname = strtolower($this->request->action());
 
+        $this->getHeaderValue();
         // token
-        $token = $this->request->server('HTTP_AUTHORIZATION');
+//        $token = $this->request->server('HTTP_AUTHORIZATION');
+        $token = ACCESS_TOKEN;
 
         $path = str_replace('.', '/', $controllername) . '/' . $actionname;
         // 设置当前请求的URI
@@ -324,4 +326,15 @@ class Api
         return true;
     }
 
+    /**
+     * 获取约定的头信息值
+     */
+    private function getHeaderValue()
+    {
+        $header = $this->request->header();
+        define('ACCESS_TOKEN',      $header['authorization'] ?? '');  //token
+        define('REQUEST_FROM',      strtoupper(($header['from']) ?? 'APP'));  //请求来源
+        define('APP_VERSION',       $header['app-version'] ?? '');  //app版本
+        define('CLIENT_DEVICEID',   $header['deviceid'] ?? '');  //设备id
+    }
 }

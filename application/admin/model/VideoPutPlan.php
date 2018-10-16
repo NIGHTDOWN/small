@@ -4,6 +4,7 @@ namespace app\admin\model;
 
 use think\Model;
 use think\Db;
+use wsj\WQiniu;
 
 class VideoPutPlan extends Model
 {
@@ -81,6 +82,29 @@ class VideoPutPlan extends Model
     public static function getRemoteVideoProtocol()
     {
         return config('qiniu.public_video_bkt_protocol');
+    }
+
+    /**
+     * 获取远程视频存储空间
+     * @return mixed
+     */
+    public static function getRemoteVideoBucket()
+    {
+        return config('qiniu.public_video_bkt');
+    }
+
+    /**
+     * 删除远程视频
+     * @param $key
+     * @return mixed
+     */
+    public static function delRemoteVideo($key)
+    {
+        $ret = false;
+        if ($key) {
+            $ret = WQiniu::delete(self::getRemoteVideoBucket(),$key);
+        }
+        return $ret;
     }
 
     /**
@@ -185,7 +209,12 @@ class VideoPutPlan extends Model
         return true;
     }
 
-
+    /**
+     * 批量取消
+     * 
+     * @param  [type] $ids [description]
+     * @return [type]      [description]
+     */
     public function batchCancel($ids)
     {
         if (!is_array($ids)) {
@@ -215,6 +244,37 @@ class VideoPutPlan extends Model
             'plan_time' => 0,
         ];
         Db::name('video_put_plan')->where($where)->update($data);
+        return true;
+    }
+
+    /**
+     * 删除
+     * 
+     * @param $id
+     * @return bool
+     */
+    public function del($id)
+    {
+        $row = Db::name('video_put_plan')->field(['id','original_file','key','status'])->where('id', $id)->find();
+        if (!$row){
+            $this->error = '错误id';
+            return false;
+        }
+        if ($row['status'] !== self::STATUS['NOT_SET']) {
+            $this->error = '只有未定时状态可以删除';
+            return false;
+        }
+        $where = [
+            'id' => ['=', $id],
+            'status' => ['=', self::STATUS['NOT_SET']]
+        ];
+        $ret = Db::name('video_put_plan')->where($where)->delete();
+        if (!$ret) {
+            $this->error = '删除失败';
+            return false;
+        }
+        
+        self::delRemoteVideo($row['key']?$row['key']:$row['original_file']);
         return true;
     }
 

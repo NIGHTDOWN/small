@@ -59,7 +59,7 @@ class AdvertisingType extends Model
     }
 
     /**
-     * 获取列表
+     * 获取选择列表
      */
     public function getList()
     {

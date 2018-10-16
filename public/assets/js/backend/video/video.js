@@ -6,10 +6,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.init({
                 extend: {
                     index_url: 'video/video/index',
-                    // add_url: 'video/video/add',
-                    // edit_url: 'video/video/edit',
                     del_url: 'video/video/del',
-                    // multi_url: 'video/video/multi',
                     table: 'video',
                 },
                 queryParams: function (params) {
@@ -20,6 +17,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             });
 
             var table = $("#table");
+            var categoryList = $.getJSON('video/video/categoryList');
+            var statusText = {0: '未发布', 1: '已发布', 2: '机器审核未通过', 3: '违规', 8: '机器审核通过', 9: '审核不通过', 10: '草稿'};
             // 初始化表格
             console.log(123, $.fn.bootstrapTable.defaults.extend.index_url)
             table.bootstrapTable({
@@ -34,30 +33,14 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'id', title: __('Id')},
                         {field: 'title', title: __('Title')},
                         {field: 'user.nickname', title: __('User_id'), operate: false},
-                        {field: 'category_text', title: __('category_text'), operate: false},
-                        {field: 'category_id', title: __('Category_id'), visible: false},
+                        {field: 'category_id', title: __('Category_id'), searchList: categoryList, formatter: function (data){return categoryList.responseJSON[data];}},
                         {field: 'user_view_total', title: __('User_view_total'), operate: false},
                         {field: 'user_like_total', title: __('User_like_total'), operate: false},
                         {field: 'user_comment_total', title: __('User_comment_total'), operate: false},
                         {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
                         {field: 'update_time', title: __('Update_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
                         {field: 'process_done_time', title: __('时间'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: 'RANGE', visible: false},
-                        {field: 'status_text', title: __('Status'), operate: false},
-                        {
-                            field: 'status',
-                            title: __('Status'), 
-                            searchList: {
-                                '-1': __('删除'),
-                                '0': __('未发布'),
-                                '1': __('已发布'),
-                                '2': __('机器审核未通过'),
-                                '3': __('违规'),
-                                '8': __('机器审核通过'),
-                                '9': __('审核不通过'),
-                                '10': __('草稿')
-                            },
-                            visible: false
-                        },
+                        {field: 'status', title: __('Status'), searchList: statusText, formatter: function (data) {return statusText[data]}},
                         {
                             field: 'operate',
                             title: __('Operate'),
@@ -155,12 +138,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             // 为表格绑定事件
             Table.api.bindevent(table);
-        },
-        add: function () {
-            Controller.api.bindevent();
-        },
-        edit: function () {
-            Controller.api.bindevent();
         },
         set_category: function () {
             Controller.api.bindevent();

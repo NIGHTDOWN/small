@@ -15,7 +15,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             });
 
             var table = $("#table");
-
+            var statusText = {0: '未定时', 1: '已定时', 2: '已发布'};
             // 初始化表格
             table.bootstrapTable({
                 search: false,
@@ -28,24 +28,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true},
                         {field: 'id', title: __('Id')},
                         {field: 'title', title: __('Title')},
-                        {
-                            field: 'status', 
-                            title: __('Status'),
-                            searchList: {
-                                '0': __('未定时'),
-                                '1': __('已定时'),
-                                '2': __('已发布'),
-                            },
-                            formatter: function (data) {
-                                if (data == 0) {
-                                    return '未定时';
-                                } else if (data == 1) {
-                                    return '已定时';
-                                } else {
-                                    return '已发布';
-                                }
-                            }
-                        },
+                        {field: 'status', title: __('Status'), searchList: statusText, formatter: function (data) {return statusText[data];}},
                         {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'plan_time', title: __('Plan_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'put_time', title: __('Put_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},

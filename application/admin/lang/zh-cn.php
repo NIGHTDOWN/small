@@ -142,6 +142,7 @@ return [
     'Category'                                              => '分类管理',
     'Addon'                                                 => '插件管理',
     'Auth'                                                  => '权限管理',
+    'Activity'                                              => '活动列表',
     'Config'                                                => '系统配置',
     'Attachment'                                            => '附件管理',
     'Profile'                                               => '个人配置',

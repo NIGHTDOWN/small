@@ -18,6 +18,8 @@ class Video extends Backend
      * @var \app\admin\model\Video
      */
     protected $model = null;
+    // 关联搜索
+    protected $relationSearch = true;
 
     public function _initialize()
     {
@@ -57,6 +59,7 @@ class Video extends Backend
             $total = $this->model
                 ->with('user')
                 ->where($where)
+                ->where('video.status', '<>', $this->model::$status['DELETE'])
                 ->where($map)
                 ->order($sort, $order)
                 ->count();
@@ -64,16 +67,16 @@ class Video extends Backend
             $list = $this->model
                 ->with('user')
                 ->where($where)
+                ->where('video.status', '<>', $this->model::$status['DELETE'])
                 ->where($map)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
 
-            $categoryList = Db::name('category')->where(['status' => 1])->column('name', 'id');
-            
             foreach ($list as $key => $value) {
-                $list[$key]['status_text'] = $this->model::STATUSTEXT[$value['status']];
-                $list[$key]['category_text'] = !isset($categoryList[$value['category_id']]) ? '' : $categoryList[$value['category_id']];
+                $value->visible(['id', 'title', 'category_id', 'user_view_total', 'user_like_total', 'user_comment_total', 'create_time', 'update_time', 'process_done_time', 'status']);
+                $value->visible(['user']);
+                $value->getRelation('user')->visible(['nickname']);
             }
 
             $list = collection($list)->toArray();
@@ -82,6 +85,11 @@ class Video extends Backend
             return json($result);
         }
         return $this->view->fetch();
+    }
+
+    public function categoryList()
+    {
+        return json(\app\common\model\Category::searchSelect());
     }
 
     /**

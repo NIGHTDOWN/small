@@ -3,6 +3,7 @@
 namespace app\admin\validate;
 
 use think\Validate;
+use app\common\model\User as UserCommonModel;
 
 class User extends Validate
 {
@@ -12,7 +13,7 @@ class User extends Validate
         'head_img'=>'头像',
         'password'=>'密码',
         'mobile'=>'手机号',
-        'type'=>'用户类型',
+        'group_id'=>'用户组ID',
         'status'=>'状态',
     ];
     /**
@@ -24,8 +25,8 @@ class User extends Validate
         'head_img'=>'',
         'password'=>'alphaNum|length:6,16',
         'mobile'=>'checkMobile|unique:user',
-        'type'=>'require|in:1,2',
-        'status'=>'require|in:0,1',
+        'group_id'=>'require|integer',
+        'status'=>['require','in'=>UserCommonModel::STATUS],
     ];
     /**
      * 提示消息
@@ -36,8 +37,7 @@ class User extends Validate
      * 验证场景
      */
     protected $scene = [
-        'edit' => ['nickname','head_img','password','mobile','type','status'],
-        'edit_vip' => ['type'],
+        'edit' => ['nickname','head_img','password','mobile','group_id','status'],
     ];
 
     protected function checkMobile($value,$rule,$data)

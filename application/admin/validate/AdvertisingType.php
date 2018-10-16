@@ -3,6 +3,7 @@
 namespace app\admin\validate;
 
 use think\Validate;
+use app\common\model\AdvertisingType as AdTypeCommonModel;
 
 class AdvertisingType extends Validate
 {
@@ -15,8 +16,8 @@ class AdvertisingType extends Validate
      * 验证规则
      */
     protected $rule = [
-        'type'=>'unique:advertising_type',
-        'status'=>'integer|in:0,1',
+        'type'=>'require|unique:advertising_type',
+        'status'=>['require','in'=>AdTypeCommonModel::STATUS],
     ];
     /**
      * 提示消息

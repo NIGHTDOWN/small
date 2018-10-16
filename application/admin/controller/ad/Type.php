@@ -21,7 +21,7 @@ class Type extends Backend
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = new \app\admin\model\AdvertisingType;
+        $this->model = model('AdvertisingType');
     }
     
     /**

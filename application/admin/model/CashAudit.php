@@ -18,9 +18,9 @@ class CashAudit extends Model
     
     // 追加属性
     protected $append = [
-        'apply_time_text',
-        'admin_time_text',
-        'pay_time_text'
+        // 'apply_time_text',
+        // 'admin_time_text',
+        // 'pay_time_text'
     ];
     
 
@@ -28,40 +28,40 @@ class CashAudit extends Model
 
 
 
-    public function getApplyTimeTextAttr($value, $data)
-    {
-        $value = $value ? $value : (isset($data['apply_time']) ? $data['apply_time'] : '');
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
-    }
+    // public function getApplyTimeTextAttr($value, $data)
+    // {
+    //     $value = $value ? $value : (isset($data['apply_time']) ? $data['apply_time'] : '');
+    //     return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    // }
 
 
-    public function getAdminTimeTextAttr($value, $data)
-    {
-        $value = $value ? $value : (isset($data['admin_time']) ? $data['admin_time'] : '');
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
-    }
+    // public function getAdminTimeTextAttr($value, $data)
+    // {
+    //     $value = $value ? $value : (isset($data['admin_time']) ? $data['admin_time'] : '');
+    //     return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    // }
 
 
-    public function getPayTimeTextAttr($value, $data)
-    {
-        $value = $value ? $value : (isset($data['pay_time']) ? $data['pay_time'] : '');
-        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
-    }
+    // public function getPayTimeTextAttr($value, $data)
+    // {
+    //     $value = $value ? $value : (isset($data['pay_time']) ? $data['pay_time'] : '');
+    //     return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    // }
 
-    protected function setApplyTimeAttr($value)
-    {
-        return $value && !is_numeric($value) ? strtotime($value) : $value;
-    }
+    // protected function setApplyTimeAttr($value)
+    // {
+    //     return $value && !is_numeric($value) ? strtotime($value) : $value;
+    // }
 
-    protected function setAdminTimeAttr($value)
-    {
-        return $value && !is_numeric($value) ? strtotime($value) : $value;
-    }
+    // protected function setAdminTimeAttr($value)
+    // {
+    //     return $value && !is_numeric($value) ? strtotime($value) : $value;
+    // }
 
-    protected function setPayTimeAttr($value)
-    {
-        return $value && !is_numeric($value) ? strtotime($value) : $value;
-    }
+    // protected function setPayTimeAttr($value)
+    // {
+    //     return $value && !is_numeric($value) ? strtotime($value) : $value;
+    // }
 
 
 }

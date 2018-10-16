@@ -17,7 +17,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     index_url: 'ad/ad/index',
                     add_url: 'ad/ad/add',
                     edit_url: 'ad/ad/edit',
-                    // del_url: 'ad/ad/del',
+                    del_url: 'ad/ad/del',
                     // multi_url: 'ad/ad/multi',
                     table: 'advertising',
                 }

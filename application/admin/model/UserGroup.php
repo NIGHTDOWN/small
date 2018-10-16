@@ -31,4 +31,12 @@ class UserGroup extends Model
         return isset($list[$value]) ? $list[$value] : '';
     }
 
+    /**
+     * 获取选择列表
+     */
+    public function getList()
+    {
+        return $this->where('status','=','normal')->column('name','id');
+    }
+
 }

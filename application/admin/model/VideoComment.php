@@ -35,6 +35,15 @@ class VideoComment extends Model
 
 
 
+    public function video()
+    {
+        return $this->belongsTo('video', 'video_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('user', 'user_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
 
     /**
      * 显示

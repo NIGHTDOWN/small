@@ -9,13 +9,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         }
     });
 
-    //状态文本
-    var status_text={0: '禁用',1: '正常'};
-    //类型文本
-    var type_text={1:'普通用户', 2: '大V用户'};
-    //是否机器人文本
-    var is_robot_text={0:'否', 1: '是'};
-
     var Controller = {
         index: function () {
             // 初始化表格参数配置

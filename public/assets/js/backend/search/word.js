@@ -33,7 +33,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'id', title: __('Id')},
+                        {field: 'id', title: __('Id'),sortable:true},
                         {field: 'word', title: __('Word')},
                         {field: 'order_sort', title: __('置顶'),searchList:base_data.order_sort_list,formatter: function (value) {
                             return base_data.order_sort_list[value];
@@ -41,8 +41,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'status', title: __('Status'),searchList:base_data.status_list,formatter: function (value) {
                             return base_data.status_list[value];
                         }},
-                        {field: 'use_count', title: __('Use_count'),operate:false},
-                        {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
+                        {field: 'use_count', title: __('Use_count'),sortable:true,operate:false},
+                        {field: 'create_time', title: __('Create_time'),sortable:true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate,
                             buttons:[
                                 {

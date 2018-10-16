@@ -16,6 +16,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             var table = $("#table");
 
+            // 弹窗大小
+            table.on('post-body.bs.table', function (e, settings, json, xhr) {
+                $(".btn-edit-sort").data("area", ["25%", '30%']);
+                $(".btn-activity-top").data("area", ["70%", '90%']);
+            });
+
+
             // 初始化表格
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
@@ -39,8 +46,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     name: 'edit_sort',
                                     title: __('排序'),
                                     text: __('排序'),
-                                    classname: 'btn btn-xs btn-primary btn-dialog',
-                                    url: 'activity/edit_sort'
+                                    classname: 'btn btn-xs btn-primary btn-dialog btn-edit-sort',
+                                    url: 'activity/edit_sort',
                                 },
                                 {
                                     name: 'edit',
@@ -63,7 +70,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     name: 'top',
                                     title: __('活动排行榜'),
                                     text: __('活动排行榜'),
-                                    classname: 'btn btn-xs btn-info btn-dialog',
+                                    classname: 'btn btn-xs btn-info btn-dialog btn-activity-top',
                                     url: function (data) {
                                         return 'activity.top/index?ids=' + data.id
                                     }
@@ -86,14 +93,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 奖励方案
             $(document).on('click', '.reward_setting', function () {
                 var name = $(this).attr('name');
+                var input_name = '';
                 if (name == 'video_apply_open') {
-                    var input_name = 'video_apply_val';
+                    input_name = 'video_apply_val';
                 } else if (name == 'video_like_open') {
-                    var input_name = 'video_like_val';
+                    input_name = 'video_like_val';
                 } else if (name == 'video_play_open') {
-                    var input_name = 'video_play_val';
+                    input_name = 'video_play_val';
                 }
-                change_box_status($(this).prop('checked'), input_name);
+                if (input_name != '') {
+                    change_box_status($(this).prop('checked'), input_name);
+                }
             });
             function change_box_status(box_status, input_name) {
                 if (box_status) {

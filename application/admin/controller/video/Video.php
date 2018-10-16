@@ -45,15 +45,26 @@ class Video extends Backend
                 return $this->selectpage();
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+
+            // 活动筛选项
+            $map = [];
+            $activityId = input('activity_id');
+            if (!empty($activityId)) {
+                $ids = Db::name('activity_top_data')->where(['activity_id' => $activityId])->column('video_id');
+                $map['video.id'] = ['in', $ids];
+            }
+
             $total = $this->model
                 ->with('user')
                 ->where($where)
+                ->where($map)
                 ->order($sort, $order)
                 ->count();
 
             $list = $this->model
                 ->with('user')
                 ->where($where)
+                ->where($map)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();

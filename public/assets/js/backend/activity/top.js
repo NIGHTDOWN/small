@@ -15,6 +15,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template'], function
             });
 
             var table = $("#table");
+
             // 为表格绑定事件
             Table.api.bindevent(table);
 
@@ -26,11 +27,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'template'], function
                 // var width = $(this).attr('data-width');
                 // var height = $(this).attr('data-height');
                 // var area = [$(window).width() > 800 ? (width?width:'800px') : '95%', $(window).height() > 600 ? (height?height:'600px') : '95%'];
-                var area = ['90%', '100%'];
+                //var area = ['90%', '100%'];
                 var options = {
                     shadeClose: true,
                     shade: [0.3, '#393D49'],
-                    area: area,
+                    //area: area,
                     callback:function(value){
                         // CallBackFun(value.id, value.name);//在回调函数里可以调用你的业务代码实现前端的各种逻辑和效果
                     }

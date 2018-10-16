@@ -85,31 +85,35 @@ class Activity extends Model
     /**
      * 列表
      * @param $param
-     * @return array|bool
+     * @param array $map
+     * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getList($param)
-    {;
+    public function getList($param, $map = [])
+    {
         $where = [];
         $where['a.status'] = ['neq', CommonActivity::$status['DELETE']];
         if (isset($param['keyword']) && !empty($param['keyword'])) {
             $where['a.title'] = ['like', '%' . trim($param['keyword']) . '%'];
         }
+        // 列表
         $total = $this->alias('a')
             ->field(['a.id', 'a.title', 'a.start_time', 'a.end_time', 'a.subject_id', 'a.order_sort',
                 'a.status', 's.subject_name', 'a.activity_rule'])
             ->join('subject s', 'a.subject_id=s.id', 'left')
+            ->where($map)
             ->where($where)
             ->count();
         $list = $this->alias('a')
             ->field(['a.id', 'a.title', 'a.start_time', 'a.end_time', 'a.subject_id', 'a.order_sort',
                 'a.status', 's.subject_name', 'a.activity_rule'])
             ->join('subject s', 'a.subject_id=s.id', 'left')
+            ->where($map)
             ->where($where)
             ->order($param['order_field'], $param['order_direction'])
-            ->limit($param['offset'], $param['page_size'])
+            ->limit($param['offset'], $param['page_size']) // 校验这里是否正确
             ->select();
         //查询主题
         $user_total_array = Db::name("activity_top_data")
@@ -141,26 +145,6 @@ class Activity extends Model
     {
         $data = $this->beforeAdd($data);
 
-//        $setting = json_decode($data['reward_setting'], 1);
-//        $open = 0;
-//        $reward_number = 0;
-//        if (!is_array($setting)) {
-//            $this->error = 1285;
-//            return false;
-//        }
-//        foreach ($setting as $key => $value) {
-//            if ($value['is_open']) {
-//                $open++;
-//            }
-//            if ($value['reward_number'] > 0) {
-//                $reward_number++;
-//            }
-//        }
-//        if ($open != $reward_number || $open == 0) {
-//            $this->error = 1284;
-//            return false;
-//        }
-
         try {
             $id = Db::name('activity')->insertGetId($data);
             $data['id'] = $id;
@@ -174,6 +158,13 @@ class Activity extends Model
 
     /**
      * 编辑
+     * @param $data
+     * @return bool
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
     public function edit($data)
     {
@@ -188,7 +179,7 @@ class Activity extends Model
             $this->error = 'No results were found';
             return false;
         }
-        //删除旧图片 TODO
+//        //删除旧图片 TODO
 //        $old_image=$row['image'];
 //        if ($data['image']){
 //            if ($old_image!==$data['image']){
@@ -274,7 +265,7 @@ class Activity extends Model
             $this->error = 'Operation failed';
             return false;
         }
-        $image = unserialize($row['image']);
+//        $image = unserialize($row['image']);
         // TODO 删除远程图片资源
 //        foreach ($image as $value) {
 //            $this->deleteRemoteActivityImageFile($value);

@@ -11,11 +11,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     del_url: 'video/video/del',
                     // multi_url: 'video/video/multi',
                     table: 'video',
+                },
+                queryParams: function (params) {
+                    // 活动id
+                    params.activity_id = Fast.api.query('activity_id')
+                    return params;
                 }
             });
 
             var table = $("#table");
             // 初始化表格
+            console.log(123, $.fn.bootstrapTable.defaults.extend.index_url)
             table.bootstrapTable({
                 search: false,
                 showToggle: false,

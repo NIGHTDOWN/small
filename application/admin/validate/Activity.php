@@ -17,7 +17,7 @@ class Activity extends Validate
         'order_direction' => 'require|integer|in:0,1',
         'order_field' => 'require|in:id,order_sort',
 
-        'id' => 'require|integer',
+        'id' => 'require',
         'title' => 'require|length:1,50', // |string
         'image' => 'require|array',
         'activity_details' => 'require', // |string

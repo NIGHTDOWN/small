@@ -6,7 +6,7 @@ use app\common\controller\Backend;
 use app\common\model\Activity as CommonActivity;
 
 /**
- * 活动
+ * 活动列表
  *
  * @icon fa fa-circle-o
  */
@@ -39,7 +39,7 @@ class Activity extends Backend
 //            $this->error($valRes);
 //        }
         if ($this->request->isAjax()) {
-            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams('a.title');
             $param = [];
             $param['order_field'] = $sort;
             $param['order_direction'] = $order;
@@ -47,7 +47,7 @@ class Activity extends Backend
             $param['page_size'] = $limit;
             // 列表
             $model = model('Activity');
-            $list = $model->getList($param);
+            $list = $model->getList($param, $where);
             $result = array("total" => $list['total'], "rows" => $list['data']);
             return json($result);
         }
@@ -61,19 +61,51 @@ class Activity extends Backend
     public function add()
     {
         if ($this->request->isPost()) {
+            // 接受数据
             $param = $this->request->only(['title', 'activity_details', 'share_details', 'start_time', 'end_time',
-                'subject_id', 'reward_setting', 'order_sort', 'activity_rule', 'cover_image', 'image']);
+                'subject_id', 'order_sort', 'activity_rule', 'cover_image', 'image']);
+            $paramReward = $this->request->only(['video_apply_open', 'video_like_open', 'video_play_open',
+                'video_apply_val', 'video_like_val', 'video_play_val']);
             $param['image'] = !empty($param['image']) ? explode(',', $param['image']) : [];
             $param['create_admin_id'] = $this->auth->getUserinfo()['id'];
 
-            // TODO 关联主题和奖励方案未完成
+            // 数据校验
+            $checkRes = $this->validate($param, 'Activity.add');
+            if ($checkRes !== true) {
+                $this->error($checkRes);
+            }
 
-            // 数据校验 TODO
-//        $checkRes = $this->validate($param, 'Activity.add');
-//        if ($checkRes !== true) {
-//            $this->error($checkRes);
-//        }
+            // 奖励方案
+            $rewardOption = [
+                'video_apply_open' => ['video_apply_val', 'video_apply'],
+                'video_like_open' => ['video_like_val', 'video_like'],
+                'video_play_open' => ['video_play_val', 'video_play'],
+            ];
+            $rewardSetting = [
+                'video_apply' => ['is_open' => 0, 'reward_number' => 0],
+                'video_like' => ['is_open' => 0, 'reward_number' => 0],
+                'video_play' => ['is_open' => 0, 'reward_number' => 0]
+            ];
+            $haveReward = false;
+            foreach ($paramReward as $key => $val) {
+                foreach ($rewardOption as $k => $v) {
+                    if ($key == $k && $val > 0) {
+                        $rewardSetting[$v[1]]['is_open'] = 1;
+                        if (!isset($paramReward[$v[0]]) || empty($paramReward[$v[0]])) {
+                            $this->error(__('Open option that must have value'));
+                        } else {
+                            $rewardSetting[$v[1]]['reward_number'] = $paramReward[$v[0]];
+                        }
+                        $haveReward = true;
+                    }
+                }
+            }
+            $param['reward_setting'] = json_encode($rewardSetting);
+            if (!$haveReward) {
+                $this->error('缺少奖励方案');
+            }
 
+            // 请求数据
             if (!empty($param)) {
                 $model = model('Activity');
                 $result = $model->add($param);
@@ -84,7 +116,8 @@ class Activity extends Backend
                 }
             }
         }
-//        $this->assign('');
+
+        $this->assign('reward_setting_arr', [1 => '评论排行', 2 => '点赞排行', 3 => '播放排行']);
         return $this->fetch();
     }
 
@@ -129,21 +162,21 @@ class Activity extends Backend
         }
         if ($this->request->isPost()) {
             $param = $this->request->only(['title', 'activity_details', 'share_details', 'start_time', 'end_time',
-                'subject_id', 'reward_setting', 'order_sort', 'activity_rule', 'cover_image', 'image']);
+                'subject_id', 'order_sort', 'activity_rule', 'cover_image', 'image']);
             $param['image'] = !empty($param['image']) ? explode(',', $param['image']) : [];
 
-            // 数据校验 TODO
-//        $checkRes = $this->validate($param, 'Activity.add');
-//        if ($checkRes !== true) {
-//            $this->error($checkRes);
-//        }
+            // 数据校验
+            $checkRes = $this->validate($param, 'Activity.edit');
+            if ($checkRes !== true) {
+                $this->error($checkRes);
+            }
 
+            // 保存数据
             if (!empty($param)) {
                 $param['id'] = $ids;
                 $param['update_time'] = time();
                 $param['last_edit_admin_id'] = $this->auth->getUserInfo()['id'];
                 $param['image'] = serialize($param['image']);
-                $param['reward_setting'] = isset($param['reward_setting']) ? json_encode($param['reward_setting']) : '';
                 $model = model('Activity');
                 $result = $model->edit($param);
                 if (!$result) {
@@ -169,9 +202,14 @@ class Activity extends Backend
      */
     public function subjectSelectList()
     {
-        $param = $this->request->only(['page' => 1, 'page_size' => 20, 'keyword' => '']);
-        $data = model('Subject')->selectList($param);
-        $this->apiReturn($data);
+        if ($this->request->isAjax()) {
+            $param['page'] = input('pageNumber') - 1;
+            $param['page_size'] = input('pageSize');
+            $param['keyword'] = input('subject_name');
+            $param['selected'] = input('keyValue');
+            $data = model('Subject')->selectList($param);
+            return json($data);
+        }
     }
 
     /**
@@ -184,8 +222,8 @@ class Activity extends Backend
     {
         if ($this->request->isPost()) {
             $param = $this->request->only(['order_sort']);
-            if (!$ids || !isset($param['order_sort'])) {
-                $this->error(__('Invalid parameters'));
+            if (!$ids || empty($param['order_sort'])) {
+                $this->error('排序必须大于0');
             }
             $param['id'] = $ids;
             $model = model('Activity');
@@ -195,6 +233,26 @@ class Activity extends Backend
             $this->success();
         }
         return $this->view->fetch();
+    }
+
+    /**
+     * 显示/隐藏
+     * @param string $ids
+     * @throws \think\Exception
+     * @throws \think\exception\PDOException+
+     */
+    public function multi($ids = '')
+    {
+        if (empty($ids)) {
+            $this->error(__('Invalid parameters'));
+        }
+
+        $param = input('params');
+        if (strpos($param, 'status=1') !== false) {
+            return $this->show($ids);
+        } elseif (strpos($param, 'status=0') !== false) {
+            return $this->hide($ids);
+        }
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace app\admin\validate;
 
 use think\Validate;
+use app\common\model\AdvertisingType as AdCommonModel;
 
 class Advertising extends Validate
 {
@@ -24,7 +25,7 @@ class Advertising extends Validate
         'image'=>'',
         'url'=>'url',
         'order_sort'=>'require|integer',
-        'status'=>'require|integer|in:0,1',
+        'status'=>['require','in'=>AdCommonModel::STATUS],
     ];
     /**
      * 提示消息

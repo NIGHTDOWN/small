@@ -43,26 +43,4 @@ class SearchWord extends Model
     {
         return $value && !is_numeric($value) ? strtotime($value) : $value;
     }
-
-    /**
-     * 设置排序值
-     * @param $id
-     * @param $order_sort
-     * @return false|int
-     */
-    public function setOrderSort($id,$order_sort)
-    {
-        return $this->save(['order_sort'=>$order_sort,],['id'=>['=',$id]]);
-    }
-
-    /**
-     * 编辑状态
-     * @param $id
-     * @param $status
-     * @return false|int
-     */
-    public function editStatus($id,$status)
-    {
-        return $this->save(['status'=>$status,],['id'=>['=',$id]]);
-    }
 }

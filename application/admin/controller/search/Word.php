@@ -11,7 +11,7 @@ use app\common\controller\Backend;
  */
 class Word extends Backend
 {
-    
+
     /**
      * SearchWord模型对象
      * @var \app\admin\model\SearchWord
@@ -21,6 +21,8 @@ class Word extends Backend
     protected $modelValidate=true;
 
     protected $searchFields=['word'];
+
+    protected $multiFields=['order_sort','status'];
 
     public function _initialize()
     {
@@ -82,35 +84,4 @@ class Word extends Backend
         $this->assign('order_sort_list',$this->model->getOrderSortList());
         return $this->view->fetch();
     }
-
-    /**
-     * 置顶
-     * @param $ids
-     * @param $order_sort
-     */
-    public function top($ids,$order_sort)
-    {
-        $ret=$this->model->setOrderSort($ids,$order_sort);
-        if ($ret){
-            $this->success();
-        }else{
-            $this->error();
-        }
-    }
-
-    /**
-     * 编辑状态
-     * @param $ids
-     * @param $status
-     */
-    public function editStatus($ids,$status)
-    {
-        $ret=$this->model->editStatus($ids,$status);
-        if ($ret){
-            $this->success();
-        }else{
-            $this->error();
-        }
-    }
-
 }

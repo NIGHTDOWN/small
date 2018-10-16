@@ -48,7 +48,7 @@ class Activity extends Backend
             // 列表
             $model = model('Activity');
             $list = $model->getList($param, $where);
-            $result = array("total" => $list['total'], "rows" => $list['data']);
+            $result = ["total" => $list['total'], "rows" => $list['data']];
             return json($result);
         }
 

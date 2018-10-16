@@ -21,30 +21,34 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
+                showExport: false,
+                // commonSearch: false,
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'id', title: __('Id')},
-                        {field: 'subject_name', title: __('Subject_name')},
-                        {field: 'create_user_id', title: __('Create_user_id')},
-                        {field: 'compere_user_id', title: __('Compere_user_id')},
-                        {field: 'cover_img', title: __('Cover_img')},
-                        {field: 'weight', title: __('Weight')},
-                        {field: 'video_total', title: __('Video_total')},
-                        {field: 'video_play_total', title: __('Video_play_total')},
-                        {field: 'is_recommend', title: __('Is_recommend')},
-                        {field: 'recommend', title: __('Recommend')},
-                        {field: 'order_sort', title: __('Order_sort')},
-                        {field: 'new_join_time', title: __('New_join_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        {field: 'update_time', title: __('Update_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        {field: 'status', title: __('Status')},
+                        {field: 'id', title: __('Id'), sortable: true, width: '5%', operate: false},
+                        {field: 'recommend', title: __('Recommend'), sortable: true, width: '5%', operate: false},
+                        {field: 'subject_name', title: __('Subject_name'), width: '15%'},
+                        {field: 'create_user_nickname', title: __('Create_user_nickname'), operate: false},
+                        {field: 'compere_user_nickname', title: __('Compere_user_nickname'), operate: false},
+                        {field: 'video_total', title: __('Video_total'), operate: false},
+                        {field: 'new_join_time', title: __('New_join_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
+                        {field: 'status_text', title: __('Status'), operate: false},
+                        {
+                            field: 'status',
+                            title: __('Status'),
+                            searchList: {
+                                '0': __('隐藏'),
+                                '1': __('显示')
+                            },
+                            visible: false
+                        },
+                        {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, sortable: true, width: '10%', operate: false},
+                        {field: 'update_time', title: __('Update_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, sortable: true, width: '10%', operate: false},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]
             });
-
-            
 
             // 为表格绑定事件
             Table.api.bindevent(table);

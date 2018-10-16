@@ -100,8 +100,6 @@ class Activity extends Model
         }
         // 列表
         $total = $this->alias('a')
-            ->field(['a.id', 'a.title', 'a.start_time', 'a.end_time', 'a.subject_id', 'a.order_sort',
-                'a.status', 's.subject_name', 'a.activity_rule'])
             ->join('subject s', 'a.subject_id=s.id', 'left')
             ->where($map)
             ->where($where)
@@ -115,6 +113,7 @@ class Activity extends Model
             ->order($param['order_field'], $param['order_direction'])
             ->limit($param['offset'], $param['page_size']) // 校验这里是否正确
             ->select();
+
         //查询主题
         $user_total_array = Db::name("activity_top_data")
             ->field(['count(DISTINCT user_id) as user_total,activity_id'])

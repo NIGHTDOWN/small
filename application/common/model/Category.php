@@ -21,6 +21,18 @@ class Category Extends Model
         'flag_text',
     ];
 
+    const STATUS = [
+        'SHOW' => 1,
+        'HIDE' => 0,
+        'DELETE' => -1
+    ];
+
+    const STATUSTEXT = [
+        -1 => '正常',
+        0 => '隐藏',
+        1 => '已禁用'
+    ];
+
     protected static function init()
     {
         self::afterInsert(function ($row) {
@@ -86,6 +98,11 @@ class Category Extends Model
                     }
                 })->order('weigh', 'desc')->select())->toArray();
         return $list;
+    }
+
+    public static function searchSelect()
+    {
+        return \think\Db::name('category')->where(['status' => self::STATUS['SHOW']])->column('name', 'id');
     }
 
 }

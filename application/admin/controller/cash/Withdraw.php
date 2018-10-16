@@ -3,6 +3,7 @@
 namespace app\admin\controller\cash;
 
 use app\common\controller\Backend;
+use think\Db;
 
 /**
  * 
@@ -25,10 +26,6 @@ class Withdraw extends Backend
 
     }
 
-    public  function withdraw(){
-        $this->view->fetch();
-    }
-    
     /**
      * 默认生成的控制器所继承的父类中有index/add/edit/del/multi五个基础方法、destroy/restore/recyclebin三个回收站方法
      * 因此在当前控制器中可不用编写增删改查的代码,除非需要自己控制这部分逻辑
@@ -41,21 +38,46 @@ class Withdraw extends Backend
      */
     public function index()
     {
-        //设置过滤方法
+        // 设置过滤方法
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax()) {
-            //如果发送的来源是Selectpage，则转发到Selectpage
+            $map = [
+                'cash_withdraw.status' => ['not in', [0, 2]]
+            ];
+            // 如果发送的来源是Selectpage，则转发到Selectpage
             if ($this->request->request('keyField')) {
                 return $this->selectpage();
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
-            $total = $this->model
+
+            // $total = $this->model
+            //     ->with('user')
+            //     ->where($where)
+            //     ->where($map)
+            //     ->order($sort, $order)
+            //     ->count();
+
+            // $list = $this->model
+            //     ->with('user')
+            //     ->where($where)
+            //     ->where($map)
+            //     ->order($sort, $order)
+            //     ->limit($offset, $limit)
+            //     ->select();
+
+            $total = Db::name('CashWithdraw')
+                ->alias('cash_withdraw')
+                ->join('user', 'user.id = cash_withdraw.user_id', 'LEFT')
                 ->where($where)
+                ->where($map)
                 ->order($sort, $order)
                 ->count();
 
-            $list = $this->model
+            $list = Db::name('CashWithdraw')
+                ->alias('cash_withdraw')
+                ->join('user', 'user.id = cash_withdraw.user_id', 'LEFT')
                 ->where($where)
+                ->where($map)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();

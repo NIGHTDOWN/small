@@ -18,6 +18,8 @@ class Video extends Backend
      * @var \app\admin\model\Video
      */
     protected $model = null;
+    // 关联搜索
+    protected $relationSearch = true;
 
     public function _initialize()
     {
@@ -48,21 +50,22 @@ class Video extends Backend
             $total = $this->model
                 ->with('user')
                 ->where($where)
+                ->where('video.status', '<>', $this->model::$status['DELETE'])
                 ->order($sort, $order)
                 ->count();
 
             $list = $this->model
                 ->with('user')
                 ->where($where)
+                ->where('video.status', '<>', $this->model::$status['DELETE'])
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
 
-            $categoryList = Db::name('category')->where(['status' => 1])->column('name', 'id');
-            
             foreach ($list as $key => $value) {
-                $list[$key]['status_text'] = $this->model::STATUSTEXT[$value['status']];
-                $list[$key]['category_text'] = !isset($categoryList[$value['category_id']]) ? '' : $categoryList[$value['category_id']];
+                $value->visible(['id', 'title', 'category_id', 'user_view_total', 'user_like_total', 'user_comment_total', 'create_time', 'update_time', 'process_done_time', 'status']);
+                $value->visible(['user']);
+                $value->getRelation('user')->visible(['nickname']);
             }
 
             $list = collection($list)->toArray();
@@ -71,6 +74,11 @@ class Video extends Backend
             return json($result);
         }
         return $this->view->fetch();
+    }
+
+    public function categoryList()
+    {
+        return json(\app\common\model\Category::searchSelect());
     }
 
     /**
@@ -110,9 +118,8 @@ class Video extends Backend
                 $this->success();
             }
 
-            $categoryList = Db::name('category')->where(['status' => 1])->select();
             $this->view->assign("row", $row);
-            $this->view->assign("category_list", $categoryList);
+            $this->view->assign("category_list", \app\common\model\Category::searchSelect());
             return $this->view->fetch();
         }
     }

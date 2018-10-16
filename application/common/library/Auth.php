@@ -22,7 +22,9 @@ class Auth
     protected $_userid = 0;
     protected $_token = '';
     //Token默认有效时长
-    protected $keeptime = 2592000;
+    protected $keeptime = 604800;
+    //Token刷新阈值
+    protected $refresh_time = 86400;
     protected $requestUri = '';
     protected $rules = [];
     //默认配置
@@ -31,6 +33,14 @@ class Auth
     protected $allowFields = ['id', 'username', 'nickname', 'mobile', 'avatar', 'score', 'status'];
     protected static $userinfo_prefix = 'ui';
     protected static $userinfo_keeptime = 86400;
+    /** 请求来源 */
+    const REQUEST_FROM_TYPE=[
+        'APP'       =>0,
+        'H5'        =>1,
+        'PGC'       =>2,
+        'TOOLS'     =>3,
+        'APPLET'    =>4,
+    ];
 
     public function __construct($options = [])
     {
@@ -108,6 +118,10 @@ class Auth
         $user_id = intval($data['user_id']);
         if ($user_id > 0)
         {
+            if($data['expired_in'] < $this->refresh_time)
+            {
+                Token::refresh($token, $this->keeptime);
+            }
             $this->_userid = $user_id;
             $user = $this->getUserinfo();
 //            $user = User::get($user_id);

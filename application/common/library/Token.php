@@ -156,4 +156,8 @@ class Token
         return self::init()->clear($user_id);
     }
 
+    public static function refresh($token, $expire)
+    {
+        return self::init()->refresh($token, $expire);
+    }
 }

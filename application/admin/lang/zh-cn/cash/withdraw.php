@@ -18,10 +18,10 @@ return [
     'Pay_trace_sn'  =>  '支付渠道流水编号',
     'Payfee_account'  =>  '收款人账号',
     'Payfee_real_name'  =>  '收款人真实姓名',
-    'Payment'  =>  '付款方式 0 支付宝支付 1 微信支付',
+    'Payment'  =>  '付款方式',
     'Pay_time'  =>  '支付完成时间',
     'Error_msg_id'  =>  '最新订单错误信息id',
     'Comment'  =>  '用户备注',
-    'Status'  =>  '状态 0 审核中 1 已打款 2 审核未通过  3 已到账 4 打款失败 5 审核通过',
+    'Status'  =>  '状态',
     'Operator_id'  =>  '运营id'
 ];

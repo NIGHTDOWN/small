@@ -18,6 +18,8 @@ class Hotvideo extends Backend
      * @var \app\admin\model\HotVideo
      */
     protected $model = null;
+    // 关联搜索
+    protected $relationSearch = true;
 
     public function _initialize()
     {

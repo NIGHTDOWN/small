@@ -3,6 +3,7 @@
 namespace app\admin\controller\cash;
 
 use app\common\controller\Backend;
+use think\Db;
 
 /**
  * 
@@ -17,11 +18,13 @@ class Audit extends Backend
      * @var \app\admin\model\CashAudit
      */
     protected $model = null;
+    // 关联搜索
+    protected $relationSearch = true;
 
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = new \app\admin\model\CashAudit;
+        $this->model = model('CashWithdraw');
     }
     
     /**
@@ -38,28 +41,50 @@ class Audit extends Backend
         //设置过滤方法
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax()) {
+            $map = [
+                'cash_withdraw.status' => ['not in', [0, 2]]
+            ];
             //如果发送的来源是Selectpage，则转发到Selectpage
             if ($this->request->request('keyField')) {
                 return $this->selectpage();
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
+                ->with('user')
                 ->where($where)
+                ->where($map)
                 ->order($sort, $order)
                 ->count();
 
             $list = $this->model
+                ->with('user')
                 ->where($where)
+                ->where($map)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
-
+                
+            foreach ($list as $key => $value) {
+                $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment']);
+                $value->visible(['user']);
+                $value->getRelation('user')->visible(['nickname']);
+            }
             $list = collection($list)->toArray();
             $result = array("total" => $total, "rows" => $list);
 
             return json($result);
         }
         return $this->view->fetch();
+    }
+
+    public function adopt()
+    {
+        $this->success();
+    }
+
+    public function refuse()
+    {
+        $this->success();
     }
 
 }

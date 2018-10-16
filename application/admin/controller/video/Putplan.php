@@ -19,6 +19,7 @@ class Putplan extends Backend
      */
     protected $model = null;
 
+
     public function _initialize()
     {
         parent::_initialize();
@@ -71,25 +72,15 @@ class Putplan extends Backend
      */
     public function del($ids = "")
     {
-        $this->error(__('不能删除'));
-        // if ($ids) {
-            // $pk = $this->model->getPk();
-            // $adminIds = $this->getDataLimitAdminIds();
-            // if (is_array($adminIds)) {
-            //     $count = $this->model->where($this->dataLimitField, 'in', $adminIds);
-            // }
-            // $list = $this->model->where($pk, 'in', $ids)->select();
-            // $count = 0;
-            // foreach ($list as $k => $v) {
-            //     $count += $v->delete();
-            // }
-            // if ($count) {
-            //     $this->success();
-            // } else {
-            //     $this->error(__('No rows were deleted'));
-            // }
-        // }
-        // $this->error(__('Parameter %s can not be empty', 'ids'));
+        if ($this->request->isPost()) {
+            $id = input('post.ids');
+            $result = $this->model->del($id);
+            if ($result) {
+                $this->success();
+            } else {
+                $this->error($this->model->getError());
+            }
+        }
     }
 
     public function play($ids = '')

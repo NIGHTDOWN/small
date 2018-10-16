@@ -6,15 +6,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.init({
                 extend: {
                     index_url: 'video/hotvideo/index',
-                    // add_url: 'video/hotvideo/add',
-                    // edit_url: 'video/hotvideo/edit',
-                    // del_url: 'video/hotvideo/del',
-                    // multi_url: 'video/hotvideo/multi',
                     table: 'hot_video',
                 }
             });
 
             var table = $("#table");
+            var statusText = {0: '取消', 1: '正常'};
 
             // 初始化表格
             table.bootstrapTable({
@@ -29,23 +26,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'id', title: __('Id')},
                         {field: 'video.title', title: __('视频标题')},
                         {field: 'admin.nickname', title: __('Admin_id')},
-                        {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        {
-                            field: 'status',
-                            title: __('Status'),
-                            formatter: function(data) {
-                                if (data == 1) {
-                                    return '正常';
-                                } else {
-                                    return '取消';
-                                }
-                            },
-                            searchList: 
-                            {
-                                '1': __('正常'),
-                                '0': __('取消'),
-                            },
-                        },
+                        {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass: 'datetimerange', formatter: Table.api.formatter.datetime},
+                        {field: 'status', title: __('Status'), formatter: function(data) {return statusText[data];}, operate: false},
                         {
                             field: 'operate',
                             title: __('Operate'),
@@ -63,7 +45,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     title: __('取消推荐'),
                                     text: __('取消推荐'),
                                     classname: 'btn btn-xs btn-warning btn-unhost',
-                                    hidden: function(row) {
+                                    hidden: function (row) {
                                         if (row.status == '0') {
                                             return true;
                                         }

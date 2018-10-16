@@ -18,6 +18,8 @@ class Comment extends Backend
      * @var \app\admin\model\VideoComment
      */
     protected $model = null;
+    // 关联搜索
+    protected $relationSearch = true;
 
     public function _initialize()
     {
@@ -46,49 +48,29 @@ class Comment extends Backend
                 return $this->selectpage();
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
-            $total = Db::name('VideoComment')
-                ->alias('video_comment')
-                ->join([
-                    ['video', 'video_comment.video_id = video.id', 'LEFT'],
-                    ['user', 'video_comment.user_id = user.id', 'LEFT']
-                ])
+
+            $total = $this->model
+                ->with(['user', 'video'])
                 ->where($where)
                 ->order($sort, $order)
                 ->count();
 
-            $list = Db::name('VideoComment')
-                ->alias('video_comment')
-                ->join([
-                    ['video', 'video_comment.video_id = video.id', 'LEFT'],
-                    ['user', 'video_comment.user_id = user.id', 'LEFT']
-                ])
+            $list = $this->model
+                ->with(['user', 'video'])
                 ->where($where)
                 ->order($sort, $order)
-                ->field([
-                    'video_comment.id', 
-                    'video_comment.video_comment', 
-                    'video_comment.replace_comment', 
-                    'video_comment.create_time', 
-                    'video_comment.update_time', 
-                    'video_comment.status', 
-                    'video.title', 
-                    'user.nickname',
-                ])
+                ->limit($offset, $limit)
                 ->select();
-            
-            $data = [];
+
             foreach ($list as $key => $value) {
-                $data[$key]['video_comment']['id'] = $value['id'];
-                $data[$key]['video_comment']['video_comment'] = $value['video_comment'];
-                $data[$key]['video_comment']['replace_comment'] = $value['replace_comment'];
-                $data[$key]['video_comment']['create_time'] = $value['create_time'];
-                $data[$key]['video_comment']['update_time'] = $value['update_time'];
-                $data[$key]['video_comment']['status'] = $value['status'];
-                $data[$key]['video']['title'] = $value['title'];
-                $data[$key]['user']['nickname'] = $value['nickname'];
+                $value->visible(['id', 'video_comment', 'replace_comment', 'create_time', 'update_time', 'status']);
+                $value->visible(['user']);
+                $value->getRelation('user')->visible(['nickname']);
+                $value->visible(['video']);
+                $value->getRelation('video')->visible(['title']);
             }
 
-            $result = array("total" => 1, "rows" => $data);
+            $result = array("total" => $total, "rows" => $list);
             return json($result);
         }
         return $this->view->fetch();

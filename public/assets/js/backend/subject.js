@@ -8,7 +8,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     index_url: 'subject/index',
                     add_url: 'subject/add',
                     edit_url: 'subject/edit',
-                    del_url: 'subject/del',
+                    del_url: '',
                     multi_url: 'subject/multi',
                     table: 'subject',
                 }

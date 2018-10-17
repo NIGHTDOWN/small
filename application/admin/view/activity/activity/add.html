@@ -1,3 +1,6 @@
+<style>
+    #c-activity_details, #c-share_details, #c-activity_rule{height: 150px; overflow-y: scroll;}
+</style>
 <form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
 
     <div class="form-group">
@@ -12,8 +15,8 @@
             <div class="input-group">
                 <input id="c-avatar" data-rule="required" class="form-control" size="50" name="image" type="text" value="">
                 <div class="input-group-addon no-border no-padding">
-                    <span><button type="button" id="plupload-avatar" class="btn btn-danger plupload" data-input-id="c-avatar" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-avatar"><i class="fa fa-upload"></i> 上传</button></span>
-                    <span><button type="button" id="fachoose-avatar" class="btn btn-primary fachoose" data-input-id="c-avatar" data-mimetype="image/*" data-multiple="true"><i class="fa fa-list"></i> 选择</button></span>
+                    <span><button type="button" data-mutipart="{'type':'other'}" id="plupload-avatar" class="btn btn-danger plupload" data-input-id="c-avatar" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-avatar"><i class="fa fa-upload"></i> 上传</button></span>
+                    <span><button type="button" id="fachoose-avatar" class="btn btn-primary fachoose" data-input-id="c-avatar" data-mimetype="image/*" data-multiple="true"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
                 </div>
                 <span class="msg-box n-right" for="c-avatar"></span>
             </div>
@@ -26,7 +29,7 @@
             <div class="input-group">
                 <input id="c-cover_image" data-rule="required" class="form-control form-control" size="50" name="cover_image" type="text">
                 <div class="input-group-addon no-border no-padding">
-                    <span><button type="button" id="plupload-cover_image" class="btn btn-danger plupload" data-input-id="c-cover_image" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-cover_image"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" data-mutipart="{'type':'other'}" id="plupload-cover_image" class="btn btn-danger plupload" data-input-id="c-cover_image" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-cover_image"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
                     <span><button type="button" id="fachoose-cover_image" class="btn btn-primary fachoose" data-input-id="c-cover_image" data-mimetype="image/*" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
                 </div>
                 <span class="msg-box n-right" for="c-cover_image"></span>
@@ -37,19 +40,22 @@
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Activity_details')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <textarea id="c-activity_details" data-rule="" class="form-control  form-control" rows="5" name="activity_details" cols="50"></textarea>
+            <div contenteditable="true" id="c-activity_details" data-rule="" class="form-control  form-control"></div>
+            <input type="hidden" name="activity_details" value="">
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Share_details')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <textarea id="c-share_details" data-rule="" class="form-control  form-control" rows="5" name="share_details" cols="50"></textarea>
+            <div contenteditable="true" id="c-share_details" data-rule="" class="form-control  form-control"></div>
+            <input type="hidden" name="share_details" value="">
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Activity_rule')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <textarea id="c-activity_rule" data-rule="" class="form-control  form-control" rows="5" name="activity_rule" cols="50"></textarea>
+            <div contenteditable="true" id="c-activity_rule" data-rule="" class="form-control  form-control"></div>
+            <input type="hidden" name="activity_rule" value="">
         </div>
     </div>
     <div class="form-group">

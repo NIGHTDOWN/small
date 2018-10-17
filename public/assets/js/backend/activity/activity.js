@@ -130,7 +130,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         },
         api: {
             bindevent: function () {
-                Form.api.bindevent($("form[role=form]"));
+                Form.api.bindevent($("form[role=form]"), function(data, ret){
+                    Toastr.success(data);//成功
+                }, function(data, ret){
+                }, function(success, error){
+                    var activity_details = $('#c-activity_details').html()
+                    var share_details = $('#c-share_details').html()
+                    var activity_rule = $('#c-activity_rule').html()
+                    $('input[name=activity_details]').val(activity_details)
+                    $('input[name=share_details]').val(share_details)
+                    $('input[name=activity_rule]').val(activity_rule)
+                });
             },
             events: {
             },

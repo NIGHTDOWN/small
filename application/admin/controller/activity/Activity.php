@@ -84,7 +84,7 @@ class Activity extends Backend
                     if ($key == $k && $val > 0) {
                         $rewardSetting[$v[1]]['is_open'] = 1;
                         if (!isset($paramReward[$v[0]]) || empty($paramReward[$v[0]])) {
-                            $this->error(__('Open option that must have value'));
+                            $this->error('缺少奖励方案');
                         } else {
                             $rewardSetting[$v[1]]['reward_number'] = $paramReward[$v[0]];
                         }

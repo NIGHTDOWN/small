@@ -3,6 +3,7 @@
 namespace app\admin\validate;
 
 use think\Validate;
+use app\common\model\User as UserCommonModel;
 
 class User extends Validate
 {
@@ -25,7 +26,7 @@ class User extends Validate
         'password'=>'alphaNum|length:6,16',
         'mobile'=>'checkMobile|unique:user',
         'group_id'=>'require|integer',
-        'status'=>'require|in:0,1',
+        'status'=>['require','in'=>UserCommonModel::STATUS],
     ];
     /**
      * 提示消息

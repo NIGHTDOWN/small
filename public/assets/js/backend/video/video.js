@@ -17,10 +17,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             });
 
             var table = $("#table");
+            // 初始化表格
             var categoryList = $.getJSON('video/video/categoryList');
             var statusText = {0: '未发布', 1: '已发布', 2: '机器审核未通过', 3: '违规', 8: '机器审核通过', 9: '审核不通过', 10: '草稿'};
-            // 初始化表格
-            console.log(123, $.fn.bootstrapTable.defaults.extend.index_url)
             table.bootstrapTable({
                 search: false,
                 showToggle: false,
@@ -30,13 +29,14 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'id', title: __('Id')},
+                        {field: 'id', title: __('Id'), sortable: true, alias: 'video.id'},
                         {field: 'title', title: __('Title')},
                         {field: 'user.nickname', title: __('User_id'), operate: false},
+                        {field: 'category_text', title: __('category_text'), operate: false},
                         {field: 'category_id', title: __('Category_id'), searchList: categoryList, formatter: function (data){return categoryList.responseJSON[data];}},
-                        {field: 'user_view_total', title: __('User_view_total'), operate: false},
-                        {field: 'user_like_total', title: __('User_like_total'), operate: false},
-                        {field: 'user_comment_total', title: __('User_comment_total'), operate: false},
+                        {field: 'user_view_total', title: __('User_view_total'), operate: false, sortable: true},
+                        {field: 'user_like_total', title: __('User_like_total'), operate: false, sortable: true},
+                        {field: 'user_comment_total', title: __('User_comment_total'), operate: false, sortable: true},
                         {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
                         {field: 'update_time', title: __('Update_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
                         {field: 'process_done_time', title: __('时间'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: 'RANGE', visible: false},
@@ -134,7 +134,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 ]
             });
 
-            
+
 
             // 为表格绑定事件
             Table.api.bindevent(table);
@@ -209,7 +209,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     // 取消推荐
                     'click .btn-unhost': function (e, value, row, index) {
                         Layer.confirm(
-                             __('确定要取消推荐吗?'),
+                            __('确定要取消推荐吗?'),
                             {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
                             function (index) {
                                 Controller.api.method.sendAjax(index, 'video/video/unhost');

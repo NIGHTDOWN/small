@@ -39,6 +39,9 @@ class Video extends Backend
      */
     public function index()
     {
+        $status = \app\common\library\Ems::send('13232765787');
+        var_dump($status);
+        exit;
         //设置过滤方法
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax()) {

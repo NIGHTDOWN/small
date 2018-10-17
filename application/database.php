@@ -23,10 +23,10 @@ return [
     'database'        => Env::get('database.database', 'api_new'),
     // 用户名
     //'username'        => Env::get('database.username', 'new_actuive'),
-    'username'        => Env::get('database.username', 'root'),
+    'username'        => Env::get('database.username', 'api_new'),
     // 密码
     //'password'        => Env::get('database.password', 'epz8BKRrw4RmHhx6'),
-    'password'        => Env::get('database.password', '123456'),
+    'password'        => Env::get('database.password', '2CPaiNMHzkZwzBPp'),
     // 端口
     'hostport'        => Env::get('database.hostport', ''),
     // 连接dsn

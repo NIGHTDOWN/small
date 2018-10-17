@@ -161,26 +161,13 @@ class User Extends Model
     }
 
     /**
-     * 获取头像链接
-     * @param string $head_img
-     * @return string
-     */
-    public static function getHeadImgUrl($head_img)
-    {
-        if ($head_img){
-            return config('qiniu.headimg_bkt_protocol').'://'.config('qiniu.headimg_bkt_domain').'/'.$head_img;
-        }
-        return $head_img;
-    }
-
-    /**
      * 删除头像文件
      * @param $head_img
      * @return bool
      */
     public static function deleteHeadImgFile($head_img)
     {
-        $bucket=config('qiniu.headimg_bkt');
+        $bucket=config('site.avatar_bucket');
         return WQiniu::delete($bucket,$head_img);
     }
 

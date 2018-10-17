@@ -1,0 +1,12 @@
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    
+    <div class="form-group">
+        <ul>
+            {volist name="list" id="vo"}
+            <li style="padding-left:20px;margin-right:40px;list-style: none;line-height: 40px;font-size: 11px; {in name='key' value='($key%2)==0'}background-color: #f9f9f9;{else/}background-color: #ddd;{/in}">
+                  {$vo.content}
+            </li>
+            {/volist}
+        </ul>
+    </div>
+</form>

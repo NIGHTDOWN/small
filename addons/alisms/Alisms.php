@@ -16,10 +16,6 @@ class Alisms
 {
     public static function run(&$param)
     {
-        echo '1';
-        exit;
-//        $url = Config::get('site')['sms_server'];
-//        $content = str_replace('{code}', $param['code'],  Config::get('site')['sms_signature'] . Config::get('site')['sms_'.$param['event']]);
         $params = array ();
         $accessKeyId = 'LTAIUhnXx92AdfBT';
         $accessKeySecret = 'IseOzJdK0gi5S5HT9vnlUnKTZP8BlS';
@@ -27,19 +23,12 @@ class Alisms
         $params['PhoneNumbers'] = $param['mobile'];
         $params['SignName'] = Config::get('site')['sign_name'];
         $params['TemplateCode'] = Config::get('site')['sms_'.$param['event']];
-
         // fixme 可选: 设置模板参数, 假如模板中存在变量需要替换则为必填项
-        switch ($param['event'])
-        {
-            case 'signup':
-                $params['TemplateParam'] = Array (
-                    "code" => $param['code']
-                );
-                break;
-            default:
-                $params['TemplateParam'] = Array (
-                    "content" => $param['code']
-                );
+        
+        if (isset($param['code'])) {
+            $params['TemplateParam'] = ['code' => $param['code']];
+        } else {
+            $params['TemplateParam'] = ['content' => ''];
         }
 
         // *** 需用户填写部分结束, 以下代码若无必要无需更改 ***
@@ -63,6 +52,7 @@ class Alisms
         // fixme 选填: 启用https
         // ,true
         );
+
         if($result)
         {
             if($result->Code == 'OK')

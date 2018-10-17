@@ -145,7 +145,7 @@ class Ad extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
                         $row->validate($validate);
                     }
-                    $result = $row->allowField(true)->save($params);
+                    $result = $row->edit($params);
                     if ($result !== false) {
                         $this->success();
                     } else {
@@ -165,5 +165,30 @@ class Ad extends Backend
         $type_model=model('AdvertisingType');
         $this->view->assign("type_list", $type_model->getList());
         return $this->view->fetch();
+    }
+
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        if ($ids) {
+            $row = $this->model->get($ids);
+            if (!$row)
+                $this->error(__('No Results were found'));
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                    $this->error(__('You have no permission'));
+                }
+            }
+            $result = $row->del();
+            if ($result) {
+                $this->success();
+            } else {
+                $this->error('失败');
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
     }
 }

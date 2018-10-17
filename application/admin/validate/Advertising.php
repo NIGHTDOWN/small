@@ -22,7 +22,7 @@ class Advertising extends Validate
     protected $rule = [
         'type_id'=>'require|integer',
         'title'=>'require',
-        'image'=>'',
+        'image'=>'url',
         'url'=>'url',
         'order_sort'=>'require|integer',
         'status'=>['require','in'=>AdCommonModel::STATUS],

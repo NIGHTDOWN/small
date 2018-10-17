@@ -70,5 +70,36 @@ class Advertising extends Model
         return $this->belongsTo('AdvertisingType', 'type_id', 'id', [])->setEagerlyType(1);
     }
 
+    /**
+     * 编辑
+     * @param $data
+     * @return false|int
+     */
+    public function edit($data)
+    {
+        $old_image=$this->getAttr('image');
+        $ret=$this->allowField(true)->save($data);
+        if ($ret){
+            //图片处理
+            if (isset($data['image'])&&$data['image']){
+                if ($old_image&&($data['image']!=$old_image)){
+                    AdCommonModel::deleteImageFile($old_image);
+                }
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * 删除
+     */
+    public function del()
+    {
+        $ret=$this->delete();
+        if ($ret){
+            AdCommonModel::deleteImageFile($this->getAttr('image'));
+        }
+        return $ret;
+    }
 
 }

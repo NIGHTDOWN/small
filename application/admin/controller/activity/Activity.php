@@ -1,6 +1,6 @@
 <?php
 
-namespace app\admin\controller;
+namespace app\admin\controller\activity;
 
 use app\common\controller\Backend;
 use app\common\model\Activity as CommonActivity;
@@ -23,7 +23,6 @@ class Activity extends Backend
     {
         parent::_initialize();
         $this->model = new \app\admin\model\Activity;
-
     }
 
     /**
@@ -31,13 +30,6 @@ class Activity extends Backend
      */
     public function index()
     {
-//        $param = $this->request->request(['page' => 1, 'page_size' => 20, 'order_direction' => 1, 'order_field' => 'id', 'keyword' => '']);
-
-//        // 校验数据 TODO
-//        $valRes = $this->validate($param, 'Activity.list');
-//        if ($valRes !== true) {
-//            $this->error($valRes);
-//        }
         if ($this->request->isAjax()) {
             list($where, $sort, $order, $offset, $limit) = $this->buildparams('a.title');
             $param = [];
@@ -52,7 +44,7 @@ class Activity extends Backend
             return json($result);
         }
 
-        return $this->fetch();
+        return $this->view->fetch();
     }
 
     /**

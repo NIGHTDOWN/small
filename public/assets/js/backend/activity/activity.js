@@ -5,11 +5,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'activity/index',
-                    add_url: 'activity/add',
-                    edit_url: 'activity/edit',
-                    del_url: 'activity/del',
-                    multi_url: 'activity/multi',
+                    index_url: 'activity/activity/index',
+                    add_url: 'activity/activity/add',
+                    edit_url: 'activity/activity/edit',
+                    del_url: 'activity/activity/del',
+                    multi_url: 'activity/activity/multi',
                     table: 'activity',
                 }
             });
@@ -49,14 +49,14 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     title: __('排序'),
                                     text: __('排序'),
                                     classname: 'btn btn-xs btn-primary btn-dialog btn-edit-sort',
-                                    url: 'activity/edit_sort',
+                                    url: 'activity/activity/edit_sort',
                                 },
                                 {
                                     name: 'edit',
                                     title: __('编辑'),
                                     text: __('编辑'),
                                     classname: 'btn btn-xs btn-primary btn-dialog btn-success',
-                                    url: 'activity/edit'
+                                    url: 'activity/activity/edit'
                                 },
                                 {
                                     name: 'show_video',
@@ -74,7 +74,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     text: __('活动排行榜'),
                                     classname: 'btn btn-xs btn-info btn-dialog btn-activity-top',
                                     url: function (data) {
-                                        return 'activity.top/index?ids=' + data.id
+                                        return 'activity/top/index?ids=' + data.id
                                     }
 
                                 }

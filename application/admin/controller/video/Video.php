@@ -56,6 +56,9 @@ class Video extends Backend
                 $map['video.id'] = ['in', $ids];
             }
 
+            // 排序
+            ! empty($sort) && strpos($sort, 'video.') === false && $sort = 'video.' . $sort;
+
             $total = $this->model
                 ->with('user')
                 ->where($where)

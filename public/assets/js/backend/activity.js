@@ -136,26 +136,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             },
             formatter: {
                 operate: function (value, row, index) {
-                    var table = this.table;
-                    // 操作配置
-                    var options = table ? table.bootstrapTable('getOptions') : {};
-                    // 默认按钮组
-                    var buttons = $.extend([], this.buttons || []);
-                    // 所有按钮名称
-                    var names = [];
-                    buttons.forEach(function (item) {
-                        names.push(item.name);
-                    });
-                    // if (options.extend.del_url !== '' && names.indexOf('del') === -1) {
-                    //     buttons.push({
-                    //         name: 'del',
-                    //         icon: 'fa fa-trash',
-                    //         title: __('Del'),
-                    //         extend: 'data-toggle="tooltip"',
-                    //         classname: 'btn btn-xs btn-danger btn-delone'
-                    //     });
-                    // }
-                    return Table.api.buttonlink(this, buttons, value, row, index, 'operate');
+
                 }
             }
         }

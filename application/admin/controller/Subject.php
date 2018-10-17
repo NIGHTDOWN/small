@@ -31,20 +31,11 @@ class Subject extends Backend
     }
 
     /**
-     * 默认生成的控制器所继承的父类中有index/add/edit/del/multi五个基础方法、destroy/restore/recyclebin三个回收站方法
-     * 因此在当前控制器中可不用编写增删改查的代码,除非需要自己控制这部分逻辑
-     * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
-     */
-
-    /**
      * 列表
      */
     public function index()
     {
         if ($this->request->isAjax()) {
-            $param = $this->request->only(['page' => 1, 'page_size' => 20, 'order_direction' => 1,
-                'order_field' => 'id', 'keyword' => '', 'status']);
-
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             // 通用搜索中subject_name应为like
 

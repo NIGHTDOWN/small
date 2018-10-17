@@ -73,6 +73,22 @@ class Operate extends Backend
         return $this->view->fetch();
     }
 
+    /**
+     * 默认文案
+     * 
+     * @return [type] [description]
+     */
+    public function default_list()
+    {
+        $param = [
+            'type' => \app\admin\model\FeedbackDefaultReply::TYPE['CASH'],
+            'status' => \app\admin\model\FeedbackDefaultReply::STATUS['ENABLED']
+        ];
+        $list = model('FeedbackDefaultReply')->getList($param);
+        $this->view->assign("list", $list);
+        return $this->view->fetch();
+    }
+
     public function adopt()
     {
         $this->success();

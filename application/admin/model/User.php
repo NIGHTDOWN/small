@@ -60,7 +60,6 @@ class User extends Model
      */
     public function edit($data)
     {
-        $row=$this->where('id',$data['id'])->find();
         //密码处理
         if (isset($data['password'])){
             if ($data['password']){
@@ -69,36 +68,31 @@ class User extends Model
                 unset($data['password']);
             }
         }
-        //头像处理
-        if (isset($data['head_img'])){
-            if ($data['head_img']){
-                $old_head_img=$row->getAttr('head_img');
-                if ($old_head_img&&($data['head_img']!=$old_head_img)){
-                    $avatar_url=config('site.avatar_url');
-                    $key=str_replace("$avatar_url/",'',$old_head_img);
-                    UserCommonModel::deleteHeadImgFile($key);
+        $old_head_img=$this->getAttr('head_img');
+        $ret=$this->allowField(['nickname','head_img','password','mobile','group_id','status'])->save($data);
+        if ($ret){
+            //头像处理
+            if (isset($data['head_img'])){
+                if ($data['head_img']){
+                    if ($old_head_img&&($data['head_img']!=$old_head_img)){
+                        $avatar_url=config('site.avatar_url');
+                        $key=str_replace("$avatar_url/",'',$old_head_img);
+                        UserCommonModel::deleteHeadImgFile($key);
+                    }
                 }
-            }else{
-                $data['head_img']=$row->getAttr('head_img');
             }
-        }
-        try{
-            $this->allowField(['nickname','head_img','password','mobile','group_id','status'])->update($data);
             //昵称变更
-            if ($data['nickname']!==$row->getAttr('nickname')){
-                UserCommonModel::addEs($data['id'],$data['nickname']);
+            if ($data['nickname']!==$this->getAttr('nickname')){
+                UserCommonModel::addEs($this->getAttr('id'),$data['nickname']);
             }
             //处理缓存
             if ($data['status']==UserCommonModel::STATUS['normal']){
-                UserCommonModel::updateUserCache($data['id'],['nickname'=>$data['nickname'],'head_img'=>$data['head_img']??'','mobile'=>$data['mobile'],'group_id'=>$data['group_id']]);
+                UserCommonModel::updateUserCache($this->getAttr('id'),['nickname'=>$data['nickname'],'head_img'=>$data['head_img']??'','mobile'=>$data['mobile'],'group_id'=>$data['group_id']]);
             }else{
-                UserCommonModel::deleteUserCache($data['id']);
+                UserCommonModel::deleteUserCache($this->getAttr('id'));
             }
-            return true;
-        }catch (\Exception $e){
-            $this->error='失败';
-            return false;
         }
+        return $ret;
     }
 
     /**

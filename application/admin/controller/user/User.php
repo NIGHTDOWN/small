@@ -101,11 +101,11 @@ class User extends Backend
             $params = $this->request->post("row/a");
             if ($params) {
                 try {
-                    $params['id']=$ids;
-                    //数据验证
-                    $ret=$this->validate($params,'User.edit');
-                    if(true !== $ret){
-                        $this->error($ret);
+                    //是否采用模型验证
+                    if ($this->modelValidate) {
+                        $name = basename(str_replace('\\', '/', get_class($this->model)));
+                        $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
+                        $row->validate($validate);
                     }
                     $result = $row->edit($params);
                     if ($result !== false) {

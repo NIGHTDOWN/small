@@ -75,9 +75,7 @@ class User extends Model
             if (isset($data['head_img'])){
                 if ($data['head_img']){
                     if ($old_head_img&&($data['head_img']!=$old_head_img)){
-                        $avatar_url=config('site.avatar_url');
-                        $key=str_replace("$avatar_url/",'',$old_head_img);
-                        UserCommonModel::deleteHeadImgFile($key);
+                        UserCommonModel::deleteHeadImgFile($old_head_img);
                     }
                 }
             }
@@ -97,31 +95,22 @@ class User extends Model
 
     /**
      * 删除
-     * @param $id
      * @return int
      */
-    public function del($id)
+    public function del()
     {
-        //删除缓存
-        if (UserCommonModel::existUserCache($id)){
-            $cache_ret=UserCommonModel::deleteUserCache($id);
-            if (!$cache_ret){
-                $this->error='删除缓存失败';
-                return false;
+        $ret = $this->delete();
+        if ($ret){
+            //删除头像
+            UserCommonModel::deleteHeadImgFile($this->getAttr('head_img'));
+            //删除es
+            UserCommonModel::delEs($this->getAttr('id'));
+            //删除缓存
+            if (UserCommonModel::existUserCache($this->getAttr('id'))){
+                UserCommonModel::deleteUserCache($this->getAttr('id'));
             }
         }
-        //删除es
-        $es_ret=UserCommonModel::delEs($id);
-        if (!$es_ret){
-            $this->error='删除es失败';
-            return false;
-        }
-        $ret = $this->where('id','=',$id)->delete();
-        if (!$ret){
-            $this->error='删除失败';
-            return false;
-        }
-        return true;
+        return $ret;
     }
 
 }

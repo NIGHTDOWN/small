@@ -135,13 +135,20 @@ class User extends Backend
     public function del($ids = "")
     {
         if ($ids) {
-            /** @var \app\admin\model\User $model */
-            $model=model('User');
-            $ret=$model->del($ids);
-            if ($ret) {
+            $row = $this->model->get($ids);
+            if (!$row)
+                $this->error(__('No Results were found'));
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                    $this->error(__('You have no permission'));
+                }
+            }
+            $result = $row->del();
+            if ($result) {
                 $this->success();
             } else {
-                $this->error($model->getError());
+                $this->error('失败');
             }
         }
         $this->error(__('Parameter %s can not be empty', 'ids'));

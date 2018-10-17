@@ -167,8 +167,10 @@ class User Extends Model
      */
     public static function deleteHeadImgFile($head_img)
     {
+        $url=config('site.avatar_url');
+        $key=str_replace("$url/",'',$head_img);
         $bucket=config('site.avatar_bucket');
-        return WQiniu::delete($bucket,$head_img);
+        return WQiniu::delete($bucket,$key);
     }
 
     /**

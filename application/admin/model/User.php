@@ -17,7 +17,6 @@ class User extends Model
     protected $updateTime = 'update_time';
     // 追加属性
     protected $append = [
-        'head_img_url',
     ];
 
     public function getStatusList()
@@ -42,12 +41,6 @@ class User extends Model
     {
         $value = $value ? $value : $data['is_robot'];
         return UserCommonModel::IS_ROBOT_TEXT[$value];
-    }
-
-    public function getHeadImgUrlAttr($value, $data)
-    {
-        $value = $value ? $value : $data['head_img'];
-        return UserCommonModel::getHeadImgUrl($value);
     }
 
     public function burse()
@@ -81,7 +74,9 @@ class User extends Model
             if ($data['head_img']){
                 $old_head_img=$row->getAttr('head_img');
                 if ($old_head_img&&($data['head_img']!=$old_head_img)){
-                    UserCommonModel::deleteHeadImgFile($old_head_img);
+                    $avatar_url=config('site.avatar_url');
+                    $key=str_replace("$avatar_url/",'',$old_head_img);
+                    UserCommonModel::deleteHeadImgFile($key);
                 }
             }else{
                 $data['head_img']=$row->getAttr('head_img');
@@ -95,7 +90,7 @@ class User extends Model
             }
             //处理缓存
             if ($data['status']==UserCommonModel::STATUS['normal']){
-                UserCommonModel::updateUserCache($data['id'],['nickname'=>$data['nickname'],'head_img'=>$data['head_img'],'mobile'=>$data['mobile'],'group_id'=>$data['group_id']]);
+                UserCommonModel::updateUserCache($data['id'],['nickname'=>$data['nickname'],'head_img'=>$data['head_img']??'','mobile'=>$data['mobile'],'group_id'=>$data['group_id']]);
             }else{
                 UserCommonModel::deleteUserCache($data['id']);
             }

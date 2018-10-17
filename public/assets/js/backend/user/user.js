@@ -34,7 +34,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'id', title: __('Id'), sortable: true},
                         {field: 'user_name', title: __('Username'), operate: 'LIKE'},
                         {field: 'nickname', title: __('Nickname'), operate: 'LIKE'},
-                        {field: 'head_img_url', title: __('Avatar'), formatter: Table.api.formatter.image, operate: false},
+                        {field: 'head_img', title: __('Avatar'), formatter: Table.api.formatter.image, operate: false},
                         {field: 'mobile', title: __('Mobile'), operate: 'LIKE'},
                         {field: 'create_time', title: __('Createtime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
                         {field: 'update_time', title: __('Updatetime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},

@@ -161,19 +161,6 @@ class User Extends Model
     }
 
     /**
-     * 获取类型文本
-     * @param int $type
-     * @return string
-     */
-    public static function getTypeText($type)
-    {
-        if (!in_array($type,self::TYPE)){
-            return '';
-        }
-        return self::TYPE_TEXT[$type];
-    }
-
-    /**
      * 获取头像链接
      * @param string $head_img
      * @return string

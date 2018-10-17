@@ -22,7 +22,7 @@ class User extends Validate
     protected $rule = [
         'id'=>'require|integer',
         'nickname'=>'require|chsDash|length:4,12|unique:user',
-        'head_img'=>'',
+        'head_img'=>'url',
         'password'=>'alphaNum|length:6,16',
         'mobile'=>'checkMobile|unique:user',
         'group_id'=>'require|integer',

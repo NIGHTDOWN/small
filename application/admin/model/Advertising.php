@@ -78,7 +78,7 @@ class Advertising extends Model
     public function edit($data)
     {
         $old_image=$this->getAttr('image');
-        $ret=$this->allowField(true)->save($data);
+        $ret=$this->save($data);
         if ($ret){
             //图片处理
             if (isset($data['image'])&&$data['image']){

@@ -69,7 +69,7 @@ class User extends Model
             }
         }
         $old_head_img=$this->getAttr('head_img');
-        $ret=$this->allowField(['nickname','head_img','password','mobile','group_id','status'])->save($data);
+        $ret=$this->save($data);
         if ($ret){
             //头像处理
             if (isset($data['head_img'])){

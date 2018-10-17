@@ -107,7 +107,7 @@ class User extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
                         $row->validate($validate);
                     }
-                    $result = $row->edit($params);
+                    $result = $row->allowField(['nickname','head_img','password','mobile','group_id','status'])->edit($params);
                     if ($result !== false) {
                         $this->success();
                     } else {

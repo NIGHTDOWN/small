@@ -100,7 +100,7 @@ class Ad extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                         $this->model->validate($validate);
                     }
-                    $result = $this->model->allowField(true)->save($params);
+                    $result = $this->model->allowField(['type_id','title','image','url','order_sort','status'])->save($params);
                     if ($result !== false) {
                         $this->success();
                     } else {
@@ -145,7 +145,7 @@ class Ad extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
                         $row->validate($validate);
                     }
-                    $result = $row->edit($params);
+                    $result = $row->allowField(['type_id','title','image','url','order_sort','status'])->edit($params);
                     if ($result !== false) {
                         $this->success();
                     } else {

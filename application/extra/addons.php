@@ -8,6 +8,10 @@ return array (
 		array (
 			0 => 'Alisms',
 		),
+      'upload_after' =>
+          array (
+              0 => 'Qnupload',
+          ),
   ),
   'route' => 
   array (

@@ -206,7 +206,9 @@ define(['jquery', 'bootstrap', 'plupload', 'template'], function ($, undefined, 
                             mime_types: mimetype,
                         },
                         url: url,
-                        multipart_params: $.isArray(multipart) ? {} : multipart,
+                        // 修改multipart数据格式问题 by Flyn
+                        // multipart_params: $.isArray(multipart) ? {} : multipart,
+                        multipart_params: $.isArray(multipart) ? {} : eval('(' + multipart + ')'),
                         init: {
                             PostInit: Upload.events.onPostInit,
                             FilesAdded: Upload.events.onFileAdded,

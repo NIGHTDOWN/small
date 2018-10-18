@@ -12,6 +12,12 @@ use app\common\controller\Backend;
 class Type extends Backend
 {
 
+    protected $searchFields=['type'];
+
+    protected $modelValidate=true;
+
+    protected $modelSceneValidate=true;
+
     /**
      * AdvertisingType模型对象
      * @var \app\admin\model\AdvertisingType
@@ -58,7 +64,7 @@ class Type extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                         $this->model->validate($validate);
                     }
-                    $result = $this->model->allowField(true)->save($params);
+                    $result = $this->model->allowField(['type','status'])->save($params);
                     if ($result !== false) {
                         $this->success();
                     } else {
@@ -101,7 +107,7 @@ class Type extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
                         $row->validate($validate);
                     }
-                    $result = $row->allowField(true)->save($params);
+                    $result = $row->allowField(['type','status'])->save($params);
                     if ($result !== false) {
                         $this->success();
                     } else {

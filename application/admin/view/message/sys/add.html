@@ -1,0 +1,59 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Cover_img')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="input-group">
+                <input id="c-image" data-rule="" class="form-control form-control" size="50" name="row[cover_img]" type="text" value="">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="plupload-image" class="btn btn-danger plupload" data-input-id="c-image" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multipart="{'type':'other'}" data-multiple="false" data-preview-id="p-image"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" id="fachoose-image" class="btn btn-primary fachoose" data-input-id="c-image" data-mimetype="image/*" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-image"></span>
+            </div>
+            <ul class="row list-inline plupload-preview" id="p-image"></ul>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Message')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <textarea id="c-description" class="form-control form-control" data-rule="required" name="row[message]" style="height: 87px; "></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('链接')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-app_action_info" data-rule="" class="form-control form-control" name="row[link]" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('User_range')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_radios('row[user_range]', $user_range_list, null, ['required'=>''])}
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('用户ID')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-app_action_info" data-rule="" placeholder="格式:1,2,3.全部用户则不需要传此参数" class="form-control form-control" name="row[target_user_ids]" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Is_now')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_radios('row[is_now]', $is_now_list, null, ['required'=>''])}
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Send_time')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-send_time" class="form-control datetimepicker form-control" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[send_time]" type="text" value="{:date('Y-m-d H:i:s')}">
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

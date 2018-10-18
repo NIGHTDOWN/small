@@ -12,11 +12,11 @@ class SiteBannerType extends Model
     protected $name = 'site_banner_type';
     
     // 自动写入时间戳字段
-    protected $autoWriteTimestamp = false;
+    protected $autoWriteTimestamp = 'int';
 
     // 定义时间戳字段名
-    protected $createTime = false;
-    protected $updateTime = false;
+    protected $createTime = 'create_time';
+    protected $updateTime = 'update_time';
     
     // 追加属性
     protected $append = [

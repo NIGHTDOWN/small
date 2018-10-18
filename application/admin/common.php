@@ -30,15 +30,16 @@ if (!function_exists('build_radios')) {
      * @param string $name
      * @param array $list
      * @param mixed $selected
+     * @param array $attr
      * @return string
      */
-    function build_radios($name, $list = [], $selected = null)
+    function build_radios($name, $list = [], $selected = null,$attr = [])
     {
         $html = [];
         $selected = is_null($selected) ? key($list) : $selected;
         $selected = is_array($selected) ? $selected : explode(',', $selected);
         foreach ($list as $k => $v) {
-            $html[] = sprintf(Form::label("{$name}-{$k}", "%s {$v}"), Form::radio($name, $k, in_array($k, $selected), ['id' => "{$name}-{$k}"]));
+            $html[] = sprintf(Form::label("{$name}-{$k}", "%s {$v}"), Form::radio($name, $k, in_array($k, $selected),array_merge($attr,['id' => "{$name}-{$k}"])));
         }
         return '<div class="radio">' . implode(' ', $html) . '</div>';
     }

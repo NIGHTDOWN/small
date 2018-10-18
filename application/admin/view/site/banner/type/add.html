@@ -9,7 +9,7 @@
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Status')}:</label>
         <div class="col-xs-12 col-sm-8">
-            {:build_radios('row[status]', [0=>'关闭',1=>'开启'],null, ['class'=>'form-control', 'required'=>''])}
+            {:build_select('row[status]', [0=>'关闭',1=>'开启'],1, ['class'=>'form-control', 'required'=>''])}
         </div>
     </div>
     <div class="form-group layer-footer">

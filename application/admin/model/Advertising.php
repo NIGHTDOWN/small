@@ -81,7 +81,7 @@ class Advertising extends Model
         $ret=$this->save($data);
         if ($ret){
             //图片处理
-            if (isset($data['image'])&&$data['image']){
+            if (isset($data['image'])){
                 if ($old_image&&($data['image']!=$old_image)){
                     AdCommonModel::deleteImageFile($old_image);
                 }

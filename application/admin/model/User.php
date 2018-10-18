@@ -73,10 +73,8 @@ class User extends Model
         if ($ret){
             //头像处理
             if (isset($data['head_img'])){
-                if ($data['head_img']){
-                    if ($old_head_img&&($data['head_img']!=$old_head_img)){
-                        UserCommonModel::deleteHeadImgFile($old_head_img);
-                    }
+                if ($old_head_img&&($data['head_img']!=$old_head_img)){
+                    UserCommonModel::deleteHeadImgFile($old_head_img);
                 }
             }
             //昵称变更

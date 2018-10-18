@@ -12,6 +12,10 @@ use app\common\controller\Backend;
 class User extends Backend
 {
 
+    protected $modelValidate=true;
+
+    protected $modelSceneValidate=true;
+
     protected $relationSearch = true;
 
     protected $searchFields = ['nickname'];

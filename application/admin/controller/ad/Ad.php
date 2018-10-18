@@ -16,6 +16,8 @@ class Ad extends Backend
 
     protected $modelValidate=true;
 
+    protected $modelSceneValidate=true;
+
     /**
      * Advertising模型对象
      * @var \app\admin\model\Advertising

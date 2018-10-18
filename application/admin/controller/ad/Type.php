@@ -12,6 +12,12 @@ use app\common\controller\Backend;
 class Type extends Backend
 {
 
+    protected $searchFields=['type'];
+
+    protected $modelValidate=true;
+
+    protected $modelSceneValidate=true;
+
     /**
      * AdvertisingType模型对象
      * @var \app\admin\model\AdvertisingType

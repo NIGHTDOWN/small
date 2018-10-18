@@ -14,6 +14,8 @@ class Sys extends Backend
 
     protected $modelValidate=true;
 
+    protected $modelSceneValidate=true;
+
     protected $searchFields=['message'];
     
     /**

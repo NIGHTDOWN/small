@@ -1,33 +1,33 @@
 <?php
 
-namespace app\admin\controller\ad;
+namespace app\admin\controller\message;
 
 use app\common\controller\Backend;
 
 /**
- * 广告
+ * 系统消息
  *
  * @icon fa fa-circle-o
  */
-class Ad extends Backend
+class Sys extends Backend
 {
-
-    protected $searchFields=['title'];
 
     protected $modelValidate=true;
 
     protected $modelSceneValidate=true;
 
+    protected $searchFields=['message'];
+    
     /**
-     * Advertising模型对象
-     * @var \app\admin\model\Advertising
+     * SysMessage模型对象
+     * @var \app\admin\model\SysMessage
      */
     protected $model = null;
 
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('Advertising');
+        $this->model = model('SysMessage');
     }
     
     /**
@@ -35,19 +35,6 @@ class Ad extends Backend
      * 因此在当前控制器中可不用编写增删改查的代码,除非需要自己控制这部分逻辑
      * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
      */
-
-    /**
-     * 表格基础数据
-     */
-    public function tableBaseData()
-    {
-        $data=[];
-        /** @var \app\admin\model\AdvertisingType $type_model */
-        $type_model=model('AdvertisingType');
-        $data['type_list']=$type_model->getList();
-        $data['status_list']=$this->model->getStatusList();
-        return $data;
-    }
 
     /**
      * 查看
@@ -63,14 +50,16 @@ class Ad extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
-                ->with('type')
+//                ->with('extend')
                 ->where($where)
+                ->where(['admin_id'=>['<>',0]])
                 ->order($sort, $order)
                 ->count();
 
             $list = $this->model
-                ->with('type')
+//                ->with('extend')
                 ->where($where)
+                ->where(['admin_id'=>['<>',0]])
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
@@ -80,9 +69,9 @@ class Ad extends Backend
 
             return json($result);
         }
+        $this->view->assign("status_list", $this->model->getStatusList());
         return $this->view->fetch();
     }
-
 
     /**
      * 添加
@@ -102,7 +91,7 @@ class Ad extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                         $this->model->validate($validate);
                     }
-                    $result = $this->model->allowField(['type_id','title','image','url','order_sort','status'])->save($params);
+                    $result = $this->model->allowField(['message','cover_img','app_action_info','user_range','is_now','send_time','admin_id'])->add($params);
                     if ($result !== false) {
                         $this->success();
                     } else {
@@ -116,10 +105,8 @@ class Ad extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
-        $this->view->assign("status_list", $this->model->getStatusList());
-        /** @var \app\admin\model\AdvertisingType $type_model */
-        $type_model=model('AdvertisingType');
-        $this->view->assign("type_list", $type_model->getList());
+        $this->view->assign("user_range_list", $this->model->getUserRangeList());
+        $this->view->assign("is_now_list", $this->model->getIsNowList());
         return $this->view->fetch();
     }
 
@@ -147,7 +134,7 @@ class Ad extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
                         $row->validate($validate);
                     }
-                    $result = $row->allowField(['type_id','title','image','url','order_sort','status'])->edit($params);
+                    $result = $row->allowField(['message','cover_img','app_action_info'])->edit($params);
                     if ($result !== false) {
                         $this->success();
                     } else {
@@ -162,35 +149,50 @@ class Ad extends Backend
             $this->error(__('Parameter %s can not be empty', ''));
         }
         $this->view->assign("row", $row);
-        $this->view->assign("status_list", $this->model->getStatusList());
-        /** @var \app\admin\model\AdvertisingType $type_model */
-        $type_model=model('AdvertisingType');
-        $this->view->assign("type_list", $type_model->getList());
+        $this->view->assign("user_range_list", $this->model->getUserRangeList());
+        $this->view->assign("is_now_list", $this->model->getIsNowList());
         return $this->view->fetch();
     }
 
     /**
-     * 删除
+     * 详情
      */
-    public function del($ids = "")
+    public function detail($ids = NULL)
     {
-        if ($ids) {
-            $row = $this->model->get($ids);
-            if (!$row)
-                $this->error(__('No Results were found'));
-            $adminIds = $this->getDataLimitAdminIds();
-            if (is_array($adminIds)) {
-                if (!in_array($row[$this->dataLimitField], $adminIds)) {
-                    $this->error(__('You have no permission'));
-                }
-            }
-            $result = $row->del();
-            if ($result) {
-                $this->success();
-            } else {
-                $this->error('失败');
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                $this->error(__('You have no permission'));
             }
         }
-        $this->error(__('Parameter %s can not be empty', 'ids'));
+        $this->view->assign("row", $row);
+        $this->view->assign("user_range_list", $this->model->getUserRangeList());
+        $this->view->assign("is_now_list", $this->model->getIsNowList());
+        return $this->view->fetch();
+    }
+
+    /**
+     * 发送
+     */
+    public function send($ids = null)
+    {
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                $this->error(__('You have no permission'));
+            }
+        }
+        $ret = $row->send();
+        if ($ret){
+            $this->success();
+        }else{
+            $this->error();
+        }
     }
 }

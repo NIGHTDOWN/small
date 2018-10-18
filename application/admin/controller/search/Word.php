@@ -20,6 +20,8 @@ class Word extends Backend
 
     protected $modelValidate=true;
 
+    protected $modelSceneValidate=true;
+
     protected $searchFields=['word'];
 
     protected $multiFields=['order_sort','status'];

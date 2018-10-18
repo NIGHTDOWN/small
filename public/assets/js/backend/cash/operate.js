@@ -9,6 +9,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     adopt: 'cash/operate/adopt',
                     refuse: 'cash/operate/refuse',
                     multi_url: 'cash/operate/multi',
+                    default_list: 'cash/operate/default_list',
                     table: 'cash_withdraw',
                 }
             });
@@ -81,6 +82,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 添加按钮
             Controller.api.buttons(table);
         },
+        default_list: function () {
+            Controller.api.bindevent();
+        },
         api: {
             bindevent: function () {
                 Form.api.bindevent($("form[role=form]"));
@@ -113,6 +117,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             Controller.api.method.sendAjax(index, options.extend.refuse, {ids: ids});
                         }
                     );
+                });
+                // 审核理由
+                $(toolbar).on('click', '.btn-default_list', function () {
+                    var ids = Table.api.selectedids(table);
+                    // var url = options.extend.set_param;
+                    Fast.api.open('cash/operate/default_list', __('拒绝理由'));
                 });
             },
             events: {

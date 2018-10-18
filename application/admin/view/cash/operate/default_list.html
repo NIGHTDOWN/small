@@ -1,12 +1,90 @@
+<link rel="stylesheet" href="/assets/libs/fastadmin-layer/dist/theme/default/layer.css">
+<style type="text/css">
+	#default-list li {
+		padding-left: 20px;
+		margin-right: 40px;
+		list-style: none;
+		line-height: 40px;
+		font-size: 11px; 
+	}
+</style>
 <form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
-    
+    <a href="javascript:;" class="add btn btn-success {:$auth->check('cash/operate/refuse')?'':'hide'}" title="{:__('添加')}" style="margin-left: 25px;margin-bottom: 25px;"><i class=""></i> {:__('添加')}</a>
     <div class="form-group">
-        <ul>
-            {volist name="list" id="vo"}
-            <li style="padding-left:20px;margin-right:40px;list-style: none;line-height: 40px;font-size: 11px; {in name='key' value='($key%2)==0'}background-color: #f9f9f9;{else/}background-color: #ddd;{/in}">
-                  {$vo.content}
-            </li>
-            {/volist}
+        <ul id="default-list">
+            
         </ul>
     </div>
 </form>
+<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+<!-- <script src="/assets/libs/fastadmin-layer/dist/layer.js"></script> -->
+<script type="text/javascript">
+$('.add').click(function () {
+	layer.prompt(
+	    {icon: 3, title: '添加'},
+	    function (text, index) {
+	    	Controller.sendAjax(index, 'cash/operate/add', {content: text});
+        }
+	);
+});
+
+function update(data) {
+	layer.prompt(
+	    {icon: 3, title: '修改', value: data.getAttribute('data-text')},
+	    function (text, index) {
+	    	Controller.sendAjax(index, 'cash/operate/update', {content: text, id: data.getAttribute('data-id')});
+        }
+	);
+}
+
+function del(data) {
+	layer.confirm('确定要删除吗？', {
+		btn: ['确定', '取消'] //按钮
+	}, function(index){
+		Controller.sendAjax(index, 'cash/operate/delete', {id: data.getAttribute('data-id')});
+	});
+}
+
+var Controller = {
+	sendAjax: function (index, url, data) {
+		$.ajax({
+			url: url,
+			type: 'POST',
+			data: data,
+			dataType: 'json',
+		}).done(function (result) {
+			if (result.code == 1) {
+				Layer.close(index);
+				Controller.Initialization();
+			} else {
+				Layer.msg(result.msg, {time: 1000});
+			}
+		});
+	},
+	Initialization: function() {
+		$.ajax({
+			url: document.location.protocol + '//' + window.location.host + '/admin/cash/operate/default_list',
+			type: 'POST',
+			dataType: 'json',
+		}).done(function (result) {
+			if (result.code == 1) {
+				var html = "";
+				for (var i = 0; i < result.data.length; i++) {
+					var backgroundColor = (i%2 == 0) ? 'background-color: #f9f9f9;' : 'background-color: #ddd;';
+					html += '<li style="'+backgroundColor+'">';
+					html += result.data[i].content;
+					html += '<div style="float: right;">';
+					html += '<a href="javascript:;" class="btn btn-success btn-refuse {:$auth->check("cash/operate/refuse")?"":"hide"}" title="{:__("更新")}" data-id="'+result.data[i].id+'" data-text="'+result.data[i].content+'" onclick="update(this);"><i class=""></i> {:__("更新")}</a>';
+					html += '<a href="javascript:;" class="btn btn-danger btn-refuse {:$auth->check("cash/operate/refuse")?"":"hide"}" title="{:__("删除")}" data-id="'+result.data[i].id+'" onclick="del(this);"><i class=""></i> {:__("删除")}</a>';
+					html += '</li>';
+				}
+				$('#default-list').html(html);
+			} else {
+				Layer.msg(result.msg, {time: 1000});
+			}
+		});
+	}
+};
+Controller.Initialization();
+</script>
+

@@ -73,22 +73,6 @@ class Operate extends Backend
         return $this->view->fetch();
     }
 
-    /**
-     * 默认文案
-     * 
-     * @return [type] [description]
-     */
-    public function default_list()
-    {
-        $param = [
-            'type' => \app\admin\model\FeedbackDefaultReply::TYPE['CASH'],
-            'status' => \app\admin\model\FeedbackDefaultReply::STATUS['ENABLED']
-        ];
-        $list = model('FeedbackDefaultReply')->getList($param);
-        $this->view->assign("list", $list);
-        return $this->view->fetch();
-    }
-
     public function adopt()
     {
         $this->success();
@@ -99,4 +83,80 @@ class Operate extends Backend
         $this->success();
     }
 
+    /**
+     * 默认文案
+     * 
+     * @return [type] [description]
+     */
+    public function default_list()
+    {
+        if ($this->request->isPost()) {
+            $param = [
+                'type' => \app\admin\model\FeedbackDefaultReply::TYPE['CASH'],
+                'status' => \app\admin\model\FeedbackDefaultReply::STATUS['ENABLED']
+            ];
+            $list = model('FeedbackDefaultReply')->getList($param);
+            return $this->success('成功', '', $list);
+        }
+        return $this->view->fetch();
+    }
+
+   /**
+    * 添加提现文案
+    */
+    public function add()
+    {
+        if ($this->request->isPost()) {
+            $content = input('content');
+            $model = model('FeedbackDefaultReply');
+            $params = [
+                'content' => $content,
+                'type' => \app\admin\model\FeedbackDefaultReply::TYPE['CASH'],
+            ];
+            $result = $model->add($params);
+            if ($result) {
+                $this->success();
+            } else {
+                $this->error($model->getError());
+            }
+        }
+    }
+
+    /**
+     * 更新文案
+     * 
+     * @return [type] [description]
+     */
+    public function update()
+    {
+        if ($this->request->isPost()) {
+            $params = $this->request->only(['id', 'content']);
+            $model = model('FeedbackDefaultReply');
+            $result = $model->edit($params);
+            if ($result) {
+                $this->success();
+            } else {
+                $this->error($model->getError());
+            }
+        }
+    }
+
+    /**
+     * 删除文案
+     * 
+     * @return [type] [description]
+     */
+    public function delete()
+    {
+        if ($this->request->isPost()) {
+            $id = input('post.id');
+            $model = model('FeedbackDefaultReply');
+            $result = $model->del($id);
+            if ($result) {
+                $this->success();
+            } else {
+                $this->error($model->getError());
+            }
+        }
+    }
 }

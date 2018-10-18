@@ -1,10 +1,10 @@
 <?php
 
-namespace app\admin\validate;
+namespace app\admin\validate\opinion;
 
 use think\Validate;
 
-class ContentReport extends Validate
+class Feedback extends Validate
 {
     /**
      * 验证规则

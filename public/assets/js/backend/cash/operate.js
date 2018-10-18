@@ -120,8 +120,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 });
                 // 审核理由
                 $(toolbar).on('click', '.btn-default_list', function () {
-                    var ids = Table.api.selectedids(table);
-                    // var url = options.extend.set_param;
                     Fast.api.open('cash/operate/default_list', __('拒绝理由'));
                 });
             },

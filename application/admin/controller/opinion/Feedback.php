@@ -1,20 +1,20 @@
 <?php
 
-namespace app\admin\controller\cash;
+namespace app\admin\controller\opinion;
 
 use app\common\controller\Backend;
 
 /**
- * 
+ * 意见反馈
  *
  * @icon fa fa-circle-o
  */
-class Operate extends Backend
+class Feedback extends Backend
 {
     
     /**
-     * Withdraw模型对象
-     * @var \app\admin\model\cash\Withdraw
+     * Feedback模型对象
+     * @var \app\admin\model\opinion\Feedback
      */
     protected $model = null;
     // 关联搜索
@@ -23,7 +23,7 @@ class Operate extends Backend
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('CashWithdraw');
+        $this->model = new \app\admin\model\OpinionFeedback;
 
     }
     
@@ -42,6 +42,7 @@ class Operate extends Backend
         //设置过滤方法
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax()) {
+            $map = ['parent_id' => 0];
             //如果发送的来源是Selectpage，则转发到Selectpage
             if ($this->request->request('keyField')) {
                 return $this->selectpage();
@@ -50,18 +51,23 @@ class Operate extends Backend
             $total = $this->model
                 ->with('user')
                 ->where($where)
+                ->where($map)
                 ->order($sort, $order)
                 ->count();
 
             $list = $this->model
                 ->with('user')
                 ->where($where)
-                ->order($sort, $order)
+                ->where($map)
+                ->order([
+                    'opinion_feedback.reply_status' => 'ASC',
+                    'opinion_feedback.create_time' => 'DESC'
+                ])
                 ->limit($offset, $limit)
                 ->select();
 
             foreach ($list as $key => $value) {
-                $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment']);
+                 $value->visible(['id', 'content', 'create_time', 'reply_status']);
                 $value->visible(['user']);
                 $value->getRelation('user')->visible(['nickname']);
             }
@@ -73,18 +79,62 @@ class Operate extends Backend
         return $this->view->fetch();
     }
 
-    public function adopt()
+    /**
+     * 回复
+     * 
+     * @param  string $ids [description]
+     * @return [type]      [description]
+     */
+    public function reply($ids = '')
     {
-        $this->success();
-    }
+        if ($ids) {
+            if ($this->request->isPost()) {
+                $content = input('post.content/s', '');
+                $image = input('post.image/s', '');
+                $pid = input('post.parent_id/d', '');
+                $user_id = \think\Session::get('admin.id');
+                $result = $this->model->addFeedback($user_id, $content, $image, $pid);
+                if ($result) {
+                    $this->success();
+                } else {
+                    $this->error($this->model->getError());
+                }
+            }
 
-    public function refuse()
-    {
-        $this->success();
+            $param = [
+                'type' => \app\admin\model\FeedbackDefaultReply::TYPE['FEEDBACK'],
+                'status' => \app\admin\model\FeedbackDefaultReply::STATUS['ENABLED']
+            ];
+            $defaultList = model('FeedbackDefaultReply')->getList($param);
+            $this->view->assign('default_list', $defaultList);
+            $this->view->assign('parent_id', $ids);
+            return $this->view->fetch();
+        }
     }
 
     /**
-     * 默认文案
+     * 详情
+     * 
+     * @return [type] [description]
+     */
+    public function detail($ids)
+    {
+        if ($ids) {
+            if ($this->request->isPost()) {
+                $param = $this->request->only(['order_field' => 'create_time','order_direction'=>0,'page_size'=>20,'page'=>1, 'id' => $ids]);
+                $data = $this->model->getDetail($param);
+                if ($data) {
+                    $this->success('成功', '', $data);
+                } else {
+                    $this->error($this->model->getError());
+                }
+            }
+            return $this->view->fetch();
+        }
+    }
+
+    /**
+     *  文案列表
      * 
      * @return [type] [description]
      */
@@ -92,21 +142,20 @@ class Operate extends Backend
     {
         if ($this->request->isPost()) {
             $param = [
-                'type' => \app\admin\model\FeedbackDefaultReply::TYPE['CASH'],
+                'type' => \app\admin\model\FeedbackDefaultReply::TYPE['FEEDBACK'],
                 'status' => \app\admin\model\FeedbackDefaultReply::STATUS['ENABLED']
             ];
             $list = model('FeedbackDefaultReply')->getList($param);
             return $this->success('成功', '', $list);
         }
-
         $this->view->assign('module', $this->request->module());
         $this->view->assign('controller', str_replace('.', '/', $this->request->controller()));
-        return $this->view->fetch();
+        return $this->view->fetch('cash/operate/default_list');
     }
 
-   /**
-    * 添加提现文案
-    */
+    /**
+     * 添加文案
+     */
     public function add()
     {
         if ($this->request->isPost()) {
@@ -114,7 +163,7 @@ class Operate extends Backend
             $model = model('FeedbackDefaultReply');
             $params = [
                 'content' => $content,
-                'type' => \app\admin\model\FeedbackDefaultReply::TYPE['CASH'],
+                'type' => \app\admin\model\FeedbackDefaultReply::TYPE['FEEDBACK'],
             ];
             $result = $model->add($params);
             if ($result) {
@@ -126,7 +175,7 @@ class Operate extends Backend
     }
 
     /**
-     * 更新文案
+     * 编辑文案
      * 
      * @return [type] [description]
      */
@@ -162,4 +211,5 @@ class Operate extends Backend
             }
         }
     }
+
 }

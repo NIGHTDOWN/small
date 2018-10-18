@@ -1,0 +1,111 @@
+<style>
+    #c-activity_details, #c-share_details, #c-activity_rule{height: 150px; overflow-y: scroll;}
+</style>
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Title')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-title" data-rule="required" class="form-control form-control" name="title" type="text" value="{$row.title}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Image')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="input-group">
+                <input id="c-avatar" data-rule="required" class="form-control" size="50" name="image" type="text" value="{$row.image}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" data-mutipart="{'type':'other'}" id="plupload-avatar" class="btn btn-danger plupload" data-input-id="c-avatar" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-avatar"><i class="fa fa-upload"></i> 上传</button></span>
+                    <span><button type="button" id="fachoose-avatar" class="btn btn-primary fachoose" data-input-id="c-avatar" data-mimetype="image/*" data-multiple="true"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-avatar"></span>
+            </div>
+            <ul class="row list-inline plupload-preview" id="p-avatar"></ul>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Cover_image')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="input-group">
+                <input id="c-cover_image" data-rule="required" class="form-control form-control" size="50" name="cover_image" type="text" value="{$row.cover_image}">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" data-mutipart="{'type':'other'}" id="plupload-cover_image" class="btn btn-danger plupload" data-input-id="c-cover_image" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-cover_image"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" id="fachoose-cover_image" class="btn btn-primary fachoose" data-input-id="c-cover_image" data-mimetype="image/*" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-cover_image"></span>
+            </div>
+            <ul class="row list-inline plupload-preview" id="p-cover_image"></ul>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Activity_details')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <!--<textarea id="c-activity_details" data-rule="" class="form-control  form-control" rows="5" name="activity_details" cols="50">{$row.activity_details}</textarea>-->
+            <div contenteditable="true" id="c-activity_details" data-rule="" class="form-control  form-control">{$row.activity_details}</div>
+            <input type="hidden" name="activity_details" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Share_details')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div contenteditable="true" id="c-share_details" data-rule="" class="form-control  form-control">{$row.share_details}</div>
+            <input type="hidden" name="share_details" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Activity_rule')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div contenteditable="true" id="c-activity_rule" data-rule="" class="form-control  form-control">{$row.share_details}</div>
+            <input type="hidden" name="activity_rule" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Reward_setting')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="checkbox">
+                <label for="reward_setting-1"><input class="reward_setting" id="reward_setting-1" name="video_apply_open" type="checkbox" value="1" {if $row.reward_setting.video_apply.is_open eq 1} checked {/if} disabled> 评论排行</label>
+                <label for="reward_setting-2"><input class="reward_setting" id="reward_setting-2" name="video_like_open" type="checkbox" value="2" {if $row.reward_setting.video_like.is_open eq 1} checked {/if} disabled> 点赞排行</label>
+                <label for="reward_setting-3"><input class="reward_setting" id="reward_setting-3" name="video_play_open" type="checkbox" value="3" {if $row.reward_setting.video_play.is_open eq 1} checked {/if} disabled> 播放排行</label>
+            </div>
+            <div class="col-xs-12 col-sm-2">
+                <input id="c-video_apply" class="form-control form-control" aria-colspan="5" name="video_apply_val" type="text" value="{$row.reward_setting.video_apply.reward_number}" disabled>
+            </div>
+            <div class="col-xs-12 col-sm-2">
+                <input id="c-video_like"  class="form-control form-control" size="50" name="video_like_val" type="text" value="{$row.reward_setting.video_like.reward_number}" disabled>
+            </div>
+            <div class="col-xs-12 col-sm-2">
+                <input id="c-video_play" class="form-control form-control" size="50" name="video_play_val" type="text" value="{$row.reward_setting.video_play.reward_number}" disabled>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Start_time')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-start_time" data-rule="required" class="form-control datetimepicker form-control" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="start_time" type="text" value="{$row.start_time}" disabled>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('End_time')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-end_time" data-rule="required" class="form-control datetimepicker form-control" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="end_time" type="text" value="{$row.end_time}" disabled>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Subject_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-subject_id" data-rule="required" data-source="/admin/activity/activity/subjectSelectList" class="form-control selectpage" name="subject_id" data-field="subject_name" type="text" value="{$row.subject_id}" disabled>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Order_sort')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-order_sort" data-rule="required" class="form-control form-control" name="order_sort" type="number" value="{$row.order_sort}">
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

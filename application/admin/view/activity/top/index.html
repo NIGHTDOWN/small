@@ -1,0 +1,50 @@
+<style>
+    .table th, .table td{text-align: center;}
+</style>
+<div class="panel panel-default">
+
+    <div class="panel-heading">
+        {:build_heading()}
+        <ul class="nav nav-tabs">
+            {foreach $data as $index=>$vo}
+            <li class="{$vo.active?'active':''}"><a href="#{$index}" data-toggle="tab">{$vo.text}</a></li>
+            {/foreach}
+        </ul>
+    </div>
+
+
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            {foreach $data as $index=>$vo}
+            <div class="tab-pane fade {$vo.active?'active in':''}" id="{$index}">
+                <div class="widget-body no-padding">
+                    <table id="table" class="table table-striped table-bordered table-hover table-nowrap" width="100%">
+                        <thead>
+                            <tr>
+                                <th width="15%" >{:__('User_id')}</th>
+                                <th width="15%">{:__('User_nickname')}</th>
+                                <th width="35%">{:__('Video_name')}</th>
+                                <th width="10%">{:__('Popular_value')}</th>
+                                <th width="12%">{:__('Ranking')}</th>
+                                <th width="20%">{:__('Operate')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {foreach $vo.data as $item}
+                            <tr>
+                                <td>{$item.user_id}</td>
+                                <td>{$item.user_nickname}</td>
+                                <td>{$item.video_name}</td>
+                                <td>{$item.popular_value}</td>
+                                <td>{$item.ranking}</td>
+                                <td><a href="javascript:;" class="btn btn-xs btn-warning show-top-video" data-url="{:url('/admin/video/video/play/ids/')}{$item.video_id}">查看视频</a></td>
+                            </tr>
+                            {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {/foreach}
+        </div>
+    </div>
+</div>

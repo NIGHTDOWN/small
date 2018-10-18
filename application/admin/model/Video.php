@@ -3,6 +3,7 @@
 namespace app\admin\model;
 
 use think\Model;
+use wsj\WQiniu;
 
 class Video extends Model
 {
@@ -168,5 +169,23 @@ class Video extends Model
     //     return $value && !is_numeric($value) ? strtotime($value) : $value;
     // }
 
+    /**
+     * 获取播放地址
+     * @param $key
+     * @param $status
+     * @return string
+     */
+    public static function getPlayUrl($key,$status)
+    {
+        $qiniuConfig=config('qiniu.');
+        if ($status==self::$status['DISPLAY']){
+            $play_url=WQiniu::getPublicVideoDownUrl($key);
+        }elseif ($status==self::$status['VIOLATION']){
+            $play_url=$qiniuConfig['original_video_bkt_protocol'].'://'.$qiniuConfig['original_video_bkt_domain'].'/'.$key;
+        }else{
+            $play_url=$qiniuConfig['public_video_bkt_protocol'].'://'.$qiniuConfig['public_video_bkt_domain'].'/'.$key;
+        }
+        return $play_url;
+    }
 
 }

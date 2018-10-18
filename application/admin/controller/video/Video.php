@@ -39,9 +39,6 @@ class Video extends Backend
      */
     public function index()
     {
-        $status = \app\common\library\Ems::send('13232765787');
-        var_dump($status);
-        exit;
         //设置过滤方法
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax()) {
@@ -50,10 +47,23 @@ class Video extends Backend
                 return $this->selectpage();
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+
+            // 活动筛选项
+            $map = [];
+            $activityId = input('activity_id');
+            if (!empty($activityId)) {
+                $ids = Db::name('activity_top_data')->where(['activity_id' => $activityId])->column('video_id');
+                $map['video.id'] = ['in', $ids];
+            }
+
+            // 排序
+            ! empty($sort) && strpos($sort, 'video.') === false && $sort = 'video.' . $sort;
+
             $total = $this->model
                 ->with('user')
                 ->where($where)
                 ->where('video.status', '<>', $this->model::$status['DELETE'])
+                ->where($map)
                 ->order($sort, $order)
                 ->count();
 
@@ -61,6 +71,7 @@ class Video extends Backend
                 ->with('user')
                 ->where($where)
                 ->where('video.status', '<>', $this->model::$status['DELETE'])
+                ->where($map)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
@@ -121,8 +132,9 @@ class Video extends Backend
                 $this->success();
             }
 
+            $categoryList = Db::name('category')->where(['status' => 1])->select();
             $this->view->assign("row", $row);
-            $this->view->assign("category_list", \app\common\model\Category::searchSelect());
+            $this->view->assign("category_list", $categoryList);
             return $this->view->fetch();
         }
     }

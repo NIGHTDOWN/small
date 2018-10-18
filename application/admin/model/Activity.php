@@ -178,13 +178,13 @@ class Activity extends Model
             $this->error = 'No results were found';
             return false;
         }
-//        //删除旧图片 TODO
-//        $old_image=$row['image'];
-//        if ($data['image']){
-//            if ($old_image!==$data['image']){
-//                $this->deleteRemoteActivityImageFile($old_image);
-//            }
-//        }
+        //删除旧图片
+        $old_image=$row['image'];
+        if ($data['image']){
+            if ($old_image!==$data['image']){
+                $this->deleteRemoteActivityImageFile($old_image);
+            }
+        }
         unset($data['id']);
         $res = Db::name('activity')->where(['id' => $row['id']])->update($data);
         if (!$res) {
@@ -264,11 +264,11 @@ class Activity extends Model
             $this->error = 'Operation failed';
             return false;
         }
-//        $image = unserialize($row['image']);
-        // TODO 删除远程图片资源
-//        foreach ($image as $value) {
-//            $this->deleteRemoteActivityImageFile($value);
-//        }
+        $image = unserialize($row['image']);
+        // 删除远程图片资源
+        foreach ($image as $value) {
+            $this->deleteRemoteActivityImageFile($value);
+        }
         return true;
     }
 

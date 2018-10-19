@@ -4,6 +4,7 @@ namespace app\admin\model;
 
 use think\Model;
 use app\common\model\SysMessage as SysMessageCommonModel;
+use think\Validate;
 
 class SysMessage extends Model
 {
@@ -115,6 +116,10 @@ class SysMessage extends Model
         //处理参数
         $data['app_action_info']='';
         if (isset($data['link'])&&$data['link']){
+            if(!Validate::is($data['link'],'url')) {
+                $this->error='链接格式不合法';
+                return false;
+            }
             $data['app_action_info']=serialize([
                 'appAction'=>'openWeb',
                 'appActionParam'=>[
@@ -167,6 +172,10 @@ class SysMessage extends Model
         //处理参数
         $data['app_action_info']='';
         if (isset($data['link'])&&$data['link']){
+            if(!Validate::is($data['link'],'url')) {
+                $this->error='链接格式不合法';
+                return false;
+            }
             $data['app_action_info']=serialize([
                 'appAction'=>'openWeb',
                 'appActionParam'=>[

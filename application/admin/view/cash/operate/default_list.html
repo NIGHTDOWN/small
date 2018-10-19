@@ -23,7 +23,7 @@ $('.add').click(function () {
 	layer.prompt(
 	    {icon: 3, title: '添加'},
 	    function (text, index) {
-	    	Controller.sendAjax(index, 'cash/operate/add', {content: text});
+	    	Controller.sendAjax(index, '{$controller}/add', {content: text});
         }
 	);
 });
@@ -32,7 +32,7 @@ function update(data) {
 	layer.prompt(
 	    {icon: 3, title: '修改', value: data.getAttribute('data-text')},
 	    function (text, index) {
-	    	Controller.sendAjax(index, 'cash/operate/update', {content: text, id: data.getAttribute('data-id')});
+	    	Controller.sendAjax(index, '{$controller}/update', {content: text, id: data.getAttribute('data-id')});
         }
 	);
 }
@@ -41,7 +41,7 @@ function del(data) {
 	layer.confirm('确定要删除吗？', {
 		btn: ['确定', '取消'] //按钮
 	}, function(index){
-		Controller.sendAjax(index, 'cash/operate/delete', {id: data.getAttribute('data-id')});
+		Controller.sendAjax(index, '{$controller}/delete', {id: data.getAttribute('data-id')});
 	});
 }
 
@@ -63,7 +63,7 @@ var Controller = {
 	},
 	Initialization: function() {
 		$.ajax({
-			url: document.location.protocol + '//' + window.location.host + '/admin/cash/operate/default_list',
+			url: document.location.protocol + '//' + window.location.host + '/{$module}/{$controller}/default_list',
 			type: 'POST',
 			dataType: 'json',
 		}).done(function (result) {

@@ -99,7 +99,7 @@ class SysMessage extends Model
 
     public function extend()
     {
-        return $this->belongsTo('SysMessageExtend','id','message_id',[],'left')->setEagerlyType(0);
+        return $this->hasOne('SysMessageExtend','message_id','id',[],'left')->setEagerlyType(0);
     }
 
     /**
@@ -139,12 +139,12 @@ class SysMessage extends Model
         try{
             $ret=$this->save($data);
             if (!$ret){
+                $this->error='添加失败';
                 return false;
             }
             if ($data['user_range']==SysMessageCommonModel::USER_RANGE['portion']){
                 $extendData['message_id']=$this->getAttr('id');
-                $extend_model=model('SysMessageExtend');
-                if (!$extend_model->insert($extendData)){
+                if (!model('SysMessageExtend')->insert($extendData)){
                     exception('用户ID保存失败');
                 }
             }
@@ -224,8 +224,10 @@ class SysMessage extends Model
             $this->error='发送失败';
             return false;
         }
-        $this->queue_id=$queue_id;
-        $this->status=SysMessageCommonModel::STATUS['wait_send'];
+
+        $this->setAttr('queue_id',$queue_id);
+        $this->setAttr('status',SysMessageCommonModel::STATUS['wait_send']);
+
         return $this->save();
     }
 }

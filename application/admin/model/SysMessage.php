@@ -132,7 +132,7 @@ class SysMessage extends Model
         $data['admin_id']=session('admin.id');
         $data['status']=SysMessageCommonModel::STATUS['no_send'];
 
-        $extend_data['target_user_ids']=$data['target_user_ids'];
+        $extendData['target_user_ids']=$data['target_user_ids'];
         unset($data['target_user_ids']);
 
         $this->startTrans();
@@ -142,9 +142,9 @@ class SysMessage extends Model
                 return false;
             }
             if ($data['user_range']==SysMessageCommonModel::USER_RANGE['portion']){
-                $extend_data['message_id']=$this->getAttr('id');
+                $extendData['message_id']=$this->getAttr('id');
                 $extend_model=model('SysMessageExtend');
-                if (!$extend_model->insert($extend_data)){
+                if (!$extend_model->insert($extendData)){
                     exception('用户ID保存失败');
                 }
             }
@@ -187,14 +187,14 @@ class SysMessage extends Model
 
         $data['status']=SysMessageCommonModel::STATUS['no_send'];
 
-        $old_cover_img=$this->getAttr('cover_img');
+        $oldCoverImg=$this->getAttr('cover_img');
 
         $ret=$this->save($data);
         if ($ret){
             //处理图片
             if (isset($data['cover_img'])){
-                if ($old_cover_img&&$old_cover_img!=$data['cover_img']){
-                    SysMessageCommonModel::deleteCoverImgFile($old_cover_img);
+                if ($oldCoverImg&&$oldCoverImg!=$data['cover_img']){
+                    SysMessageCommonModel::deleteCoverImgFile($oldCoverImg);
                 }
             }
         }

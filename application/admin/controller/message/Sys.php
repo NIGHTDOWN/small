@@ -69,7 +69,7 @@ class Sys extends Backend
 
             return json($result);
         }
-        $this->view->assign("status_list", $this->model->getStatusList());
+        $this->view->assign("statusList", $this->model->getStatusList());
         return $this->view->fetch();
     }
 
@@ -105,8 +105,8 @@ class Sys extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
-        $this->view->assign("user_range_list", $this->model->getUserRangeList());
-        $this->view->assign("is_now_list", $this->model->getIsNowList());
+        $this->view->assign("userRangeList", $this->model->getUserRangeList());
+        $this->view->assign("isNowList", $this->model->getIsNowList());
         return $this->view->fetch();
     }
 
@@ -149,8 +149,8 @@ class Sys extends Backend
             $this->error(__('Parameter %s can not be empty', ''));
         }
         $this->view->assign("row", $row);
-        $this->view->assign("user_range_list", $this->model->getUserRangeList());
-        $this->view->assign("is_now_list", $this->model->getIsNowList());
+        $this->view->assign("userRangeList", $this->model->getUserRangeList());
+        $this->view->assign("isNowList", $this->model->getIsNowList());
         return $this->view->fetch();
     }
 
@@ -169,8 +169,8 @@ class Sys extends Backend
             }
         }
         $this->view->assign("row", $row);
-        $this->view->assign("user_range_list", $this->model->getUserRangeList());
-        $this->view->assign("is_now_list", $this->model->getIsNowList());
+        $this->view->assign("userRangeList", $this->model->getUserRangeList());
+        $this->view->assign("isNowList", $this->model->getIsNowList());
         return $this->view->fetch();
     }
 

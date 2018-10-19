@@ -5,13 +5,15 @@
             <div class="input-group">
                 <input id="c-image" data-rule="" class="form-control form-control" size="50" name="row[cover_img]" type="text" value="{$row.cover_img}" disabled>
             </div>
-            <ul class="row list-inline plupload-preview" id="p-image">
-                <li class="col-xs-3">
-                    <a href="{$row.cover_img}" data-url="{$row.cover_img}" target="_blank" class="thumbnail">
-                        <img src="{$row.cover_img}" class="img-responsive">
-                    </a>
-                </li>
-            </ul>
+            {if condition="$row['cover_img']"}
+                <ul class="row list-inline plupload-preview" id="p-image">
+                    <li class="col-xs-3">
+                        <a href="{$row.cover_img}" data-url="{$row.cover_img}" target="_blank" class="thumbnail">
+                            <img src="{$row.cover_img}" class="img-responsive">
+                        </a>
+                    </li>
+                </ul>
+            {/if}
         </div>
     </div>
     <div class="form-group">

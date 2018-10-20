@@ -89,6 +89,7 @@ class Feedback extends Backend
     {
         if ($ids) {
             if ($this->request->isPost()) {
+                // $this->success();
                 $content = input('post.content/s', '');
                 $image = input('post.image/s', '');
                 $pid = input('post.parent_id/d', '');

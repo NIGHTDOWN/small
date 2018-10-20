@@ -4,7 +4,6 @@ namespace app\admin\model;
 
 use think\Model;
 use app\common\model\PushMessage as PushMessageCommonModel;
-use think\Validate;
 
 class PushMessage extends Model
 {
@@ -133,39 +132,28 @@ class PushMessage extends Model
      */
     public function add($data)
     {
-        //替换中文逗号为英文逗号,用户可能输入错误
-        if (isset($data['target_user_ids'])&&$data['target_user_ids']){
-            $data['target_user_ids']=str_replace('，',',',$data['target_user_ids']);
-        }
         //处理参数
         $data['param']='';
         if ($data['action']=='openWeb'){
-            if(!Validate::is($data['action_param'],'url')) {
-                $this->error='链接格式不合法';
-                return false;
+            if ($data['action_param']){
+                $data['param']=serialize([
+                    'type'=>$data['msg_type'],
+                    'appAction'=>'openWeb',
+                    'appActionParam'=>[
+                        'url'=>$data['action_param'],
+                    ]
+                ]);
             }
-            $data['param']=serialize([
-                'type'=>$data['msg_type'],
-                'appAction'=>'openWeb',
-                'appActionParam'=>[
-                    'url'=>$data['action_param'],
-                ]
-            ]);
         }elseif ($data['action']=='playVideo'){
-            if(!Validate::is($data['action_param'],'integer')) {
-                $this->error='视频id不合法';
-                return false;
+            if ($data['action_param']){
+                $data['param']=serialize([
+                    'type'=>$data['msg_type'],
+                    'appAction'=>'playVideo',
+                    'appActionParam'=>[
+                        'video_id'=>$data['action_param'],
+                    ]
+                ]);
             }
-            $data['param']=serialize([
-                'type'=>$data['msg_type'],
-                'appAction'=>'playVideo',
-                'appActionParam'=>[
-                    'video_id'=>$data['action_param'],
-                ]
-            ]);
-        }else{
-            $this->error='跳转类型错误';
-            return false;
         }
 
         $data['admin_id']=session('admin.id');
@@ -198,39 +186,28 @@ class PushMessage extends Model
      */
     public function edit($data)
     {
-        //替换中文逗号为英文逗号,用户可能输入错误
-        if (isset($data['target_user_ids'])&&$data['target_user_ids']){
-            $data['target_user_ids']=str_replace('，',',',$data['target_user_ids']);
-        }
         //处理参数
         $data['param']='';
         if ($data['action']=='openWeb'){
-            if(!Validate::is($data['action_param'],'url')) {
-                $this->error='链接格式不合法';
-                return false;
+            if ($data['action_param']){
+                $data['param']=serialize([
+                    'type'=>$data['msg_type'],
+                    'appAction'=>'openWeb',
+                    'appActionParam'=>[
+                        'url'=>$data['action_param'],
+                    ]
+                ]);
             }
-            $data['param']=serialize([
-                'type'=>$data['msg_type'],
-                'appAction'=>'openWeb',
-                'appActionParam'=>[
-                    'url'=>$data['action_param'],
-                ]
-            ]);
         }elseif ($data['action']=='playVideo'){
-            if(!Validate::is($data['action_param'],'integer')) {
-                $this->error='视频id不合法';
-                return false;
+            if ($data['action_param']){
+                $data['param']=serialize([
+                    'type'=>$data['msg_type'],
+                    'appAction'=>'playVideo',
+                    'appActionParam'=>[
+                        'video_id'=>$data['action_param'],
+                    ]
+                ]);
             }
-            $data['param']=serialize([
-                'type'=>$data['msg_type'],
-                'appAction'=>'playVideo',
-                'appActionParam'=>[
-                    'video_id'=>$data['action_param'],
-                ]
-            ]);
-        }else{
-            $this->error='跳转类型错误';
-            return false;
         }
         return $this->allowField(['title','message','param'])->save($data);
     }

@@ -114,17 +114,9 @@ class SysMessage extends Model
      */
     public function add($data)
     {
-        //替换中文逗号为英文逗号,用户可能输入错误
-        if (isset($data['target_user_ids'])&&$data['target_user_ids']){
-            $data['target_user_ids']=str_replace('，',',',$data['target_user_ids']);
-        }
         //处理参数
         $data['app_action_info']='';
         if (isset($data['link'])&&$data['link']){
-            if(!Validate::is($data['link'],'url')) {
-                $this->error='链接格式不合法';
-                return false;
-            }
             $data['app_action_info']=serialize([
                 'appAction'=>'openWeb',
                 'appActionParam'=>[
@@ -132,7 +124,6 @@ class SysMessage extends Model
                 ]
             ]);
         }
-        unset($data['link']);
 
         $data['admin_id']=session('admin.id');
         $data['status']=SysMessageCommonModel::STATUS['no_send'];
@@ -173,10 +164,6 @@ class SysMessage extends Model
         //处理参数
         $data['app_action_info']='';
         if (isset($data['link'])&&$data['link']){
-            if(!Validate::is($data['link'],'url')) {
-                $this->error='链接格式不合法';
-                return false;
-            }
             $data['app_action_info']=serialize([
                 'appAction'=>'openWeb',
                 'appActionParam'=>[
@@ -184,7 +171,6 @@ class SysMessage extends Model
                 ]
             ]);
         }
-        unset($data['link']);
 
         $data['status']=SysMessageCommonModel::STATUS['no_send'];
 

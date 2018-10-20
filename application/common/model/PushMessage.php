@@ -31,6 +31,11 @@ class PushMessage extends Model
     ];
 
     /** 行为 */
+    const ACTION=[
+        'openWeb',
+        'playVideo'
+    ];
+
     const ACTION_TEXT=[
         'openWeb'=>'链接',
         'playVideo'=>'视频',

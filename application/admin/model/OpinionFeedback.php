@@ -184,31 +184,36 @@ class OpinionFeedback extends Model
     public function getDetail($param)
     {
         $id=(int)$param['id'];
-
+        $page = ($param['page'] - 1) * $param['limit'];
         if (!$id){
             return [];
         }
         $where=[
-            ['f.id|f.parent_id','=',$id],
+            'f.id|f.parent_id' => ['=', $id]
         ];
         $data=Db::name('opinion_feedback')
             ->alias('f')
             ->join('user u','f.user_id=u.id','left')
             ->join('admin a','f.user_id=a.id','left')
-            ->field('f.parent_id,f.type,f.content,f.image,f.create_time,f.user_id,f.id,u.nickname,a.admin')
+            ->field('f.parent_id,f.type,f.content,f.image,f.create_time,f.user_id,f.id,u.nickname,a.nickname')
             ->where($where)
             ->order($param['order_field'],$param['order_direction']?'desc':'asc')
-            ->select();
-        foreach ($data as $key => $value) {
-            $data[$key]['create_time'] = date('Y-m-d H:i', $data[$key]['create_time']);
-            $data[$key]['image'] = $data[$key]['image'] ? self::getImageUrl($data[$key]['image']) : '';
-            $data[$key]['username']  = ($data[$key]['type']==0) ? $data[$key]['nickname'] : $data[$key]['admin'];
+            ->paginate($param['limit'])
+            ->toArray();
+
+        foreach ($data['data'] as $key => &$value) {
+            $data['data'][$key]['create_time'] = date("Y-m-d H:i",$data['data'][$key]['create_time']);
+            $data['data'][$key]['username']  = ($data['data'][$key]['type']==0) ? $data['data'][$key]['nickname'] :$data['data'][$key]['nickname'];
+            $data['data'][$key]['image']=$data['data'][$key]['image']?self::getImageUrl($data['data'][$key]['image']):'';
+            unset($data['data'][$key]['nickname']);
+            unset($data['data'][$key]['admin']);
+            unset($data['data'][$key]['user_id']);
         }
        
         //更新未读为已读
         Db::name('opinion_feedback')
             ->where([
-                'data' => ['=', $id],
+                'id' => ['=', $id],
                 'type' => ['=', self::TYPE['FEEDBACK']]
             ])
             ->update([

@@ -36,8 +36,8 @@ class SysMessage extends Validate
      * 验证场景
      */
     protected $scene = [
-        'add'  => ['message','cover_img','app_action_info','user_range','is_now','send_time'],
-        'edit' => ['message','cover_img','app_action_info'],
+        'add'  => ['message','cover_img','user_range','is_now','send_time'],
+        'edit' => ['message','cover_img'],
     ];
 
     protected function checkTargetUserIds($value,$rule,$data)

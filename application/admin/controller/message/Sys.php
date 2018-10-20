@@ -91,7 +91,7 @@ class Sys extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                         $this->model->validate($validate);
                     }
-                    $result = $this->model->allowField(['message','cover_img','app_action_info','user_range','is_now','send_time','admin_id'])->add($params);
+                    $result = $this->model->add($params);
                     if ($result !== false) {
                         $this->success();
                     } else {
@@ -134,7 +134,7 @@ class Sys extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
                         $row->validate($validate);
                     }
-                    $result = $row->allowField(['message','cover_img','app_action_info'])->edit($params);
+                    $result = $row->edit($params);
                     if ($result !== false) {
                         $this->success();
                     } else {

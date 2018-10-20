@@ -132,19 +132,15 @@ class SysMessage extends Model
         $data['admin_id']=session('admin.id');
         $data['status']=SysMessageCommonModel::STATUS['no_send'];
 
-        $extendData['target_user_ids']=$data['target_user_ids'];
-        unset($data['target_user_ids']);
-
         $this->startTrans();
         try{
-            $ret=$this->save($data);
+            $ret=$this->allowField(['message','cover_img','app_action_info','user_range','is_now','send_time','admin_id'])->save($data);
             if (!$ret){
-                $this->error='添加失败';
                 return false;
             }
             if ($data['user_range']==SysMessageCommonModel::USER_RANGE['portion']){
-                $extendData['message_id']=$this->getAttr('id');
-                if (!model('SysMessageExtend')->insert($extendData)){
+                $extendData['target_user_ids']=$data['target_user_ids'];
+                if (!$this->extend()->save($extendData)){
                     exception('用户ID保存失败');
                 }
             }
@@ -189,7 +185,7 @@ class SysMessage extends Model
 
         $oldCoverImg=$this->getAttr('cover_img');
 
-        $ret=$this->save($data);
+        $ret=$this->allowField(['message','cover_img','app_action_info'])->save($data);
         if ($ret){
             //处理图片
             if (isset($data['cover_img'])){

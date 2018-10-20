@@ -45,6 +45,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     title: __('编辑'),
                                     text: __('编辑'),
                                     classname: 'btn btn-xs btn-success btn-dialog',
+                                    hidden:function (row) {
+                                        if (row.status === 1){
+                                            return true;
+                                        }
+                                        return false;
+                                    },
                                     url: 'message/sys/edit'
                                 },
                                 {

@@ -4,6 +4,8 @@ namespace app\admin\model;
 
 use think\Model;
 use app\common\model\SysMessage as SysMessageCommonModel;
+use app\common\model\User as UserCommonModel;
+use think\Validate;
 
 class SysMessage extends Model
 {
@@ -98,7 +100,11 @@ class SysMessage extends Model
 
     public function extend()
     {
-        return $this->belongsTo('SysMessageExtend','id','message_id',[],'left')->setEagerlyType(0);
+        return $this->hasOne('SysMessageExtend','message_id','id',[],'left')->setEagerlyType(0);
+    }
+
+    public function toUser(){
+        return $this->hasMany('SysMessageTo','message_id','id');
     }
 
     /**
@@ -108,10 +114,6 @@ class SysMessage extends Model
      */
     public function add($data)
     {
-        //替换中文逗号为英文逗号,用户可能输入错误
-        if (isset($data['target_user_ids'])&&$data['target_user_ids']){
-            $data['target_user_ids']=str_replace('，',',',$data['target_user_ids']);
-        }
         //处理参数
         $data['app_action_info']='';
         if (isset($data['link'])&&$data['link']){
@@ -122,24 +124,19 @@ class SysMessage extends Model
                 ]
             ]);
         }
-        unset($data['link']);
 
         $data['admin_id']=session('admin.id');
         $data['status']=SysMessageCommonModel::STATUS['no_send'];
 
-        $extend_data['target_user_ids']=$data['target_user_ids'];
-        unset($data['target_user_ids']);
-
         $this->startTrans();
         try{
-            $ret=$this->save($data);
+            $ret=$this->allowField(['message','cover_img','app_action_info','user_range','is_now','send_time','admin_id'])->save($data);
             if (!$ret){
                 return false;
             }
             if ($data['user_range']==SysMessageCommonModel::USER_RANGE['portion']){
-                $extend_data['message_id']=$this->getAttr('id');
-                $extend_model=model('SysMessageExtend');
-                if (!$extend_model->insert($extend_data)){
+                $extendData['target_user_ids']=$data['target_user_ids'];
+                if (!$this->extend()->save($extendData)){
                     exception('用户ID保存失败');
                 }
             }
@@ -174,18 +171,17 @@ class SysMessage extends Model
                 ]
             ]);
         }
-        unset($data['link']);
 
         $data['status']=SysMessageCommonModel::STATUS['no_send'];
 
-        $old_cover_img=$this->getAttr('cover_img');
+        $oldCoverImg=$this->getAttr('cover_img');
 
-        $ret=$this->save($data);
+        $ret=$this->allowField(['message','cover_img','app_action_info'])->save($data);
         if ($ret){
             //处理图片
             if (isset($data['cover_img'])){
-                if ($old_cover_img&&$old_cover_img!=$data['cover_img']){
-                    SysMessageCommonModel::deleteCoverImgFile($old_cover_img);
+                if ($oldCoverImg&&$oldCoverImg!=$data['cover_img']){
+                    SysMessageCommonModel::deleteCoverImgFile($oldCoverImg);
                 }
             }
         }
@@ -204,19 +200,85 @@ class SysMessage extends Model
             }
         }
 
-        $queue_id=publish_message([
-            'action'=>'sendSysMessageToUser',
-            'params'=>[
-                'sys_message_id'=>$this->getAttr('id'),
-            ],
-        ],$this->getAttr('is_now')?0:$this->getAttr('send_time'));
-
-        if (!$queue_id){
+//        $queueId=publish_message([
+//            'action'=>'sendSysMessageToUser',
+//            'params'=>[
+//                'sys_message_id'=>$this->getAttr('id'),
+//            ],
+//        ],$this->getAttr('is_now')?0:$this->getAttr('send_time'));
+        //todo 测试期间,不入队列
+        $queueId='test';
+        if (!$queueId){
             $this->error='发送失败';
             return false;
         }
-        $this->queue_id=$queue_id;
-        $this->status=SysMessageCommonModel::STATUS['wait_send'];
+
+        $this->setAttr('queue_id',$queueId);
+        $this->setAttr('status',SysMessageCommonModel::STATUS['wait_send']);
+
         return $this->save();
+    }
+
+    /**
+     * 发送给用户
+     */
+    public function msgToUser()
+    {
+        if ($this->getAttr('status')!=SysMessageCommonModel::STATUS['wait_send']){
+            $this->error='status error';
+            return false;
+        }
+        if (!in_array($this->getAttr('user_range'),SysMessageCommonModel::USER_RANGE)){
+            $this->error='undefined user_range';
+            return false;
+        }
+        $now=time();
+        try{
+            $this->startTrans();
+            if ($this->getAttr('user_range')==SysMessageCommonModel::USER_RANGE['all']){
+                //全部用户
+                $to_ret=$this->toUser()->save([
+                    'user_id'=>0,
+                    'time'=>$now,
+                ]);
+                if (!$to_ret){
+                    exception('insert to_user fail');
+                }
+                $sendTotal=model('admin/User')->where('status','<>',UserCommonModel::STATUS['delete'])->count();
+            }else{
+                //部分用户
+                $userIds=$this->getAttr('extend')->getAttr('target_user_ids');
+                $userIds=array_filter(array_unique(explode(',',$userIds)));
+                if (!$userIds){
+                    $this->error='user ids require';
+                    return false;
+                }
+                $sendTotal=0;
+                $insertData=[];
+                foreach ($userIds as $userId){
+                    $insertData[]=[
+                        'user_id'=>$userId,
+                        'time'=>$now,
+                    ];
+                    $sendTotal+=1;
+                }
+                $to_ret=$this->toUser()->saveAll($insertData);
+                if (!$to_ret){
+                    exception('insert to_user fail');
+                }
+            }
+            $this->setAttr('send_total',$sendTotal);
+            $this->setAttr('status',SysMessageCommonModel::STATUS['done_send']);
+            $ret=$this->save();
+            if (!$ret){
+                exception('update status fail');
+            }
+            $this->commit();
+            return true;
+        }catch (\Exception $e){
+            $this->error=$e->getMessage();
+            $this->rollback();
+            return false;
+        }
     }
 }

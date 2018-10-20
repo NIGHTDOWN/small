@@ -5,13 +5,15 @@
             <div class="input-group">
                 <input id="c-image" data-rule="" class="form-control form-control" size="50" name="row[cover_img]" type="text" value="{$row.cover_img}" disabled>
             </div>
-            <ul class="row list-inline plupload-preview" id="p-image">
-                <li class="col-xs-3">
-                    <a href="{$row.cover_img}" data-url="{$row.cover_img}" target="_blank" class="thumbnail">
-                        <img src="{$row.cover_img}" class="img-responsive">
-                    </a>
-                </li>
-            </ul>
+            {if condition="$row['cover_img']"}
+                <ul class="row list-inline plupload-preview" id="p-image">
+                    <li class="col-xs-3">
+                        <a href="{$row.cover_img}" data-url="{$row.cover_img}" target="_blank" class="thumbnail">
+                            <img src="{$row.cover_img}" class="img-responsive">
+                        </a>
+                    </li>
+                </ul>
+            {/if}
         </div>
     </div>
     <div class="form-group">
@@ -29,7 +31,7 @@
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('User_range')}:</label>
         <div class="col-xs-12 col-sm-8">
-            {:build_radios('row[user_range]', $user_range_list, $row['user_range'], ['disabled'=>''])}
+            {:build_radios('row[user_range]', $userRangeList, $row['user_range'], ['disabled'=>''])}
         </div>
     </div>
     <div class="form-group">
@@ -39,22 +41,15 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Is_now')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('立即发送')}:</label>
         <div class="col-xs-12 col-sm-8">
-            {:build_radios('row[is_now]', $is_now_list, null,  ['disabled'=>''])}
+            {:build_radios('row[is_now]', $isNowList, null,  ['disabled'=>''])}
         </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Send_time')}:</label>
         <div class="col-xs-12 col-sm-8">
             <input id="c-send_time" class="form-control datetimepicker form-control" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[send_time]" type="text" value="{:date('Y-m-d H:i:s')}" disabled>
-        </div>
-    </div>
-    <div class="form-group layer-footer">
-        <label class="control-label col-xs-12 col-sm-2"></label>
-        <div class="col-xs-12 col-sm-8">
-            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
-            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
         </div>
     </div>
 </form>

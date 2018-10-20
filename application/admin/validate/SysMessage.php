@@ -12,6 +12,7 @@ class SysMessage extends Validate
         'cover_img'=>'图片',
         'link'=>'链接',
         'user_range'=>'用户范围',
+        'target_user_ids'=>'用户ID',
         'is_now'=>'立即发送参数',
         'send_time'=>'发送时间',
     ];
@@ -24,6 +25,7 @@ class SysMessage extends Validate
         'cover_img'=>'url',
         'link'=>'url',
         'user_range'=>['require','in'=>SysMessageCommonModel::USER_RANGE,'checkTargetUserIds'],
+        'target_user_ids'=>['regex'=>'[0-9|,]+'],
         'is_now'=>['require','in'=>[0,1]],
         'send_time'=>'require|date',
     ];
@@ -36,7 +38,7 @@ class SysMessage extends Validate
      * 验证场景
      */
     protected $scene = [
-        'add'  => ['message','cover_img','link','user_range','is_now','send_time'],
+        'add'  => ['message','cover_img','link','user_range','target_user_ids','is_now','send_time'],
         'edit' => ['message','cover_img','link'],
     ];
 

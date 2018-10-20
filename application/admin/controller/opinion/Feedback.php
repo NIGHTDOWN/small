@@ -89,6 +89,7 @@ class Feedback extends Backend
     {
         if ($ids) {
             if ($this->request->isPost()) {
+                // $this->success();
                 $content = input('post.content/s', '');
                 $image = input('post.image/s', '');
                 $pid = input('post.parent_id/d', '');
@@ -121,7 +122,8 @@ class Feedback extends Backend
     {
         if ($ids) {
             if ($this->request->isPost()) {
-                $param = $this->request->only(['order_field' => 'create_time','order_direction'=>0,'page_size'=>20,'page'=>1, 'id' => $ids]);
+                $param = $this->request->only(['order_field','order_direction','limit','page']);
+                $param['id'] = $ids;
                 $data = $this->model->getDetail($param);
                 if ($data) {
                     $this->success('成功', '', $data);
@@ -129,6 +131,8 @@ class Feedback extends Backend
                     $this->error($this->model->getError());
                 }
             }
+
+            $this->view->assign('ids', $ids);
             return $this->view->fetch();
         }
     }

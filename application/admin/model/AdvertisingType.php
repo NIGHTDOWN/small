@@ -63,7 +63,7 @@ class AdvertisingType extends Model
      */
     public function getList()
     {
-        $list=$this->where('status','=',AdTypeCommonModel::STATUS['open'])->column('type','id');
+        $list=$this->column('type','id');
         return $list;
     }
 }

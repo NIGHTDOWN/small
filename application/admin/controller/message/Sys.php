@@ -69,7 +69,7 @@ class Sys extends Backend
 
             return json($result);
         }
-        $this->view->assign("status_list", $this->model->getStatusList());
+        $this->view->assign("statusList", $this->model->getStatusList());
         return $this->view->fetch();
     }
 
@@ -91,7 +91,7 @@ class Sys extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                         $this->model->validate($validate);
                     }
-                    $result = $this->model->allowField(['message','cover_img','app_action_info','user_range','is_now','send_time','admin_id'])->add($params);
+                    $result = $this->model->add($params);
                     if ($result !== false) {
                         $this->success();
                     } else {
@@ -105,8 +105,8 @@ class Sys extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
-        $this->view->assign("user_range_list", $this->model->getUserRangeList());
-        $this->view->assign("is_now_list", $this->model->getIsNowList());
+        $this->view->assign("userRangeList", $this->model->getUserRangeList());
+        $this->view->assign("isNowList", $this->model->getIsNowList());
         return $this->view->fetch();
     }
 
@@ -134,7 +134,7 @@ class Sys extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
                         $row->validate($validate);
                     }
-                    $result = $row->allowField(['message','cover_img','app_action_info'])->edit($params);
+                    $result = $row->edit($params);
                     if ($result !== false) {
                         $this->success();
                     } else {
@@ -149,8 +149,8 @@ class Sys extends Backend
             $this->error(__('Parameter %s can not be empty', ''));
         }
         $this->view->assign("row", $row);
-        $this->view->assign("user_range_list", $this->model->getUserRangeList());
-        $this->view->assign("is_now_list", $this->model->getIsNowList());
+        $this->view->assign("userRangeList", $this->model->getUserRangeList());
+        $this->view->assign("isNowList", $this->model->getIsNowList());
         return $this->view->fetch();
     }
 
@@ -169,8 +169,8 @@ class Sys extends Backend
             }
         }
         $this->view->assign("row", $row);
-        $this->view->assign("user_range_list", $this->model->getUserRangeList());
-        $this->view->assign("is_now_list", $this->model->getIsNowList());
+        $this->view->assign("userRangeList", $this->model->getUserRangeList());
+        $this->view->assign("isNowList", $this->model->getIsNowList());
         return $this->view->fetch();
     }
 

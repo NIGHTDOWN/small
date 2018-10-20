@@ -45,12 +45,12 @@ class User extends Model
 
     public function burse()
     {
-        return $this->belongsTo('UserBurse', 'id', 'user_id', [], 'LEFT')->setEagerlyType(0);
+        return $this->hasOne('UserBurse', 'user_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
 
     public function userGroup()
     {
-        return $this->belongsTo('UserGroup', 'group_id', 'id')->setEagerlyType(1);
+        return $this->belongsTo('UserGroup', 'group_id', 'id',[],'left')->setEagerlyType(1);
     }
 
     /**

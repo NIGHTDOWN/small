@@ -4,6 +4,7 @@ namespace app\admin\model;
 
 use think\Model;
 use app\common\model\SysMessage as SysMessageCommonModel;
+use app\common\model\User as UserCommonModel;
 use think\Validate;
 
 class SysMessage extends Model
@@ -100,6 +101,10 @@ class SysMessage extends Model
     public function extend()
     {
         return $this->hasOne('SysMessageExtend','message_id','id',[],'left')->setEagerlyType(0);
+    }
+
+    public function toUser(){
+        return $this->hasMany('SysMessageTo','message_id','id');
     }
 
     /**
@@ -209,21 +214,85 @@ class SysMessage extends Model
             }
         }
 
-        $queue_id=publish_message([
-            'action'=>'sendSysMessageToUser',
-            'params'=>[
-                'sys_message_id'=>$this->getAttr('id'),
-            ],
-        ],$this->getAttr('is_now')?0:$this->getAttr('send_time'));
-
-        if (!$queue_id){
+//        $queueId=publish_message([
+//            'action'=>'sendSysMessageToUser',
+//            'params'=>[
+//                'sys_message_id'=>$this->getAttr('id'),
+//            ],
+//        ],$this->getAttr('is_now')?0:$this->getAttr('send_time'));
+        //todo 测试期间,不入队列
+        $queueId='test';
+        if (!$queueId){
             $this->error='发送失败';
             return false;
         }
 
-        $this->setAttr('queue_id',$queue_id);
+        $this->setAttr('queue_id',$queueId);
         $this->setAttr('status',SysMessageCommonModel::STATUS['wait_send']);
 
         return $this->save();
+    }
+
+    /**
+     * 发送给用户
+     */
+    public function msgToUser()
+    {
+        if ($this->getAttr('status')!=SysMessageCommonModel::STATUS['wait_send']){
+            $this->error='status error';
+            return false;
+        }
+        if (!in_array($this->getAttr('user_range'),SysMessageCommonModel::USER_RANGE)){
+            $this->error='undefined user_range';
+            return false;
+        }
+        $now=time();
+        try{
+            $this->startTrans();
+            if ($this->getAttr('user_range')==SysMessageCommonModel::USER_RANGE['all']){
+                //全部用户
+                $to_ret=$this->toUser()->save([
+                    'user_id'=>0,
+                    'time'=>$now,
+                ]);
+                if (!$to_ret){
+                    exception('insert to_user fail');
+                }
+                $sendTotal=model('admin/User')->where('status','<>',UserCommonModel::STATUS['delete'])->count();
+            }else{
+                //部分用户
+                $userIds=$this->getAttr('extend')->getAttr('target_user_ids');
+                $userIds=array_filter(array_unique(explode(',',$userIds)));
+                if (!$userIds){
+                    $this->error='user ids require';
+                    return false;
+                }
+                $sendTotal=0;
+                $insertData=[];
+                foreach ($userIds as $userId){
+                    $insertData[]=[
+                        'user_id'=>$userId,
+                        'time'=>$now,
+                    ];
+                    $sendTotal+=1;
+                }
+                $to_ret=$this->toUser()->saveAll($insertData);
+                if (!$to_ret){
+                    exception('insert to_user fail');
+                }
+            }
+            $this->setAttr('send_total',$sendTotal);
+            $this->setAttr('status',SysMessageCommonModel::STATUS['done_send']);
+            $ret=$this->save();
+            if (!$ret){
+                exception('update status fail');
+            }
+            $this->commit();
+            return true;
+        }catch (\Exception $e){
+            $this->error=$e->getMessage();
+            $this->rollback();
+            return false;
+        }
     }
 }

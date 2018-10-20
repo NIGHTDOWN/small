@@ -61,7 +61,6 @@ class Attachment extends Backend
             $cdnurl = preg_replace("/\/(\w+)\.php$/i", '', $this->request->root());
             foreach ($list as $k => &$v) {
                 $v['fullurl'] = ($v['storage'] == 'local' ? $cdnurl : config('site.'.$v['type'].'_url')) . $v['url'];
-                $v['url'] = ($v['storage'] == 'local' ? $cdnurl : config('site.'.$v['type'].'_url')) . $v['url'];
             }
             unset($v);
             $result = array("total" => $total, "rows" => $list);

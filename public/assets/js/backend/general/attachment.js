@@ -92,7 +92,7 @@ define(['jquery', 'bootstrap', 'backend', 'form', 'table'], function ($, undefin
                                 'click .btn-chooseone': function (e, value, row, index) {
                                     var multiple = Backend.api.query('multiple');
                                     multiple = multiple == 'true' ? true : false;
-                                    Fast.api.close({url: row.url, multiple: false});
+                                    Fast.api.close({url: row.fullurl, multiple: false});
                                 },
                             }, formatter: function () {
                                 return '<a href="javascript:;" class="btn btn-danger btn-chooseone btn-xs"><i class="fa fa-check"></i> ' + __('Choose') + '</a>';

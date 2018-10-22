@@ -10,32 +10,52 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     edit_url: 'category/edit',
                     del_url: 'category/del',
                     multi_url: 'category/multi',
-                    dragsort_url: 'ajax/weigh',
+                    dragsort_url: '',
+                    disable: 'category/disable',
                     table: 'category',
                 }
             });
 
-
+            var statusText = {'-1': '删除', 0: '禁用', 1: '正常'};
             var table = $("#table");
             var tableOptions = {
+                search: false,
+                showToggle: false,
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
-                escape: false,
                 pk: 'id',
-                sortName: 'weigh',
-                pagination: false,
-                commonSearch: false,
+                sortName: 'id',
+                // url: $.fn.bootstrapTable.defaults.extend.index_url,
+                // escape: false,
+                // pk: 'id',
+                // sortName: 'weigh',
+                // pagination: false,
+                // commonSearch: false,
                 columns: [
                     [
                         {checkbox: true},
                         {field: 'id', title: __('Id')},
-                        {field: 'type', title: __('Type')},
+                        // {field: 'type', title: __('Type')},
                         {field: 'name', title: __('Name'), align: 'left'},
-                        {field: 'nickname', title: __('Nickname')},
-                        {field: 'flag', title: __('Flag'), operate: false, formatter: Table.api.formatter.flag},
-                        {field: 'image', title: __('Image'), operate: false, formatter: Table.api.formatter.image},
-                        {field: 'weigh', title: __('Weigh')},
-                        {field: 'status', title: __('Status'), operate: false, formatter: Table.api.formatter.status},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                        {field: 'order_sort', title: __('排序'), operate: false},
+                        // {field: 'nickname', title: __('Nickname')},
+                        // {field: 'flag', title: __('Flag'), operate: false, formatter: Table.api.formatter.flag},
+                        // {field: 'image', title: __('Image'), operate: false, formatter: Table.api.formatter.image},
+                        // {field: 'weigh', title: __('Weigh')},
+                        {
+                            field: 'status', 
+                            title: __('Status'), 
+                            searchList: statusText,
+                            formatter: function (data) {
+                                return statusText[data];
+                            }
+                        },
+                        {
+                            field: 'operate',
+                            title: __('Operate'),
+                            table: table,
+                            events: Table.api.events.operate,
+                            formatter: Table.api.formatter.operate
+                        }
                     ]
                 ]
             };
@@ -46,21 +66,21 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.bindevent(table);
 
             //绑定TAB事件
-            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                // var options = table.bootstrapTable(tableOptions);
-                var typeStr = $(this).attr("href").replace('#','');
-                var options = table.bootstrapTable('getOptions');
-                options.pageNumber = 1;
-                options.queryParams = function (params) {
-                    // params.filter = JSON.stringify({type: typeStr});
-                    params.type = typeStr;
+            // $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            //     // var options = table.bootstrapTable(tableOptions);
+            //     var typeStr = $(this).attr("href").replace('#','');
+            //     var options = table.bootstrapTable('getOptions');
+            //     options.pageNumber = 1;
+            //     options.queryParams = function (params) {
+            //         // params.filter = JSON.stringify({type: typeStr});
+            //         params.type = typeStr;
 
-                    return params;
-                };
-                table.bootstrapTable('refresh', {});
-                return false;
+            //         return params;
+            //     };
+            //     table.bootstrapTable('refresh', {});
+            //     return false;
 
-            });
+            // });
 
             //必须默认触发shown.bs.tab事件
             // $('ul.nav-tabs li.active a[data-toggle="tab"]').trigger("shown.bs.tab");
@@ -72,14 +92,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         edit: function () {
             Controller.api.bindevent();
         },
+        disable: function () {
+            Controller.api.bindevent();
+        },
         api: {
             bindevent: function () {
-                $(document).on("change", "#c-type", function () {
-                    $("#c-pid option[data-type='all']").prop("selected", true);
-                    $("#c-pid option").removeClass("hide");
-                    $("#c-pid option[data-type!='" + $(this).val() + "'][data-type!='all']").addClass("hide");
-                    $("#c-pid").selectpicker("refresh");
-                });
+                // $(document).on("change", "#c-type", function () {
+                //     $("#c-pid option[data-type='all']").prop("selected", true);
+                //     $("#c-pid option").removeClass("hide");
+                //     $("#c-pid option[data-type!='" + $(this).val() + "'][data-type!='all']").addClass("hide");
+                //     $("#c-pid").selectpicker("refresh");
+                // });
                 Form.api.bindevent($("form[role=form]"));
             }
         }

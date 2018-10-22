@@ -3,6 +3,7 @@
 namespace app\common\model;
 
 use think\Model;
+use think\Db;
 
 /**
  * 分类模型

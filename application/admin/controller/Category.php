@@ -29,11 +29,12 @@ class Category extends Backend
         $this->model = model('app\common\model\Category');
 
         $tree = Tree::instance();
-        $tree->init(collection($this->model->order('weigh desc,id desc')->select())->toArray(), 'pid');
+        $tree->init(collection($this->model->order('order_sort desc')->select())->toArray(), 'pid');
         $this->categorylist = $tree->getTreeList($tree->getTreeArray(0), 'name');
         $categorydata = [0 => ['type' => 'all', 'name' => __('None')]];
         foreach ($this->categorylist as $k => $v)
         {
+            unset($this->categorylist[$k]['weigh']);
             $categorydata[$v['id']] = $v;
         }
         $this->view->assign("flagList", $this->model->getFlagList());
@@ -92,6 +93,65 @@ class Category extends Backend
     public function selectpage()
     {
         return parent::selectpage();
+    }
+
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        if ($ids) {
+            $result = $this->model->setStatus($ids, 'delete');
+            if ($result) {
+                $this->success();
+            } else {
+                $this->error($this->model->getError());
+            }
+        }
+
+        $this->error(__('Parameter %s can not be empty', 'ids'));
+    }
+
+    /**
+     * 编辑
+     */
+    public function edit($ids = NULL)
+    {
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                $this->error(__('You have no permission'));
+            }
+        }
+        if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                try {
+                    //是否采用模型验证
+                    if ($this->modelValidate) {
+                        $name = basename(str_replace('\\', '/', get_class($this->model)));
+                        $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
+                        $row->validate($validate);
+                    }
+                    $result = $row->allowField(true)->save($params);
+                    if ($result !== false) {
+                        $this->success();
+                    } else {
+                        $this->error($row->getError());
+                    }
+                } catch (\think\exception\PDOException $e) {
+                    $this->error($e->getMessage());
+                } catch (\think\Exception $e) {
+                    $this->error($e->getMessage());
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        $this->view->assign("row", $row);
+        return $this->view->fetch();
     }
 
 }

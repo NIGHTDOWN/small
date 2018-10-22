@@ -1,6 +1,29 @@
 <link rel="stylesheet" href="/assets/libs/layui/css/layui.css" media="all">
 
-<table id="demo" lay-filter="test"></table>
+<style type="text/css">
+  .layui-table-cell {
+    /*height: 28px; */
+    /* line-height: 28px; */
+    /*padding: 0 15px;
+    position: relative;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;*/
+  }
+  .layui-table-fixed-r th{height:58px!important;}
+  .layui-table img {
+      max-width: 48px;min-height: 48px;
+  }
+
+
+  .laytable-cell-3-wx_headimg ,.laytable-cell-1-wx_headimg,.laytable-cell-2-wx_headimg,.laytable-cell-3-wx_headimg,.laytable-cell-4-wx_headimg,.laytable-cell-5-wx_headimg,.laytable-cell-6-wx_headimg,.laytable-cell-7-wx_headimg,.laytable-cell-8-wx_headimg,.laytable-cell-9-wx_headimg,.laytable-cell-10-wx_headimg,.laytable-cell-11-wx_headimg,.laytable-cell-12-wx_headimg,.laytable-cell-13-wx_headimg,.laytable-cell-14-wx_headimg{
+      width: 48px!important;;padding:0px!important;height: 48px!important;;
+      line-height: 48px!important;;
+  }
+</style>
+
+<table id="tabel" lay-filter="test"></table>
 
 <script src="/assets/libs/layui/layui.all.js"></script>
 
@@ -16,11 +39,11 @@ layui.use('table', function(){
   
   //第一个实例
   table.render({
-    elem: '#demo'
-    ,height: 312
+    elem: '#tabel'
+    ,height: 500
     ,url: '/admin/{:url("opinion/feedback/detail")}/ids/{$ids}' //数据接口
     ,method: 'POST'
-    ,limits: [1,10,20,30,40,50,60,70,80,90]
+    ,limits: [1, 10, 20]
     ,where: {
       order_field: 'create_time',
       order_direction: 0
@@ -37,52 +60,78 @@ layui.use('table', function(){
       statusCode: 1
     } 
     ,cols: [[ //表头
-      {field: 'id', title: 'ID', width:60, sort: true, fixed: 'left'}
+      {field: 'id', title: 'ID', width:60, sort: true, fixed: 'left', style:'height:100px;'}
       ,{field: 'username', title: '名称', width:120, sort: true}
       ,{field: 'content', title: '内容', width:430}
-      ,{field: 'image', title: '图片', width:150}
-      // ,{fixed: 'right', width:178, align:'center', toolbar: '#barDemo'}
+      ,{field: 'image', title: '图片',templet:'<div><img src="{{ d.image }}"></div>', style:'height:48px;width:48px;line-height:48px!important;'}
     ]]
+    ,done:function(res, curr, count) {
+      hoverOpenImg();//显示大图
+        $('table tr').on('click',function(){
+            $('table tr').css('background','');
+            $(this).css('background','<%=PropKit.use("config.properties").get("table_color")%>');
+        });
+    }
     ,page: true // 开启分页
   });
 
-  window.operateEvents = {
-    'click .view': function (e, value, row, index) {
-        layer.open({
-          type: 1,
-          title: false,
-          closeBtn: 0,
-          area: 'auto',
-          skin: 'layui-layer-nobg', //没有背景色
-          shadeClose: true,
-          content: '<img src="'+row.img+'"/>'
+
+  function hoverOpenImg(){
+    var img_show = null; // tips提示
+    $('td img').hover(function() {
+        var kd = $(this).width();
+        kd1 = kd * 3;          //图片放大倍数
+        kd2 = kd * 3 + 30;       //图片放大倍数
+        var img = "<img class='img_msg' src='" + $(this).attr('src') + "' style='width:" + kd1 + "px;' />";
+        img_show = layer.tips(img, this, {
+          tips:[2, 'rgba(41, 41, 41, 0.5)']
+          ,area: [kd2 + 'px']
         });
-    },
-};
+    }, function() {
+      layer.close(img_show);
+    });
+    $('td img').attr('style', 'max-width:70px;display:block!important');
+  }
+
+
+  // window.operateEvents = {
+  //   'click .view': function (e, value, row, index) {
+  //       layer.open({
+  //         type: 1,
+  //         title: false,
+  //         closeBtn: 0,
+  //         area: 'auto',
+  //         skin: 'layui-layer-nobg', //没有背景色
+  //         shadeClose: true,
+  //         content: '<img src="'+row.img+'"/>'
+  //       });
+  //   },
+  // };
 
 
   //监听工具条
-  table.on('tool(test)', function(obj){
-    var data = obj.data;
-    if(obj.event === 'detail'){
-      layer.msg('ID：'+ data.id + ' 的查看操作');
-    } else if(obj.event === 'del'){
-      layer.confirm('真的删除行么', function(index){
-        obj.del();
-        layer.close(index);
-      });
-    } else if(obj.event === 'edit'){
-      layer.open({
-        area: ['900px', '700px'],
-        maxWidth: 800,
-        maxHeight: 600,
-        type: 2, 
-        content: '/admin/{:url("opinion/feedback/reply")}/ids/' + obj.id 
-      }); 
-      return false;
-      layer.alert('编辑行：<br>'+ JSON.stringify(data))
-    }
-  });
+  // table.on('tool(test)', function(obj){
+  //   var data = obj.data;
+  //   if(obj.event === 'detail'){
+  //     layer.msg('ID：'+ data.id + ' 的查看操作');
+  //   } else if(obj.event === 'del'){
+  //     layer.confirm('真的删除行么', function(index){
+  //       obj.del();
+  //       layer.close(index);
+  //     });
+  //   } else if(obj.event === 'edit'){
+  //     layer.open({
+  //       area: ['900px', '700px'],
+  //       maxWidth: 800,
+  //       maxHeight: 600,
+  //       type: 2, 
+  //       content: '/admin/{:url("opinion/feedback/reply")}/ids/' + obj.id 
+  //     }); 
+  //     return false;
+  //     layer.alert('编辑行：<br>'+ JSON.stringify(data))
+  //   }
+  // });
+
 });
 
 

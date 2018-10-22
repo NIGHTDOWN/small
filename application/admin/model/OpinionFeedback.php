@@ -204,7 +204,7 @@ class OpinionFeedback extends Model
         foreach ($data['data'] as $key => &$value) {
             $data['data'][$key]['create_time'] = date("Y-m-d H:i",$data['data'][$key]['create_time']);
             $data['data'][$key]['username']  = ($data['data'][$key]['type']==0) ? $data['data'][$key]['nickname'] :$data['data'][$key]['nickname'];
-            $data['data'][$key]['image']=$data['data'][$key]['image']?self::getImageUrl($data['data'][$key]['image']):'';
+            // $data['data'][$key]['image']=$data['data'][$key]['image']?self::getImageUrl($data['data'][$key]['image']):'';
             unset($data['data'][$key]['nickname']);
             unset($data['data'][$key]['admin']);
             unset($data['data'][$key]['user_id']);

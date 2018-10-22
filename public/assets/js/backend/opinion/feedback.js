@@ -6,7 +6,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.init({
                 extend: {
                     index_url: 'opinion/feedback/index',
-                    // edit_url: 'opinion/feedback/edit',
                     multi_url: 'opinion/feedback/multi',
                     reply: 'opinion/feedback/reply',
                     table: 'opinion_feedback',

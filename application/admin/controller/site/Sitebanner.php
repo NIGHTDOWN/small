@@ -109,6 +109,7 @@ class SiteBanner extends Backend
     public function edit($ids=null)
     {
         $row = $this->model->get($ids);
+
         if (!$row)
             $this->error(__('No Results were found'));
         $adminIds = $this->getDataLimitAdminIds();
@@ -124,6 +125,7 @@ class SiteBanner extends Backend
                     $params['id']=$ids;
                     //数据验证
                     $result = $row->edit($params);
+
                     if ($result !== false) {
                         $this->success();
                     } else {

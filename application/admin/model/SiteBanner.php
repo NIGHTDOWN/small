@@ -158,4 +158,18 @@ class SiteBanner extends Model
             'status'=>$data['status']
         ]);
     }
+
+    public function edit($data)
+    {
+        $db = Db::name('site_banner');
+        $now = time();
+        return  $db->where('id','eq',$data['id'])->update([
+            'image' => $data['image'],
+            'order_sort' => $data['order_sort'],
+            'client_type' => $data['client_type'],
+            'update_time' => $now,
+            'status' => $data['status'],
+            'type_id'=>$data['type_id'],
+        ]);
+    }
 }

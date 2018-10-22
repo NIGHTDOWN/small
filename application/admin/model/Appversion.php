@@ -26,7 +26,7 @@ class Appversion extends Model
         'update_time_text'
     ];
     
-    public static function getAdmin($data){
+    public function getAdmin($data){
         return  Db::name('admin')->where('id', 'IN', $data)->column('username', 'id');
     }
     
@@ -103,6 +103,4 @@ class Appversion extends Model
             'status'=>$status,
         ]);
     }
-
-
 }

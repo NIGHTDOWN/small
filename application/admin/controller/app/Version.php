@@ -4,6 +4,7 @@ namespace app\admin\controller\app;
 
 use app\common\controller\Backend;
 
+
 /**
  * 
  *
@@ -54,7 +55,7 @@ class Version extends Backend
                     array_column($list, 'last_mod_admin_id')
                 )
             ));
-            $admins = $this->model::getAdmin($admin_ids);
+            $admins = $this->model->getAdmin($admin_ids);
 
             foreach ($list as $k => $v) {
                 $list[$k]['create_admin'] = $admins[$v['create_admin_id']] ?? '';

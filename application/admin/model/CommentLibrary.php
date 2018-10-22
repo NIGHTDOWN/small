@@ -21,11 +21,6 @@ class CommentLibrary extends Model
         'create_time_text',
         'update_time_text'
     ];
-    
-
-    
-
-
 
     public function getCreateTimeTextAttr($value, $data)
     {

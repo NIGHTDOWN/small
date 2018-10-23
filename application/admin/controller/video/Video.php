@@ -3,37 +3,55 @@
 namespace app\admin\controller\video;
 
 use app\common\controller\Backend;
-use think\Db;
 
 /**
- * 
+ *
  *
  * @icon fa fa-circle-o
  */
 class Video extends Backend
 {
-    
+
     /**
      * Video模型对象
      * @var \app\admin\model\Video
      */
     protected $model = null;
-    // 关联搜索
+
     protected $relationSearch = true;
+
+    protected $modelValidate = true;
+
+    protected $modelSceneValidate = true;
 
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = new \app\admin\model\Video;
-
+        $this->model = model('Video');
     }
-    
+
     /**
      * 默认生成的控制器所继承的父类中有index/add/edit/del/multi五个基础方法、destroy/restore/recyclebin三个回收站方法
      * 因此在当前控制器中可不用编写增删改查的代码,除非需要自己控制这部分逻辑
      * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
      */
-    
+
+    /**
+     * 获取表格基础数据
+     */
+    public function tableBaseData()
+    {
+        $data = [];
+        $data['statusList'] = $this->model->getStatusList();
+        /** @var \app\admin\model\Category $categoryModel */
+        $categoryModel = model('Category');
+        $categoryList = $categoryModel->getList('video');
+        $categoryList[0] = '未设置';
+        $data['categoryList'] = $categoryList;
+        return $data;
+    }
+
+
     /**
      * 查看
      */
@@ -46,41 +64,23 @@ class Video extends Backend
             if ($this->request->request('keyField')) {
                 return $this->selectpage();
             }
+
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
-            // 活动筛选项
-            $map = [];
-            $activityId = input('activity_id');
-            if (!empty($activityId)) {
-                $ids = Db::name('activity_top_data')->where(['activity_id' => $activityId])->column('video_id');
-                $map['video.id'] = ['in', $ids];
-            }
-
-            // 排序
-            ! empty($sort) && strpos($sort, 'video.') === false && $sort = 'video.' . $sort;
-
             $total = $this->model
-                ->with('user')
+                ->with(['extend', 'user', 'subjects','hotvideo'])
                 ->where($where)
-                ->where('video.status', '<>', $this->model::$status['DELETE'])
-                ->where($map)
+                ->where('video.status', '<>', -1)
                 ->order($sort, $order)
                 ->count();
 
             $list = $this->model
-                ->with('user')
+                ->with(['extend', 'user', 'subjects','hotvideo'])
                 ->where($where)
-                ->where('video.status', '<>', $this->model::$status['DELETE'])
-                ->where($map)
+                ->where('video.status', '<>', -1)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
-
-            foreach ($list as $key => $value) {
-                $value->visible(['id', 'title', 'category_id', 'user_view_total', 'user_like_total', 'user_comment_total', 'create_time', 'update_time', 'process_done_time', 'status']);
-                $value->visible(['user']);
-                $value->getRelation('user')->visible(['nickname']);
-            }
 
             $list = collection($list)->toArray();
             $result = array("total" => $total, "rows" => $list);
@@ -90,9 +90,316 @@ class Video extends Backend
         return $this->view->fetch();
     }
 
-    public function categoryList()
+    /**
+     * 编辑分类
+     */
+    public function editCategory($ids = "")
     {
-        return json(\app\common\model\Category::searchSelect());
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                $this->error(__('You have no permission'));
+            }
+        }
+        if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                try {
+                    //是否采用模型验证
+                    if ($this->modelValidate) {
+                        $name = basename(str_replace('\\', '/', get_class($this->model)));
+                        $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.setCategory' : true) : $this->modelValidate;
+                        $row->validate($validate);
+                    }
+                    $result = $row->editCategory($params);
+                    if ($result !== false) {
+                        $this->success();
+                    } else {
+                        $this->error($row->getError());
+                    }
+                } catch (\think\exception\PDOException $e) {
+                    $this->error($e->getMessage());
+                } catch (\think\Exception $e) {
+                    $this->error($e->getMessage());
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        $this->view->assign("row", $row);
+        /** @var \app\admin\model\Category $categoryModel */
+        $categoryModel = model('Category');
+        $this->view->assign("categoryList", $categoryModel->getList('video'));
+        return $this->view->fetch();
+    }
+
+    /**
+     * 设置标题
+     */
+    public function editTitle($ids = "")
+    {
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                $this->error(__('You have no permission'));
+            }
+        }
+        if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                try {
+                    //是否采用模型验证
+                    if ($this->modelValidate) {
+                        $name = basename(str_replace('\\', '/', get_class($this->model)));
+                        $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.editTitle' : true) : $this->modelValidate;
+                        $row->validate($validate);
+                    }
+                    $result = $row->editTitle($params);
+                    if ($result !== false) {
+                        $this->success();
+                    } else {
+                        $this->error($row->getError());
+                    }
+                } catch (\think\exception\PDOException $e) {
+                    $this->error($e->getMessage());
+                } catch (\think\Exception $e) {
+                    $this->error($e->getMessage());
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        $this->view->assign("row", $row);
+        return $this->view->fetch();
+    }
+
+    /**
+     * 编辑封面
+     * @param string $ids
+     * @return string
+     */
+    public function editCoverImg($ids = "")
+    {
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                $this->error(__('You have no permission'));
+            }
+        }
+        if ($this->request->isPost()) {
+            $cover_imgs = $this->request->post("cover_imgs/s");
+            if ($cover_imgs) {
+                try {
+                    $result = $row->editCoverImg($cover_imgs);
+                    if ($result !== false) {
+                        $this->success();
+                    } else {
+                        $this->error($row->getError());
+                    }
+                } catch (\think\exception\PDOException $e) {
+                    $this->error($e->getMessage());
+                } catch (\think\Exception $e) {
+                    $this->error($e->getMessage());
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        $this->view->assign("row", $row);
+        return $this->view->fetch();
+    }
+
+    /**
+     * 增加点赞
+     */
+    public function addLike($ids = "")
+    {
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                $this->error(__('You have no permission'));
+            }
+        }
+        if ($this->request->isPost()) {
+            $number = $this->request->post("number/d");
+            if ($number) {
+                try {
+                    $result = $row->addLike($number);
+                    if ($result !== false) {
+                        $this->success();
+                    } else {
+                        $this->error($row->getError());
+                    }
+                } catch (\think\exception\PDOException $e) {
+                    $this->error($e->getMessage());
+                } catch (\think\Exception $e) {
+                    $this->error($e->getMessage());
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        $this->view->assign("row", $row);
+        return $this->view->fetch();
+    }
+
+    /**
+     * 播放
+     */
+    public function play($ids = "")
+    {
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                $this->error(__('You have no permission'));
+            }
+        }
+        $this->view->assign("row", $row);
+        return $this->view->fetch();
+    }
+
+    /**
+     * 审核通过
+     * @param string $ids
+     * @return string
+     */
+    public function checkPass($ids = "")
+    {
+        if ($this->request->isAjax()) {
+            $row = $this->model->get($ids);
+            if (!$row)
+                $this->error(__('No Results were found'));
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                    $this->error(__('You have no permission'));
+                }
+            }
+            try {
+                $result = $row->checkPass();
+                if ($result !== false) {
+                    $this->success();
+                } else {
+                    $this->error($row->getError());
+                }
+            } catch (\think\exception\PDOException $e) {
+                $this->error($e->getMessage());
+            } catch (\think\Exception $e) {
+                $this->error($e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * 审核不通过
+     * @param string $ids
+     * @return string
+     */
+    public function checkNoPass($ids = "")
+    {
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                $this->error(__('You have no permission'));
+            }
+        }
+        if ($this->request->isPost()) {
+            $remark = $this->request->post("remark/s");
+            if ($remark) {
+                try {
+                    $result = $row->checkNoPass($remark);
+                    if ($result !== false) {
+                        $this->success();
+                    } else {
+                        $this->error($row->getError());
+                    }
+                } catch (\think\exception\PDOException $e) {
+                    $this->error($e->getMessage());
+                } catch (\think\Exception $e) {
+                    $this->error($e->getMessage());
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        $this->view->assign("row", $row);
+        return $this->view->fetch();
+    }
+
+    /**
+     * 上架
+     * @param string $ids
+     */
+    public function show($ids = "")
+    {
+        if ($this->request->isAjax()) {
+            $row = $this->model->get($ids);
+            if (!$row)
+                $this->error(__('No Results were found'));
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                    $this->error(__('You have no permission'));
+                }
+            }
+            try {
+                $result = $row->show();
+                if ($result !== false) {
+                    $this->success();
+                } else {
+                    $this->error($row->getError());
+                }
+            } catch (\think\exception\PDOException $e) {
+                $this->error($e->getMessage());
+            } catch (\think\Exception $e) {
+                $this->error($e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * 下架
+     * @param string $ids
+     * @return string
+     */
+    public function hide($ids = "")
+    {
+        if ($this->request->isAjax()) {
+            $row = $this->model->get($ids);
+            if (!$row)
+                $this->error(__('No Results were found'));
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                    $this->error(__('You have no permission'));
+                }
+            }
+            try {
+                $result = $row->hide();
+                if ($result !== false) {
+                    $this->success();
+                } else {
+                    $this->error($row->getError());
+                }
+            } catch (\think\exception\PDOException $e) {
+                $this->error($e->getMessage());
+            } catch (\think\Exception $e) {
+                $this->error($e->getMessage());
+            }
+        }
     }
 
     /**
@@ -100,178 +407,98 @@ class Video extends Backend
      */
     public function del($ids = "")
     {
-        $this->error(__('滚犊子吧，删什么删'));
-    }
-
-    /**
-     * 设置视频分类
-     * 
-     * @param string $ids 视频ID
-     */
-    public function set_category($ids = "")
-    {
-        if ($ids) {
-            $row = Db::name('video')->where(['id' => $ids])->find();
-            if ($this->request->isPost()) {
-                $params = $this->request->post("row/a");
-                if (!isset($params['category_id']) || !is_numeric($params['category_id'])) {
-                    $this->error(__('参数错误'));
-                }
-                $data = [
-                    'update_time' => time(),
-                    'category_id' => $params['category_id']
-                ];
-                Db::name('video')->where(['id' => $row['id']])->update($data);
-                // 推荐操作
-                // if ($row['recommend']){
-                //     if ($row['category_id']!=$params['category_id']){
-                //         self::delTopVideoFromCache($params['video_id'],$row['category_id']);
-                //     }
-                //     self::addTopVideoToCache($params['video_id'],$params['category_id']);
-                // }
-                $this->success();
+        $row = $this->model->get($ids);
+        if (!$row)
+            $this->error(__('No Results were found'));
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                $this->error(__('You have no permission'));
             }
-
-            $categoryList = Db::name('category')->where(['status' => 1])->select();
-            $this->view->assign("row", $row);
-            $this->view->assign("category_list", $categoryList);
-            return $this->view->fetch();
         }
-    }
-
-    /**
-     * 审核视频
-     * 
-     * @param  string $ids [description]
-     * @return [type]      [description]
-     */
-    public function check_video($ids = "")
-    {
-        if ($ids) {
-            $row = Db::name('video')->where(['id' => $ids])->find();
-            if ($this->request->isPost()) {
-                $params = $this->request->post("row/a");
-                $result = $this->model->checkVideo($row['id'], $params['stauts'], $params['remark']);
-                if ($result) {
-                    $this->success();
-                } else {
-                    $this->error($this->model->getError());
+        if ($this->request->isPost()) {
+            $remark = $this->request->post("remark/s");
+            if ($remark) {
+                try {
+                    $result = $row->del($remark);
+                    if ($result !== false) {
+                        $this->success();
+                    } else {
+                        $this->error($row->getError());
+                    }
+                } catch (\think\exception\PDOException $e) {
+                    $this->error($e->getMessage());
+                } catch (\think\Exception $e) {
+                    $this->error($e->getMessage());
                 }
             }
-
-            $this->view->assign("row", $row);
-            return $this->view->fetch();
+            $this->error(__('Parameter %s can not be empty', ''));
         }
-    }
-
-    /**
-     * 添加点赞数
-     * 
-     * @param string $ids [description]
-     */
-    public function add_like_total($ids = "")
-    {
-        if ($ids) {
-            $row = Db::name('video')->where(['id' => $ids])->find();
-            if ($this->request->isPost()) {
-                $params = $this->request->post("number");
-                $this->success();
-            }
-
-            $this->view->assign("row", $row);
-            return $this->view->fetch();
-        }
-    }
-
-    /**
-     * 设置标题
-     * 
-     * @param string $ids [description]
-     */
-    public function set_title($ids = "")
-    {
-        if ($ids) {
-            $row = Db::name('video')->where(['id' => $ids])->find();
-            if ($this->request->isPost()) {
-                $title = $this->request->post("title");
-                $data = [
-                    'title' => $title,
-                    'video_id' => $row['id']
-                ];
-                $result = $this->model->editTitle($data);
-                if ($result) {
-                    $this->success();
-                } else {
-                    $this->error($this->model->getError());
-                }
-            }
-
-            $this->view->assign("row", $row);
-            return $this->view->fetch();
-        }
-    }
-
-    /**
-     * 播放视频
-     * 
-     * @param  string $ids [description]
-     * @return [type]      [description]
-     */
-    public function play($ids = "")
-    {
-        if ($ids) {
-            $row = Db::name('video')->where(['id' => $ids])->find();
-            if (!$row) {
-                $this->error('视频Id错误');
-            }
-            $play_url = \app\admin\model\VideoPutPlan::getVideoPayUrl($row['key'], $row['status']);
-            $this->view->assign("play_url", $play_url);
-            return $this->view->fetch();
-        }
-    }
-
-    /**
-     * 上架
-     * 
-     * @return [type] [description]
-     */
-    public function show()
-    {
-        $this->error();
-    }
-
-    /**
-     * 下架
-     * 
-     * @return [type] [description]
-     */
-    public function hide()
-    {
-        $this->success();
-    }
-
-    public function host()
-    {
-        $this->success();
-    }
-
-    public function unhost()
-    {
-        $this->success();
-    }
-
-    public function edit_cover_img($ids = '')
-    {
-        if ($ids) {
-            if ($this->request->isPost()) {
-                $this->success();
-            }
-            return $this->view->fetch();
-        }
-    }
-
-    public function aaa_bbb()
-    {
+        $this->view->assign("row", $row);
         return $this->view->fetch();
+    }
+
+    /**
+     * 置顶
+     * @param string $ids
+     * @param $action
+     */
+    public function top($ids = "", $action)
+    {
+        if ($this->request->isAjax()) {
+            $row = $this->model->get($ids);
+            if (!$row)
+                $this->error(__('No Results were found'));
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                    $this->error(__('You have no permission'));
+                }
+            }
+            try {
+                $result = $row->top($action);
+                if ($result !== false) {
+                    $this->success();
+                } else {
+                    $this->error($row->getError());
+                }
+            } catch (\think\exception\PDOException $e) {
+                $this->error($e->getMessage());
+            } catch (\think\Exception $e) {
+                $this->error($e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * 热门
+     * @param string $ids
+     * @param $action
+     */
+    public function hot($ids = "", $action)
+    {
+        if ($this->request->isAjax()) {
+            $row = $this->model->get($ids);
+            if (!$row)
+                $this->error(__('No Results were found'));
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                if (!in_array($row[$this->dataLimitField], $adminIds)) {
+                    $this->error(__('You have no permission'));
+                }
+            }
+            try {
+                $result = $row->hot($action);
+                if ($result !== false) {
+                    $this->success();
+                } else {
+                    $this->error($row->getError());
+                }
+            } catch (\think\exception\PDOException $e) {
+                $this->error($e->getMessage());
+            } catch (\think\Exception $e) {
+                $this->error($e->getMessage());
+            }
+        }
     }
 }

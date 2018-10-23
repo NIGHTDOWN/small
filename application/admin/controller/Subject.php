@@ -17,6 +17,8 @@ class Subject extends Backend
      */
     protected $searchFields = 'subject_name';
 
+    protected $noNeedRight = ['selectpage'];
+
     /**
      * Subject模型对象
      * @var \app\admin\model\Subject
@@ -28,6 +30,10 @@ class Subject extends Backend
         parent::_initialize();
         $this->model = new \app\admin\model\Subject;
 
+    }
+
+    public function selectpage(){
+        return parent::selectpage();
     }
 
     /**

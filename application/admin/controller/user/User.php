@@ -20,6 +20,8 @@ class User extends Backend
 
     protected $searchFields = ['nickname'];
 
+    protected $noNeedRight = ['tableBaseData','selectpage'];
+
 
     /**
      * @var \app\admin\model\User
@@ -44,6 +46,10 @@ class User extends Backend
         $group_model=model('user_group');
         $data['group_list']=$group_model->getList();
         return $data;
+    }
+
+    public function selectpage(){
+        return parent::selectpage();
     }
 
     /**

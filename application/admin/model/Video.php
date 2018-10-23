@@ -3,189 +3,420 @@
 namespace app\admin\model;
 
 use think\Model;
+use app\common\model\Video as VideoCommonModel;
+use think\Validate;
 use wsj\WQiniu;
+use app\common\model\HotVideo as HotVideoCommonModel;
 
 class Video extends Model
 {
     // 表名
     protected $name = 'video';
-    
+
     // 自动写入时间戳字段
-    protected $autoWriteTimestamp = false;
+    protected $autoWriteTimestamp = true;
 
     // 定义时间戳字段名
-    protected $createTime = false;
-    protected $updateTime = false;
-    
+    protected $createTime = 'create_time';
+    protected $updateTime = 'update_time';
+
     // 追加属性
     protected $append = [
-        // 'process_done_time_text',
-        // 'create_time_text',
-        // 'update_time_text'
+        'play_url'
     ];
 
-    public static $status = [
-        'DELETE' => -1,
-        'HIDE' => 0,
-        'DISPLAY' => 1,
-        'ROBOT_FAILD' => 2,
-        'VIOLATION' => 3,
-        'FROZEN' => 5,
-        'COMPLAIN' => 6,
-        'APPEALING' => 7,
-        'ROBOT_SUCCESS' => 8,
-        'CHECK_NO_PASS' => 9,
-        'DRAFT' => 10,
-    ];
-    
-    const STATUSTEXT = [
-        -1 => '删除',
-        0 => '未发布',
-        1 => '已发布',
-        2 => '机器审核未通过',
-        3 => '违规', //人工巡查 用户举报
-        5 => '冻结中', //原始视频被删除 或者违规了 (相对于转载的视频)
-        6 => '用户申诉',
-        7 => '用户申诉',
-        8 => '机器审核通过',
-        9 => '审核不通过',
-        10 => '草稿',
-    ];
-
-    /**
-     * 审核视频
-     * 
-     * @param  string $ids [description]
-     * @return [type]      [description]
-     */
-    public function checkVideo($video_id, $status, $remark)
+    public function getStatusList()
     {
-        // 第三方相关操作没写
-        $data = [
-           'update_time'=>time()
-        ];
+        $statusList = VideoCommonModel::STATUS_TEXT;
+        unset($statusList[-1]);
+        return $statusList;
+    }
 
-        if ($status == 1) {
-            $data['status'] = self::$status['DISPLAY'];
-        } else {
-            $data['status'] = self::$status['CHECK_NO_PASS'];
-        }
+    public function getPlayUrl($id, $status)
+    {
+        VideoCommonModel::getPublicUrl($id, $status);
+    }
 
-        $this->where(['id' => $video_id])->save($data);
-        return true;
+    public function getProcessDoneTimeTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['process_done_time']) ? $data['process_done_time'] : '');
+        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    }
+
+
+    public function getCreateTimeTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['create_time']) ? $data['create_time'] : '');
+        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    }
+
+
+    public function getUpdateTimeTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['update_time']) ? $data['update_time'] : '');
+        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    }
+
+    public function getPlayUrlAttr($value, $data)
+    {
+        return $this->getPlayUrl($data['id'], $data['status']);
+    }
+
+    protected function setProcessDoneTimeAttr($value)
+    {
+        return $value && !is_numeric($value) ? strtotime($value) : $value;
+    }
+
+    protected function setCreateTimeAttr($value)
+    {
+        return $value && !is_numeric($value) ? strtotime($value) : $value;
+    }
+
+    protected function setUpdateTimeAttr($value)
+    {
+        return $value && !is_numeric($value) ? strtotime($value) : $value;
     }
 
     public function user()
     {
-        return $this->belongsTo('user', 'user_id', 'id', [], 'LEFT')->setEagerlyType(0);
+        return $this->belongsTo('User', 'user_id', 'id', [], 'left')->setEagerlyType(1);
     }
 
-    /**
-     * 获取视频播放地址
-     * @param $key
-     * @param $status
-     * @return string
-     */
-    public static function getVideoPayUrl($key, $status)
+    public function extend()
     {
-        $pay_url='';
-        if ($key) {
-            if ($status===self::STATUS['PUT_SUCCESS']) {
-                $pay_url=config('qiniu.original_video_bkt_protocol').'://'.config('qiniu.original_video_bkt_domain').'/'.$key;
-            } else {
-                $pay_url=self::getRemoteVideoProtocol().'://'.self::getRemoteVideoDomain().'/'.$key;
-            }
-        }
-        return $pay_url;
+        return $this->hasOne('VideoExtend', 'video_id', 'id', [], 'left')->setEagerlyType(0);
+    }
+
+    public function log()
+    {
+        return $this->hasMany('VideoAdminLog', 'video_id', 'id');
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany('Subject', 'SubjectVideo', 'subject_id', 'video_id');
+    }
+
+    public function hotvideo()
+    {
+        return $this->hasOne('HotVideo','video_id','id',[],'left')->setEagerlyType(0);
     }
 
     /**
      * 编辑标题
-     * @param $data
+     * @param array $data
      * @return bool
      */
     public function editTitle($data)
     {
-        //数据验证
-        if (!$data['video_id']) {
-            $this->error = '缺少视频id';
-            return false;
+        $ret = $this->allowField(['title'])->save($data);
+        if ($ret) {
+            VideoCommonModel::updateEs($this->getAttr('id'), ['title' => $data['title']]);
         }
-        if (mb_strlen($data['title']) > 16) {
-            $this->error = '视频标题最长不超过16字';
-            return false;
-        }
-        //视频主表
-        $ret = $this
-            ->where('id', $data['video_id'])
-            ->update([
-                'title' => $data['title'],
-                'update_time' => time(),
-            ]);
-        if (!$ret) {
-            $this->error = '编辑失败';
-            return false;
-        }
-
-        //更新es
-        // $this->updateEs($data['video_id'],['title'=>$data['title']]);
-
-        return true;
+        return $ret;
     }
-
-    
-    // public function getProcessDoneTimeTextAttr($value, $data)
-    // {
-    //     $value = $value ? $value : (isset($data['process_done_time']) ? $data['process_done_time'] : '');
-    //     return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
-    // }
-
-
-    // public function getCreateTimeTextAttr($value, $data)
-    // {
-    //     $value = $value ? $value : (isset($data['create_time']) ? $data['create_time'] : '');
-    //     return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
-    // }
-
-
-    // public function getUpdateTimeTextAttr($value, $data)
-    // {
-    //     $value = $value ? $value : (isset($data['update_time']) ? $data['update_time'] : '');
-    //     return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
-    // }
-
-    // protected function setProcessDoneTimeAttr($value)
-    // {
-    //     return $value && !is_numeric($value) ? strtotime($value) : $value;
-    // }
-
-    // protected function setCreateTimeAttr($value)
-    // {
-    //     return $value && !is_numeric($value) ? strtotime($value) : $value;
-    // }
-
-    // protected function setUpdateTimeAttr($value)
-    // {
-    //     return $value && !is_numeric($value) ? strtotime($value) : $value;
-    // }
 
     /**
-     * 获取播放地址
-     * @param $key
-     * @param $status
-     * @return string
+     * 编辑分类
+     * @param array $data
+     * @return false|int
      */
-    public static function getPlayUrl($key,$status)
+    public function editCategory($data)
     {
-        $qiniuConfig=config('qiniu.');
-        if ($status==self::$status['DISPLAY']){
-            $play_url=WQiniu::getPublicVideoDownUrl($key);
-        }elseif ($status==self::$status['VIOLATION']){
-            $play_url=$qiniuConfig['original_video_bkt_protocol'].'://'.$qiniuConfig['original_video_bkt_domain'].'/'.$key;
-        }else{
-            $play_url=$qiniuConfig['public_video_bkt_protocol'].'://'.$qiniuConfig['public_video_bkt_domain'].'/'.$key;
+        $oldCategoryId = $this->getAttr('category_id');
+        $ret = $this->allowField(['category_id'])->save($data);
+        if ($ret) {
+            if ($this->getAttr('recommend')) {
+                if ($oldCategoryId != $data['category_id']) {
+                    VideoCommonModel::delTopVideoFromCache($this->getAttr('id'), $oldCategoryId);
+                }
+                VideoCommonModel::addTopVideoToCache($this->getAttr('id'), $data['category_id']);
+            }
         }
-        return $play_url;
+        return $ret;
     }
 
+    /**
+     * 编辑封面
+     * @param string $cover_imgs
+     * @return false|int
+     */
+    public function editCoverImg($cover_imgs)
+    {
+        if (!Validate::is($cover_imgs, 'url')) {
+            $this->error = '封面不是合法的url地址';
+            return false;
+        }
+        $oldCoverImg = $this->getAttr('extend')->getAttr('cover_imgs');
+        $ret = $this->getAttr('extend')->save(['cover_imgs' => $cover_imgs]);
+        if ($ret) {
+            if ($oldCoverImg) {
+                VideoCommonModel::deleteCoverImgFile($oldCoverImg);
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * 增加点赞
+     * @param int $number
+     */
+    public function addLike($number)
+    {
+        //todo 待补充
+        dump($number);
+        die();
+    }
+
+    /**
+     * 审核通过
+     */
+    public function checkPass()
+    {
+        if ($this->getAttr('process_status') != 0) {
+            $this->error = '七牛转码处理中';
+            return false;
+        }
+        if (!in_array($this->getAttr('status'), [VideoCommonModel::STATUS['robot_fail'], VideoCommonModel::STATUS['robot_success']])) {
+            $this->error = '重复操作';
+            return false;
+        }
+        try {
+            $this->startTrans();
+            $this->setAttr('status', VideoCommonModel::STATUS['display']);
+            if (!$this->save()) {
+                exception('失败');
+            }
+            //记录log
+            $logData = [
+                'type' => VideoAdminLog::TYPE['check_pass'],
+                'admin_id' => session('admin.id'),
+            ];
+            $this->log()->save($logData);
+            //进行后续的视频转码(原机器检查后,在这一歩停止)
+            WQiniu::transcodeVideo($this->getAttr('id'));
+            //todo 排行榜生效,待补充
+
+            $this->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->error = $e->getMessage();
+            $this->rollback();
+            return false;
+        }
+    }
+
+    /**
+     * 审核不通过
+     * @param string $remark 备注
+     * @return bool
+     */
+    public function checkNoPass($remark)
+    {
+        if ($this->getAttr('process_status') != 0) {
+            $this->error = '七牛转码处理中';
+            return false;
+        }
+        if (!in_array($this->getAttr('status'), [VideoCommonModel::STATUS['robot_fail'], VideoCommonModel::STATUS['robot_success']])) {
+            $this->error = '重复操作';
+            return false;
+        }
+        try {
+            $this->startTrans();
+            $this->setAttr('status', VideoCommonModel::STATUS['check_no_pass']);
+            if (!$this->save()) {
+                exception('失败');
+            }
+            //记录log
+            $logData = [
+                'type' => VideoAdminLog::TYPE['check_no_pass'],
+                'admin_id' => session('admin.id'),
+                'remark' => $remark,
+            ];
+            $this->log()->save($logData);
+            $this->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->error = $e->getMessage();
+            $this->rollback();
+            return false;
+        }
+    }
+
+    /**
+     * 上架
+     */
+    public function show()
+    {
+        if ($this->getAttr('status') != VideoCommonModel::STATUS['hide']) {
+            $this->error = '只有下架视频可以设置上架';
+            return false;
+        }
+        try {
+            $this->startTrans();
+            $this->setAttr('status', VideoCommonModel::STATUS['display']);
+            if (!$this->save()) {
+                exception('失败');
+            }
+            //log
+            $logData = [
+                'type' => VideoAdminLog::TYPE['display'],
+                'admin_id' => session('admin.id'),
+            ];
+            $this->log()->save($logData);
+            //es
+            VideoCommonModel::addEs($this->getAttr('id'), $this->getAttr('title'));
+            //恢复排行数据
+            //todo 恢复排行数据,待补充
+
+            $this->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->rollback();
+            $this->error = $e->getMessage();
+            return false;
+        }
+    }
+
+    /**
+     * 下架
+     */
+    public function hide()
+    {
+        if ($this->getAttr('status') != VideoCommonModel::STATUS['display']) {
+            $this->error = '只有上架视频可以设置下架';
+            return false;
+        }
+        try {
+            $this->startTrans();
+            $this->setAttr('status', VideoCommonModel::STATUS['hide']);
+            if (!$this->save()) {
+                exception('失败');
+            }
+            //log
+            $logData = [
+                'type' => VideoAdminLog::TYPE['hide'],
+                'admin_id' => session('admin.id'),
+            ];
+            $this->log()->save($logData);
+            //es
+            VideoCommonModel::delEs($this->getAttr('id'));
+            //冻结排行数据
+            //todo 冻结排行数据,待补充
+
+            $this->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->error = $e->getMessage();
+            $this->rollback();
+            return false;
+        }
+    }
+
+    /**
+     * 删除
+     * @param $remark
+     * @return bool
+     */
+    public function del($remark)
+    {
+        $originalStatus = $this->getAttr('status');
+        if ($originalStatus == VideoCommonModel::STATUS['delete']) {
+            $this->error = '视频已经删除';
+            return false;
+        }
+        try {
+            $this->startTrans();
+            $this->setAttr('status', VideoCommonModel::STATUS['delete']);
+            if (!$this->save()) {
+                exception('失败');
+            }
+            //log
+            $logData = [
+                'type' => VideoAdminLog::TYPE['delete'],
+                'admin_id' => session('admin.id'),
+                'remark' => $remark,
+            ];
+            $this->log()->save($logData);
+            //es
+            VideoCommonModel::delEs($this->getAttr('id'));
+            //删除排行数据
+            //todo 删除排行数据,待补充
+
+            //推送这个删除到队列进行后续处理
+            $data = [
+                'action' => 'deleteVideo',
+                'params' => [
+                    'video_id' => $this->getAttr('id'),
+                    'original_status' => $originalStatus,
+                ],
+            ];
+            publish_message($data);
+            $this->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->error = $e->getMessage();
+            $this->rollback();
+            return false;
+        }
+    }
+
+    /**
+     * 置顶
+     * @param $action
+     * @return bool|int
+     */
+    public function top($action)
+    {
+        if (!$this->getAttr('category_id')) {
+            $this->error = '未设置分类,无法置顶';
+            return false;
+        }
+        $this->setAttr('recommend', $action ? 1 : 0);
+        $ret = $this->save();
+        if ($ret) {
+            if ($action) {
+                VideoCommonModel::addTopVideoToCache($this->getAttr('id'), $this->getAttr('category_id'));
+            } else {
+                VideoCommonModel::delTopVideoFromCache($this->getAttr('id'), $this->getAttr('category_id'));
+            }
+        }
+        return $ret;
+    }
+
+    /**
+     * 热门
+     * @param $action
+     * @return bool|int
+     */
+    public function hot($action)
+    {
+        if ($this->getAttr('status')!=VideoCommonModel::STATUS['display']){
+            $this->error='只有上架的视频可以设置热门';
+            return false;
+        }
+        if ($action){
+            //设置热门
+            $hotVideo=$this->getAttr('hotVideo');
+            if ($hotVideo){
+                //原来加过
+                $hotVideo->setAttr('status',HotVideoCommonModel::STATUS['normal']);
+                $ret=$hotVideo->save();
+            }else{
+                //原来没有加过
+                $hotData=[
+                    'admin_id'=>session('admin.id'),
+                    'status'=>HotVideoCommonModel::STATUS['normal'],
+                ];
+                $ret=$this->hotvideo()->save($hotData);
+                if ($ret){
+                    //todo 加热门任务,待补充
+                }
+            }
+        }else{
+            //取消热门
+            $ret=$this->getAttr('hotVideo')->save(['status'=>HotVideoCommonModel::STATUS['cancel']]);
+        }
+        return $ret;
+    }
 }

@@ -1,5 +1,14 @@
 define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefined, Backend, Table, Form) {
 
+    var base_data;
+    $.ajax({
+        url:'video/video/tableBaseData',
+        async:false,
+        success:function (data) {
+            base_data = data;
+        }
+    });
+
     var Controller = {
         index: function () {
             // 初始化表格参数配置
@@ -7,84 +16,80 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 extend: {
                     index_url: 'video/video/index',
                     del_url: 'video/video/del',
-                    table: 'video',
-                },
-                queryParams: function (params) {
-                    // 活动id
-                    params.activity_id = Fast.api.query('activity_id')
-                    return params;
+                    table: 'video'
                 }
             });
 
             var table = $("#table");
             // 初始化表格
-            var categoryList = $.getJSON('video/video/categoryList');
-            var statusText = {0: '未发布', 1: '已发布', 2: '机器审核未通过', 3: '违规', 8: '机器审核通过', 9: '审核不通过', 10: '草稿'};
             table.bootstrapTable({
                 search: false,
                 showToggle: false,
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
-                sortName: 'video.id',
+                sortName: 'id',
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'id', title: __('Id'), sortable: true, alias: 'video.id'},
+                        {field: 'id', title: __('Id'), sortable: true},
                         {field: 'title', title: __('Title')},
-                        {field: 'user.nickname', title: __('User_id'), operate: false},
-                        {field: 'category_text', title: __('category_text'), operate: false},
-                        {field: 'category_id', title: __('Category_id'), searchList: categoryList, formatter: function (data){return categoryList.responseJSON[data];}},
-                        {field: 'user_view_total', title: __('User_view_total'), operate: false, sortable: true},
-                        {field: 'user_like_total', title: __('User_like_total'), operate: false, sortable: true},
-                        {field: 'user_comment_total', title: __('User_comment_total'), operate: false, sortable: true},
-                        {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
-                        {field: 'update_time', title: __('Update_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
-                        {field: 'process_done_time', title: __('时间'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: 'RANGE', visible: false},
-                        {field: 'status', title: __('Status'), searchList: statusText, formatter: function (data) {return statusText[data]}},
-                        {
-                            field: 'operate',
-                            title: __('Operate'),
-                            table: table,
+                        {field: 'extend.cover_imgs', title: __('封面'),operate: false,formatter: Table.api.formatter.image},
+                        {field: 'category_id', title: __('分类'), searchList: base_data.categoryList, formatter: function (value){return base_data.categoryList[value];}},
+                        {field: 'user.nickname', title: __('用户昵称'),operate:'=',column:'user_id',addclass:'selectpage', data:'data-source="user/user/selectpage"  data-params=""  data-field="nickname"'},
+                        {field: 'user_like_total', title: __('点赞'), operate: false, sortable: true},
+                        {field: 'user_comment_total', title: __('评论'), operate: false, sortable: true},
+                        {field: 'user_view_total', title: __('播放'), operate: false, sortable: true},
+                        {field: 'subjects', title: __('标签'), operate: 'FIND_IN_SET',column:'subject_ids',addclass:'selectpage', data:'data-source="subject/selectpage" data-field="subject_name"',formatter:function (arr) {
+                            var subjects='';
+                            arr.map(function(value,index){
+                                if (index){
+                                    subjects+=(','+value.subject_name);
+                                }else {
+                                    subjects+=value.subject_name;
+                                }
+                            });
+                            return subjects;
+                        }},
+                        {field: 'status', title: __('Status'), searchList: base_data.statusList, formatter: function (value) {return base_data.statusList[value]}},
+                        {field: 'create_time', title: __('Create_time'), sortable: true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
+                        {field: 'update_time', title: __('Update_time'), sortable: true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
+                        {field: 'process_status', title: __('转码状态'), operate:'=',searchList:{0:'完成',1:'处理中'},formatter: function (value) {
+                            return value?'处理中':'完成';
+                        }},
+                        {field: 'process_done_time', title: __('转码完成时间'),visible:false, sortable: true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
+                        {field: 'hotvideo.status', title: __('是否热门'),visible:false, operate: '=',searchList:{1:'是'},formatter:function (value) {
+                            return value?'是':'否';
+                        }},
+                        {field: 'hotvideo.create_time', title: __('添加热门时间'),visible:false, sortable: true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
+                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate,
                             buttons: [
                                 {
-                                    name: 'set_category',
-                                    title: __('设置分类'),
-                                    text: __('设置分类'),
-                                    classname: 'btn btn-xs btn-primary btn-dialog',
-                                    url: 'video/video/set_category'
+                                    name: 'editcategory',
+                                    title: __('编辑分类'),
+                                    text: __('编辑分类'),
+                                    classname: 'btn btn-xs btn-info btn-dialog',
+                                    url: 'video/video/editcategory'
                                 },
                                 {
-                                    name: 'check_video',
-                                    title: __('审核'),
-                                    text: __('审核'),
-                                    classname: 'btn btn-xs btn-primary btn-dialog',
-                                    url: 'video/video/check_video',
-                                    hidden: function(row) {
-                                        if (row.status != '2') {
-                                            return true;
-                                        }
-                                    }
-                                },
-                                {
-                                    name: 'add_like_total',
-                                    title: __('增加点赞数'),
-                                    text: __('增加点赞数'),
-                                    classname: 'btn btn-xs btn-primary btn-dialog',
-                                    url: 'video/video/add_like_total'
-                                },
-                                {
-                                    name: 'set_title',
-                                    title: __('视频标题'),
-                                    text: __('视频标题'),
-                                    classname: 'btn btn-xs btn-primary btn-dialog',
-                                    url: 'video/video/set_title'
-                                },
-                                {
-                                    name: 'edit_cover_img',
+                                    name: 'editcoverimg',
                                     title: __('编辑封面'),
                                     text: __('编辑封面'),
-                                    classname: 'btn btn-xs btn-primary btn-dialog',
-                                    url: 'video/video/edit_cover_img'
+                                    classname: 'btn btn-xs btn-info btn-dialog',
+                                    url: 'video/video/editcoverimg'
+                                },
+                                {
+                                    name: 'edittitle',
+                                    title: __('编辑标题'),
+                                    text: __('编辑标题'),
+                                    classname: 'btn btn-xs btn-info btn-dialog',
+                                    url: 'video/video/edittitle'
+                                },
+                                {
+                                    name: 'addlike',
+                                    title: __('增加点赞'),
+                                    text: __('增加点赞'),
+                                    classname: 'btn btn-xs btn-info btn-dialog',
+                                    url: 'video/video/addlike'
                                 },
                                 {
                                     name: 'play',
@@ -94,13 +99,54 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     url: 'video/video/play'
                                 },
                                 {
+                                    name: 'checkpass',
+                                    title: __('审核通过'),
+                                    text: __('审核通过'),
+                                    classname: 'btn btn-xs btn-success btn-ajax',
+                                    url: 'video/video/checkpass',
+                                    confirm:'确认通过?',
+                                    hidden: function(row) {
+                                        if (row.process_status === 0){
+                                            if (row.status === 2 || row.status === 8) {
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    }
+                                },
+                                {
+                                    name: 'checknopass',
+                                    title: __('审核不通过'),
+                                    text: __('审核不通过'),
+                                    classname: 'btn btn-xs btn-warning btn-dialog',
+                                    url: 'video/video/checknopass',
+                                    hidden: function(row) {
+                                        if (row.process_status === 0){
+                                            if (row.status === 2 || row.status === 8) {
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    }
+                                },
+                                {
                                     name: 'show',
                                     title: __('上架'),
                                     text: __('上架'),
-                                    classname: 'btn btn-xs btn-warning btn-show',
+                                    confirm:'确认上架?',
+                                    classname: 'btn btn-xs btn-success btn-ajax',
+                                    url: 'video/video/show',
                                     hidden: function(row) {
-                                        if (row.status != '1') {
-                                            return true;
+                                        if (row.process_status === 0){
+                                            if (row.status === 0) {
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    },
+                                    success: function (data, ret) {
+                                        if (ret.code === 1){
+                                            $('.btn-refresh').trigger('click');
                                         }
                                     }
                                 },
@@ -108,164 +154,148 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     name: 'hide',
                                     title: __('下架'),
                                     text: __('下架'),
-                                    classname: 'btn btn-xs btn-warning btn-hide',
+                                    confirm:'确认下架?',
+                                    classname: 'btn btn-xs btn-warning btn-ajax',
+                                    url: 'video/video/hide',
                                     hidden: function(row) {
-                                        if (row.status != '0') {
-                                            return true;
+                                        if (row.process_status === 0){
+                                            if (row.status === 1) {
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    },
+                                    success: function (data, ret) {
+                                        if (ret.code === 1){
+                                            $('.btn-refresh').trigger('click');
                                         }
                                     }
                                 },
                                 {
-                                    name: 'host',
-                                    title: __('推荐'),
-                                    text: __('推荐'),
-                                    classname: 'btn btn-xs btn-warning btn-set_host',
+                                    name: 'del',
+                                    title: __('删除'),
+                                    text: __('删除'),
+                                    classname: 'btn btn-xs btn-danger btn-dialog',
+                                    url: 'video/video/del'
+                                },
+                                {
+                                    name: 'top',
+                                    title: __('置顶'),
+                                    text: __('置顶'),
+                                    confirm:'确认置顶?',
+                                    classname: 'btn btn-xs btn-success btn-ajax',
+                                    url: 'video/video/top/action/1',
                                     hidden: function(row) {
-                                        if (row.status != '1' || row.recommend > '0') {
-                                            return true;
+                                        if (row.category_id){
+                                            if (row.recommend === 0){
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    },
+                                    success: function (data, ret) {
+                                        if (ret.code === 1){
+                                            $('.btn-refresh').trigger('click');
+                                        }
+                                    }
+                                },
+                                {
+                                    name: 'cancel_top',
+                                    title: __('取消置顶'),
+                                    text: __('取消置顶'),
+                                    confirm:'确认取消置顶?',
+                                    classname: 'btn btn-xs btn-warning btn-ajax',
+                                    url: 'video/video/top/action/0',
+                                    hidden: function(row) {
+                                        if (row.category_id){
+                                            if (row.recommend === 1){
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    },
+                                    success: function (data, ret) {
+                                        if (ret.code === 1){
+                                            $('.btn-refresh').trigger('click');
+                                        }
+                                    }
+                                },
+                                {
+                                    name: 'hot',
+                                    title: __('热门'),
+                                    text: __('热门'),
+                                    confirm:'确认添加热门?',
+                                    classname: 'btn btn-xs btn-success btn-ajax',
+                                    url: 'video/video/hot/action/1',
+                                    hidden: function(row) {
+                                        if (row.status === 1){
+                                            if (!row.hotvideo||row.hotvideo.status == 0){
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    },
+                                    success: function (data, ret) {
+                                        if (ret.code === 1){
+                                            $('.btn-refresh').trigger('click');
+                                        }
+                                    }
+                                },
+                                {
+                                    name: 'cancel_hot',
+                                    title: __('取消热门'),
+                                    text: __('取消热门'),
+                                    confirm:'确认取消热门?',
+                                    classname: 'btn btn-xs btn-warning btn-ajax',
+                                    url: 'video/video/hot/action/0',
+                                    hidden: function(row) {
+                                        if (row.hotvideo&&row.hotvideo.status == 1){
+                                            return false;
+                                        }
+                                        return true;
+                                    },
+                                    success: function (data, ret) {
+                                        if (ret.code === 1){
+                                            $('.btn-refresh').trigger('click');
                                         }
                                     }
                                 }
-                            ],
-                            events: Controller.api.events.operate,
-                            formatter: Controller.api.formatter.operate
+                            ]
                         }
                     ]
                 ]
             });
 
-
-
             // 为表格绑定事件
             Table.api.bindevent(table);
         },
-        set_category: function () {
+        add: function () {
             Controller.api.bindevent();
         },
-        check_video: function () {
+        edit: function () {
             Controller.api.bindevent();
         },
-        add_like_total: function () {
+        edittitle: function () {
             Controller.api.bindevent();
         },
-        set_title: function () {
+        editcategory: function () {
             Controller.api.bindevent();
         },
-        play: function () {
+        addlike: function () {
             Controller.api.bindevent();
         },
-        edit_cover_img: function () {
+        editcoverimg: function () {
+            Controller.api.bindevent();
+        },
+        checknopass: function () {
+            Controller.api.bindevent();
+        },
+        del: function () {
             Controller.api.bindevent();
         },
         api: {
             bindevent: function () {
                 Form.api.bindevent($("form[role=form]"));
-            },
-            events: {
-                operate: {
-                    'click .btn-delone': function (e, value, row, index) {
-                        var that = this;
-                        Layer.confirm(
-                            __('Are you sure you want to delete this item?'),
-                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(that), shadeClose: true},
-                            function (index) {
-                                var table = $(that).closest('table');
-                                var options = table.bootstrapTable('getOptions');
-                                Table.api.multi("del", row[options.pk], table, that);
-                                Layer.close(index);
-                            }
-                        );
-                    },
-                    // 上架
-                    'click .btn-show': function (e, value, row, index) {
-                        Layer.confirm(
-                            __('确定要上架吗?'),
-                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
-                            function (index) {
-                                Controller.api.method.sendAjax(index, 'video/video/show', {id: row.id});
-                            }
-                        );
-                    },
-                    // 下架
-                    'click .btn-hide': function (e, value, row, index) {
-                        Layer.confirm(
-                            __('确定要下架吗?'),
-                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
-                            function (index) {
-                                Controller.api.method.sendAjax(index, 'video/video/hide');
-                            }
-                        );
-                    },
-                    // 推荐
-                    'click .btn-set_host': function (e, value, row, index) {
-                        Layer.confirm(
-                            __('确定要推荐吗?'),
-                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
-                            function (index) {
-                                Controller.api.method.sendAjax(index, 'video/video/host');
-                            }
-                        );
-                    },
-                    // 取消推荐
-                    'click .btn-unhost': function (e, value, row, index) {
-                        Layer.confirm(
-                            __('确定要取消推荐吗?'),
-                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
-                            function (index) {
-                                Controller.api.method.sendAjax(index, 'video/video/unhost');
-                            }
-                        );
-                    }
-                }
-            },
-            formatter: {
-                operate: function (value, row, index) {
-                    var table = this.table;
-                    // 操作配置
-                    var options = table ? table.bootstrapTable('getOptions') : {};
-                    // 默认按钮组
-                    var buttons = $.extend([], this.buttons || []);
-                    // 所有按钮名称
-                    var names = [];
-                    buttons.forEach(function (item) {
-                        names.push(item.name);
-                    });
-                    if (options.extend.del_url !== '' && names.indexOf('del') === -1) {
-                        buttons.push({
-                            name: 'del',
-                            icon: 'fa fa-trash',
-                            title: __('Del'),
-                            extend: 'data-toggle="tooltip"',
-                            classname: 'btn btn-xs btn-danger btn-delone'
-                        });
-                    }
-                    return Table.api.buttonlink(this, buttons, value, row, index, 'operate');
-                }
-            },
-            method: {
-                windowSize: function (obj) {
-                    var top = $(obj).offset().top - $(window).scrollTop();
-                    var left = $(obj).offset().left - $(window).scrollLeft() - 260;
-                    if (top + 154 > $(window).height()) {
-                        top = top - 154;
-                    }
-                    if ($(window).width() < 480) {
-                        top = left = undefined;
-                    }
-                    return [top, left];
-                },
-                sendAjax: function (index, url, data = {}) {
-                    Fast.api.ajax({
-                        url: url,
-                        type: 'POST',
-                        data: data
-                    }, function (data, result) {
-                        Layer.close(index);
-                        $('.btn-refresh').trigger('click');
-                    }, function (data, result) {
-                        Layer.close(index);
-                    })
-                }
             }
         }
     };

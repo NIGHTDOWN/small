@@ -9,12 +9,8 @@
                         <a href="javascript:;" class="btn btn-primary btn-refresh" title="{:__('Refresh')}" ><i class="fa fa-refresh"></i> </a>
                     </div>
                     <table id="table" class="table table-striped table-bordered table-hover table-nowrap"
-                           data-operate-del="{:$auth->check('video/video/del')}" 
-                           data-operate-set_category="{:$auth->check('video/video/set_category')}" 
-                           data-operate-check_video="{:$auth->check('video/video/check_video')}" 
-                           data-operate-add_like_total="{:$auth->check('video/video/add_like_total')}" 
-                           data-operate-set_title="{:$auth->check('video/video/set_title')}" 
-                           data-operate-edit_cover_img="{:$auth->check('video/video/edit_cover_img')}" 
+                           data-operate-edit="{:$auth->check('video/video/edit')}"
+                           data-operate-del="{:$auth->check('video/video/del')}"
                            width="100%">
                     </table>
                 </div>

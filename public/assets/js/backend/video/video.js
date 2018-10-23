@@ -229,7 +229,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     url: 'video/video/hot/action/1',
                                     hidden: function(row) {
                                         if (row.status === 1){
-                                            if (!row.hotvideo||row.hotvideo.status == 0){
+                                            if (!row.hotvideo.status){
                                                 return false;
                                             }
                                         }

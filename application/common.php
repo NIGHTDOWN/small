@@ -466,3 +466,12 @@ function special_chars_decode($value)
 function is_mobile($mobile){
     return preg_match("/^[1][3-9][0-9]{9}$/",$mobile) ? true : false;
 }
+
+/**
+ * 获取缓存前缀
+ * @return mixed
+ */
+function get_cache_prefix()
+{
+    return config('cache.redis')['prefix'];
+}

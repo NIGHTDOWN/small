@@ -7,6 +7,7 @@ use app\common\model\Video as VideoCommonModel;
 use think\Validate;
 use wsj\WQiniu;
 use app\common\model\HotVideo as HotVideoCommonModel;
+use app\common\model\ActivityTop as ActivityTopCommonModel;
 
 class Video extends Model
 {
@@ -195,8 +196,8 @@ class Video extends Model
             $this->log()->save($logData);
             //进行后续的视频转码(原机器检查后,在这一歩停止)
             WQiniu::transcodeVideo($this->getAttr('id'));
-            //todo 排行榜生效,待补充
-
+            //排行榜生效
+            ActivityTopCommonModel::doTopData($this->getAttr('id'));
             $this->commit();
             return true;
         } catch (\Exception $e) {
@@ -267,8 +268,7 @@ class Video extends Model
             //es
             VideoCommonModel::addEs($this->getAttr('id'), $this->getAttr('title'));
             //恢复排行数据
-            //todo 恢复排行数据,待补充
-
+            ActivityTopCommonModel::doTopData($this->getAttr('id'));
             $this->commit();
             return true;
         } catch (\Exception $e) {
@@ -302,8 +302,7 @@ class Video extends Model
             //es
             VideoCommonModel::delEs($this->getAttr('id'));
             //冻结排行数据
-            //todo 冻结排行数据,待补充
-
+            ActivityTopCommonModel::hideTopData($this->getAttr('id'));
             $this->commit();
             return true;
         } catch (\Exception $e) {
@@ -341,8 +340,7 @@ class Video extends Model
             //es
             VideoCommonModel::delEs($this->getAttr('id'));
             //删除排行数据
-            //todo 删除排行数据,待补充
-
+            ActivityTopCommonModel::delTopData($this->getAttr('id'));
             //推送这个删除到队列进行后续处理
             $data = [
                 'action' => 'deleteVideo',
@@ -410,7 +408,8 @@ class Video extends Model
                 ];
                 $ret=$this->hotvideo()->save($hotData);
                 if ($ret){
-                    //todo 加热门任务,待补充
+                    //加热门任务
+                    \app\common\model\Mission::runMission('public_video_hot',$this->getAttr('user_id'));
                 }
             }
         }else{

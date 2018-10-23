@@ -24,6 +24,8 @@ class Video extends Backend
 
     protected $modelSceneValidate = true;
 
+    protected $noNeedRight=['tableBaseData'];
+
     public function _initialize()
     {
         parent::_initialize();

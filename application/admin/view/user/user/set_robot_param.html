@@ -1,0 +1,103 @@
+<style type="text/css">
+.form-horizontal .control-label {
+    padding-top: 0px;
+    width: 200px;
+}
+</style>
+
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <label style="margin-left: 20px;">用户发送视频:</label>
+    <div class="form-group">
+        <label for="c-nickname" class="control-label col-sm-2">机器人点赞倍率范围:</label>
+        <div>
+            <input type="number" name="user_put_video_event_param[like_min]" value="{$data['user_put_video_event_param']['like_min']}">
+            到
+            <input type="number" name="user_put_video_event_param[like_max]" value="{$data['user_put_video_event_param']['like_max']}">
+        </div>
+        <br />
+        <label for="c-nickname" class="control-label col-xs-12 col-sm-2">评论倍率范围:</label>
+        <div>
+            <input type="number" name="user_put_video_event_param[comment_min]" value="{$data['user_put_video_event_param']['comment_min']}">
+            到
+            <input type="number" name="user_put_video_event_param[comment_max]" value="{$data['user_put_video_event_param']['comment_max']}">
+        </div>
+        <br />
+        <label for="c-nickname" class="control-label col-xs-12 col-sm-2">时间区间:</label>
+        <div>
+            <input type="number" name="user_put_video_event_param[hour]" value="{$data['user_put_video_event_param']['hour']}">
+            时
+            <input type="number" name="user_put_video_event_param[minute]" value="{$data['user_put_video_event_param']['minute']}">分
+        </div>
+    </div>
+
+    <label style="margin-left: 20px;">真实用户进行交互行为时:</label>
+    <div class="form-group">
+        <label for="c-nickname" class="control-label col-sm-2">机器人点赞倍率范围:</label>
+        <div>
+            <input type="number" name="user_action_event_param[like_min]" value="{$data['user_action_event_param']['like_min']}">
+            到
+            <input type="number" name="user_action_event_param[like_max]" value="{$data['user_action_event_param']['like_max']}">
+        </div>
+        <br />
+        <label for="c-nickname" class="control-label col-sm-2">评论倍率范围:</label>
+        <div>
+            <input type="number" name="user_action_event_param[comment_min]" value="{$data['user_action_event_param']['comment_min']}">
+            到
+            <input type="number" name="user_action_event_param[comment_max]" value="{$data['user_action_event_param']['comment_max']}">
+        </div>
+        <br />
+        <label for="c-nickname" class="control-label col-sm-2">转发倍率范围:</label>
+        <div>
+            <input type="number" name="user_action_event_param[forward_min]" value="{$data['user_action_event_param']['forward_min']}">
+            到
+            <input type="number" name="user_action_event_param[forward_max]" value="{$data['user_action_event_param']['forward_max']}">
+        </div>
+        <br />
+        <label for="c-nickname" class="control-label col-sm-2">时间区间:</label>
+        <div>
+            <input type="number" name="user_action_event_param[hour]" value="{$data['user_action_event_param']['hour']}">
+            时
+            <input type="number" name="user_action_event_param[minute]" value="{$data['user_action_event_param']['minute']}">分
+        </div>
+    </div>
+
+    <label style="margin-left: 20px;">用户长时间未登陆后:</label>
+    <div class="form-group">
+        <label for="c-nickname" class="control-label col-sm-2">机器人点赞倍率范围:</label>
+        <div>
+            <input type="number" name="user_long_time_inactivity_event_param[like_min]" value="{$data['user_long_time_inactivity_event_param']['like_min']}">
+            到
+            <input type="number" name="user_long_time_inactivity_event_param[like_max]" value="{$data['user_long_time_inactivity_event_param']['like_max']}">
+        </div>
+        <br />
+        <label for="c-nickname" class="control-label col-sm-2">评论倍率范围:</label>
+        <div>
+            <input type="number" name="user_long_time_inactivity_event_param[comment_min]" value="{$data['user_long_time_inactivity_event_param']['comment_min']}">
+            到
+            <input type="number" name="user_long_time_inactivity_event_param[comment_max]" value="{$data['user_long_time_inactivity_event_param']['comment_max']}">
+        </div>
+        <br />
+        <label for="c-nickname" class="control-label col-sm-2">转发倍率范围:</label>
+        <div>
+            <input type="number" name="user_long_time_inactivity_event_param[forward_min]" value="{$data['user_long_time_inactivity_event_param']['forward_min']}">
+            到
+            <input type="number" name="user_long_time_inactivity_event_param[forward_max]" value="{$data['user_long_time_inactivity_event_param']['forward_max']}">
+        </div>
+        <br />
+        <label for="c-nickname" class="control-label col-sm-2">时间区间:</label>
+        <div>
+            <input type="number" name="user_long_time_inactivity_event_param[hour]" value="{$data['user_long_time_inactivity_event_param']['hour']}">
+            时
+            <input type="number" name="user_long_time_inactivity_event_param[minute]" value="{$data['user_long_time_inactivity_event_param']['minute']}">分
+        </div>
+    </div>
+
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

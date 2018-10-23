@@ -164,4 +164,58 @@ class User extends Backend
         $this->error(__('Parameter %s can not be empty', 'ids'));
     }
 
+    /*
+     * 设置机器人参数
+     */
+    public function set_robot_param()
+    {
+        if ($this->request->isPost()) {
+            $params = input('post.');
+            /** @var \app\admin\model\RobotParam $model */
+            $model = model('RobotParam');
+            $result = $model->setRobotParam($params);
+            if ($result) {
+                $this->success();
+            } else {
+                $this->error($model->getError());
+            }
+        }
+
+        $data = \app\common\model\RobotParam::getRobotParam();
+        // 时限转换
+        $user_put_video_event_param = $this->secToTime($data['user_put_video_event_param']['finish_time']);
+        $user_action_event_param = $this->secToTime($data['user_action_event_param']['finish_time']);
+        $user_long_time_inactivity_event_param = $this->secToTime($data['user_long_time_inactivity_event_param']['finish_time']);
+        $data['user_put_video_event_param']['hour'] = $user_put_video_event_param['hour'];
+        $data['user_put_video_event_param']['minute'] = $user_put_video_event_param['minute'];
+        $data['user_action_event_param']['hour'] = $user_action_event_param['hour'];
+        $data['user_action_event_param']['minute'] = $user_action_event_param['minute'];
+        $data['user_long_time_inactivity_event_param']['hour'] = $user_long_time_inactivity_event_param['hour'];
+        $data['user_long_time_inactivity_event_param']['minute'] = $user_long_time_inactivity_event_param['minute'];
+        $this->view->assign('data', $data);
+        return $this->view->fetch();
+    }
+
+
+    /**
+     * 秒转换时/分
+     * @param  [type] $times [description]
+     * @return [type]        [description]
+     */
+    public function secToTime($times)
+    {
+        $data = [
+            'hour' => 0,
+            'minute' => 0
+        ];
+        if ($times > 0) {
+            $hour = floor($times / 3600);
+            $minute = floor(($times - 3600 * $hour) / 60);
+            $data['hour'] = $hour;
+            $data['minute'] = $minute;
+        }
+
+        return $data;
+    }
+
 }

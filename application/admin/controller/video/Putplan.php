@@ -97,15 +97,24 @@ class Putplan extends Backend
         }
     }
 
-    public function setParam()
+    public function upload_relation_table()
     {
+        if ($this->request->isPost()) {
+            $file = input('post.file_name');
+            $result = model('VideoPutPlanUploadRecord')->add(['file_name' => $fileInfo['basename']]);
+            if ($result) {
+                $this->success();
+            } else {
+                $this->error(model('VideoPutPlanUploadRecord')->getError());
+            }
+        }
         return $this->view->fetch();
     }
 
     public function set_param()
     {
         if ($this->request->isPost()) {
-            $data = $this->request->only(['interval_time_min','interval_time_max','start_time']);
+            $data = $this->request->only(['interval_time_min', 'interval_time_max', 'start_time']);
             $ret = $this->model->setParam($data);
             if ($ret) {
                 $this->success();
@@ -114,6 +123,7 @@ class Putplan extends Backend
             }
         }
 
+        $this->view->assign("data", $this->model::getParam());
         return $this->view->fetch();
     }
 

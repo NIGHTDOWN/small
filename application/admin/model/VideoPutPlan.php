@@ -68,6 +68,17 @@ class VideoPutPlan extends Model
     }
 
     /**
+     * 获取原始文件MD5
+     * @param $original_file
+     * @return string
+     */
+    public static function getOriginalVideoMd5($original_file)
+    {
+        $stat = WQiniu::stat(self::getRemoteVideoBucket(),$original_file);
+        return isset($stat['hash'])?$stat['hash']:'';
+    }
+
+    /**
      * 获取远程视频访问域名
      */
     public static function getRemoteVideoDomain()
@@ -113,14 +124,16 @@ class VideoPutPlan extends Model
     public static function getParam()
     {
         $data=Db::name('video_put_plan_param')->field(['interval_time_min','interval_time_max','start_time'])->order('id','desc')->find();
-        if (!$data){
-            $data['interval_time_min']=self::DEFAULT_INTERVAL_TIME_MIN;
-            $data['interval_time_max']=self::DEFAULT_INTERVAL_TIME_MAX;
-            $data['start_time']=time();
+        if (!$data) {
+            $data['interval_time_min'] = self::DEFAULT_INTERVAL_TIME_MIN;
+            $data['interval_time_max'] = self::DEFAULT_INTERVAL_TIME_MAX;
+            $data['start_time'] = date('Y-m-d H:i:s', time());
         }else{
-            $now=time();
-            if ($data['start_time']<$now){
-                $data['start_time']=$now;
+            $now = time();
+            if ($data['start_time'] < $now) {
+                $data['start_time'] = date('Y-m-d H:i:s', $now);
+            } else {
+                $data['start_time'] = date('Y-m-d H:i:s', $data['start_time']);
             }
         }
         return $data;

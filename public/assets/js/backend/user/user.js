@@ -17,6 +17,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     index_url: 'user/user/index',
                     edit_url: 'user/user/edit',
                     del_url: 'user/user/del',
+                    set_robot_param: 'user/user/set_robot_param',
                     table: 'user',
                 }
             });
@@ -57,13 +58,30 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             // 为表格绑定事件
             Table.api.bindevent(table);
+            Controller.api.buttons(table);
         },
         edit: function () {
+            Controller.api.bindevent();
+        },
+        set_robot_param: function () {
             Controller.api.bindevent();
         },
         api: {
             bindevent: function () {
                 Form.api.bindevent($("form[role=form]"));
+            },
+            buttons: function (table) {
+                // Bootstrap-table的父元素,包含table,toolbar,pagnation
+                var parenttable = table.closest('.bootstrap-table');
+                // Bootstrap-table配置
+                var options = table.bootstrapTable('getOptions');
+                // Bootstrap操作区
+                var toolbar = $(options.toolbar, parenttable);
+                // 设置机器人参数
+                $(toolbar).on('click', '.btn-set_robot_param', function () {
+                    var url = options.extend.set_robot_param;
+                    Fast.api.open(url, __('设置机器人参数'));
+                });
             }
         }
     };

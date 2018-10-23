@@ -282,25 +282,4 @@ class User Extends Model
         $elastic_search = new ElasticSearch();
         return $elastic_search->name('user')->delete($user_id);
     }
-
-    /**
-     * 同步数据到es
-     */
-    public function syncDataToEs()
-    {
-        $elastic_search = new ElasticSearch();
-        self::where([
-                ['status','=',self::STATUS['normal']],
-            ])
-            ->chunk(100,function ($users) use ($elastic_search){
-                $data=[];
-                foreach ($users as $user){
-                    $data[]=[
-                        'id'=>$user['id'],
-                        'nickname'=>$user['nickname'],
-                    ];
-                }
-                $elastic_search->name('user')->insertAll($data);
-            });
-    }
 }

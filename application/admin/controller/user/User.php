@@ -171,8 +171,8 @@ class User extends Backend
     {
         if ($this->request->isPost()) {
             $params = input('post.');
-            /** @var \app\admin\model\RobotParam $model */
-            $model = model('RobotParam');
+            /** @var \app\admin\model\Robot $model */
+            $model = model('Robot');
             $result = $model->setRobotParam($params);
             if ($result) {
                 $this->success();
@@ -181,7 +181,7 @@ class User extends Backend
             }
         }
 
-        $data = \app\common\model\RobotParam::getRobotParam();
+        $data = \app\common\model\Robot::getRobotParam();
         // 时限转换
         $user_put_video_event_param = $this->secToTime($data['user_put_video_event_param']['finish_time']);
         $user_action_event_param = $this->secToTime($data['user_action_event_param']['finish_time']);

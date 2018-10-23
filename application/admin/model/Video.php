@@ -8,6 +8,7 @@ use think\Validate;
 use wsj\WQiniu;
 use app\common\model\HotVideo as HotVideoCommonModel;
 use app\common\model\ActivityTop as ActivityTopCommonModel;
+use app\common\model\Robot as RobotCommonModel;
 
 class Video extends Model
 {
@@ -161,12 +162,14 @@ class Video extends Model
     /**
      * 增加点赞
      * @param int $number
+     * @return bool
      */
     public function addLike($number)
     {
-        //todo 待补充
-        dump($number);
-        die();
+        $param_key='user_action_event_param';
+        $event_param=RobotCommonModel::getRobotParam()[$param_key];
+        RobotCommonModel::likeTask($this->getAttr('id'),$number,$event_param['finish_time']);
+        return true;
     }
 
     /**

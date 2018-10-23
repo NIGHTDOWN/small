@@ -59,7 +59,7 @@ class Robot extends Model
         $redis=Cache::init()->handler();
         Db::name('user')
             ->field(['id'])
-            ->where([['is_robot','eq',1]])
+            ->where(['is_robot'=>['eq',1]])
             ->chunk(100,function ($robot_users) use ($redis,$cache_key){
                 foreach ($robot_users as $robot_user){
                     $redis->sAdd(get_cache_prefix().$cache_key,$robot_user['id']);

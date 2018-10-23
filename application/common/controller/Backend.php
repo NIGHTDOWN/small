@@ -244,7 +244,6 @@ class Backend extends Controller
         $filter = $this->request->get("filter", '');
         $op = $this->request->get("op", '', 'trim');
         $sort = $this->request->get("sort", "id");
-//        dump($sort);exit;
         $order = $this->request->get("order", "DESC");
         $offset = $this->request->get("offset", 0);
         $limit = $this->request->get("limit", 0);

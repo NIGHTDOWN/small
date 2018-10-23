@@ -3,7 +3,7 @@
 namespace app\admin\controller;
 
 use app\common\controller\Backend;
-use app\common\model\Category as CategoryModel;
+use app\admin\model\Category as CategoryModel;
 use fast\Tree;
 
 /**
@@ -16,7 +16,7 @@ class Category extends Backend
 {
 
     /**
-     * @var \app\common\model\Category
+     * @var \app\admin\model\Category
      */
     protected $model = null;
     protected $categorylist = [];
@@ -26,7 +26,7 @@ class Category extends Backend
     {
         parent::_initialize();
         $this->request->filter(['strip_tags']);
-        $this->model = model('app\common\model\Category');
+        $this->model = model('Category');
 
         $tree = Tree::instance();
         $tree->init(collection($this->model->order('order_sort desc')->select())->toArray(), 'pid');

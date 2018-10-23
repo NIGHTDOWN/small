@@ -497,7 +497,7 @@ class WQiniu{
         $save_original_bkt = $video_info['save_original_bkt'];
         $key = $video_info['key'];
         $vb = floatval($original_bit_rate) > floatval(self::$publicVideoBitRate) ? floatval(self::$publicVideoBitRate) : $original_bit_rate;
-        $wm_pic_w = in_array($video_info['direction'],Video::$crossDirection) ? '/thumbnail/'.intval(floatval($video_info['width']) * 0.15).'x' :  '/thumbnail/'.intval(floatval($video_info['width']) * 0.3).'x';
+        $wm_pic_w = in_array($video_info['direction'],[3,4,5,6,0]) ? '/thumbnail/'.intval(floatval($video_info['width']) * 0.15).'x' :  '/thumbnail/'.intval(floatval($video_info['width']) * 0.3).'x';
         $watermark_picture = self::$qiniuConfig['watermark_picture']."?imageMogr2{$wm_pic_w}";
         $params = [
             'avthumb' => self::$publicVideoFormat, //封装格式

@@ -11,74 +11,17 @@ use think\Db;
 class Category Extends Model
 {
 
-    // 开启自动写入时间戳字段
-    protected $autoWriteTimestamp = 'int';
-    // 定义时间戳字段名
-    protected $createTime = 'createtime';
-    protected $updateTime = 'updatetime';
-    // 追加属性
-    protected $append = [
-        'type_text',
-        'flag_text',
-    ];
-
     const STATUS = [
-        'SHOW' => 1,
-        'HIDE' => 0,
-        'DELETE' => -1
+        'show' => 1,
+        'hide' => 0,
+        'delete' => -1
     ];
 
-    const STATUSTEXT = [
+    const STATUS_TEXT = [
         -1 => '正常',
         0 => '隐藏',
         1 => '已禁用'
     ];
-
-    protected static function init()
-    {
-        self::afterInsert(function ($row) {
-            $row->save(['weigh' => $row['id']]);
-        });
-    }
-
-    public function setFlagAttr($value, $data)
-    {
-        return is_array($value) ? implode(',', $value) : $value;
-    }
-
-    /**
-     * 读取分类类型
-     * @return array
-     */
-    public static function getTypeList()
-    {
-        $typeList = config('site.categorytype');
-        foreach ($typeList as $k => &$v)
-        {
-            $v = __($v);
-        }
-        return $typeList;
-    }
-
-    public function getTypeTextAttr($value, $data)
-    {
-        $value = $value ? $value : $data['type'];
-        $list = $this->getTypeList();
-        return isset($list[$value]) ? $list[$value] : '';
-    }
-
-    public function getFlagList()
-    {
-        return ['hot' => __('Hot'), 'index' => __('Index'), 'recommend' => __('Recommend')];
-    }
-
-    public function getFlagTextAttr($value, $data)
-    {
-        $value = $value ? $value : $data['flag'];
-        $valueArr = explode(',', $value);
-        $list = $this->getFlagList();
-        return implode(',', array_intersect_key($list, array_flip($valueArr)));
-    }
 
     /**
      * 读取分类列表
@@ -100,10 +43,4 @@ class Category Extends Model
                 })->order('weigh', 'desc')->select())->toArray();
         return $list;
     }
-
-    public static function searchSelect()
-    {
-        return \think\Db::name('category')->where(['status' => self::STATUS['SHOW']])->column('name', 'id');
-    }
-
 }

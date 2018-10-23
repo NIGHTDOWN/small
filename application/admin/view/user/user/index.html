@@ -7,6 +7,7 @@
                 <div class="widget-body no-padding">
                     <div id="toolbar" class="toolbar">
                         {:build_toolbar('refresh,edit')}
+                        <a href="javascript:;" class="btn btn-success btn-set_robot_param {:$auth->check('user/user/set_robot_param')?'':'hide'}" title="机器人参数" ><i class="fa fa-cog"></i> 机器人参数</a>
                     </div>
                     <table id="table" class="table table-striped table-bordered table-hover" 
                            data-operate-edit="{:$auth->check('user/user/edit')}"

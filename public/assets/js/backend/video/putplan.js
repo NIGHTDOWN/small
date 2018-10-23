@@ -10,6 +10,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     set_param: 'video/putplan/set_param',
                     batch_start: 'video/putplan/batch_start',
                     batch_cancel: 'video/putplan/batch_cancel',
+                    upload_relation_table: 'video/putplan/upload_relation_table',
+                    play: 'video/putplan/play',
                     table: 'video_put_plan',
                 }
             });
@@ -62,6 +64,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         set_param: function () {
             Controller.api.bindevent();
         },
+        upload_relation_table: function () {
+            Controller.api.bindevent();
+        },
         api: {
             bindevent: function (table) {
                 Form.api.bindevent($("form[role=form]"));
@@ -75,12 +80,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 var toolbar = $(options.toolbar, parenttable);
                 // 设置参数
                 $(toolbar).on('click', '.btn-set_param', function () {
-                    var ids = Table.api.selectedids(table);
                     var url = options.extend.set_param;
-                    if (url.indexOf("{ids}") !== -1) {
-                        url = Table.api.replaceurl(url, {ids: ids.length > 0 ? ids.join(",") : 0}, table);
-                    }
-                    Fast.api.open(url, __('设置参数'), $(this).data() || {});
+                    Fast.api.open(url, __('设置参数'));
+                });
+                // 导入关联表
+                $(toolbar).on('click', '.btn-upload_relation_table', function () {
+                    var url = options.extend.upload_relation_table;
+                    Fast.api.open(url, __('导入关联表'));
                 });
                 // 批量开始
                 $(toolbar).on('click', '.btn-batch_start', function () {

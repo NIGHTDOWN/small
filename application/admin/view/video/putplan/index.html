@@ -8,6 +8,7 @@
                     <div id="toolbar" class="toolbar">
                         <a href="javascript:;" class="btn btn-primary btn-refresh" title="{:__('Refresh')}" ><i class="fa fa-refresh"></i> </a>
                         <a href="javascript:;" class="btn btn-success btn-set_param {:$auth->check('video/putplan/set_param')?'':'hide'}" title="设置参数" ><i class="fa fa-cog"></i> 设置参数</a>
+                        <a href="javascript:;" class="btn btn-success btn-upload_relation_table {:$auth->check('video/putplan/upload_relation_table')?'':'hide'}" title="导入关联表" ><i class="fa fa-cog"></i> 导入关联表</a>
                         <a href="javascript:;" class="btn btn-success btn-batch_start btn-disabled disabled {:$auth->check('video/putplan/batch_start')?'':'hide'}" title="批量开始" ><i class=""></i> 批量开始</a>
                         <a href="javascript:;" class="btn btn-success btn-batch_cancel btn-disabled disabled {:$auth->check('video/putplan/batch_cancel')?'':'hide'}" title="批量取消" ><i class=""></i> 批量取消</a>
                     </div>

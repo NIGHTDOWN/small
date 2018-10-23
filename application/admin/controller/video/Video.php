@@ -100,7 +100,16 @@ class Video extends Backend
      */
     public function del($ids = "")
     {
-        $this->error(__('滚犊子吧，删什么删'));
+        if ($ids) {
+            $result = $this->model->del($ids);
+            if ($result) {
+                $this->success();
+            } else {
+                $this->error($this->model->getError());
+            }
+        }
+        
+        $this->error(__('缺少参数'));
     }
 
     /**

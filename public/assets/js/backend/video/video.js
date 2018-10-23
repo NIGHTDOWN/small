@@ -39,7 +39,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'user_like_total', title: __('点赞'), operate: false, sortable: true},
                         {field: 'user_comment_total', title: __('评论'), operate: false, sortable: true},
                         {field: 'user_view_total', title: __('播放'), operate: false, sortable: true},
-                        {field: 'subjects', title: __('标签'), operate: 'FIND_IN_SET',column:'subject_ids',addclass:'selectpage', data:'data-source="subject/selectpage" data-field="subject_name"',formatter:function (arr) {
+                        {field: 'subjects', title: __('标签'), operate: 'FIND_IN_SET',column:'extend.subject_ids',addclass:'selectpage', data:'data-source="subject/selectpage" data-field="subject_name"',formatter:function (arr) {
                             var subjects='';
                             arr.map(function(value,index){
                                 if (index){

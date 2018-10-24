@@ -227,19 +227,17 @@ class PushMessage extends Model
             }
         }
 
-//        $queue_id=publish_message([
-//            'action'=>'pushMessage',
-//            'params'=>[
-//                'message_id'=>$this->getAttr('id'),
-//            ],
-//        ],$this->getAttr('is_now')?0:$this->getAttr('send_time'));
-//
-//        if (!$queue_id){
-//            $this->error='发送失败';
-//            return false;
-//        }
-        //todo 测期间不入队列
-        $queue_id='test';
+        $queue_id=publish_message([
+            'action'=>'pushMessage',
+            'params'=>[
+                'message_id'=>$this->getAttr('id'),
+            ],
+        ],$this->getAttr('is_now')?0:$this->getAttr('send_time'));
+
+        if (!$queue_id){
+            $this->error='发送失败';
+            return false;
+        }
 
         $this->setAttr('queue_id',$queue_id);
         $this->setAttr('status',PushMessageCommonModel::STATUS['wait_send']);
@@ -269,14 +267,12 @@ class PushMessage extends Model
         $param=$this->getAttr('param');
         $extra = $param ? unserialize($param) : null;
 
-//        $rs = PushMessageCommonModel::jPush(
-//            $this->getAttr('title') ,
-//            special_chars_decode($this->getAttr('message') ) ,
-//            $userId ,
-//            $extra
-//        );
-        //todo 测试期间,不推送
-        $rs['body']['msg_id']='test'.$this->getAttr('id');
+        $rs = PushMessageCommonModel::jPush(
+            $this->getAttr('title') ,
+            special_chars_decode($this->getAttr('message') ) ,
+            $userId ,
+            $extra
+        );
 
         if(!$rs || !isset($rs['body']['msg_id'])) {
             $this->error='push fail';

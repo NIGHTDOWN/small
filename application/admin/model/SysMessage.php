@@ -200,14 +200,12 @@ class SysMessage extends Model
             }
         }
 
-//        $queueId=publish_message([
-//            'action'=>'sendSysMessageToUser',
-//            'params'=>[
-//                'sys_message_id'=>$this->getAttr('id'),
-//            ],
-//        ],$this->getAttr('is_now')?0:$this->getAttr('send_time'));
-        //todo 测试期间,不入队列
-        $queueId='test';
+        $queueId=publish_message([
+            'action'=>'sendSysMessageToUser',
+            'params'=>[
+                'sys_message_id'=>$this->getAttr('id'),
+            ],
+        ],$this->getAttr('is_now')?0:$this->getAttr('send_time'));
         if (!$queueId){
             $this->error='发送失败';
             return false;

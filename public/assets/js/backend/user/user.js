@@ -18,6 +18,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     edit_url: 'user/user/edit',
                     del_url: 'user/user/del',
                     set_robot_param: 'user/user/set_robot_param',
+                    set_active_param: 'user/user/set_active_param',
                     table: 'user',
                 }
             });
@@ -66,6 +67,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
         set_robot_param: function () {
             Controller.api.bindevent();
         },
+        set_active_param: function () {
+            Controller.api.bindevent();
+        },
         api: {
             bindevent: function () {
                 Form.api.bindevent($("form[role=form]"));
@@ -81,6 +85,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 $(toolbar).on('click', '.btn-set_robot_param', function () {
                     var url = options.extend.set_robot_param;
                     Fast.api.open(url, __('设置机器人参数'));
+                });
+                $(toolbar).on('click', '.btn-set_active_param', function () {
+                    var url = options.extend.set_active_param;
+                    Fast.api.open(url, __('活跃值任务设置'));
                 });
             }
         }

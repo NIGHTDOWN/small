@@ -3,7 +3,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
     var Controller = {
         index: function () {
             // 初始化表格参数配置
-            $(".btn-add").data("area", ["300px","200px"]);
+            $(".btn-add").data("area", ["600px","300px"]);
 
             Table.api.init({
                 extend: {

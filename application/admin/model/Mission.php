@@ -3,6 +3,7 @@
 namespace app\admin\model;
 
 use think\Model;
+use app\common\model\Mission as MissionCommonModel;
 
 class Mission extends Model
 {
@@ -10,22 +11,28 @@ class Mission extends Model
     protected $name = 'mission';
     
     // 自动写入时间戳字段
-    protected $autoWriteTimestamp = false;
+    protected $autoWriteTimestamp = true;
 
     // 定义时间戳字段名
-    protected $createTime = false;
-    protected $updateTime = false;
+    protected $createTime = 'create_time';
+    protected $updateTime = 'update_time';
     
     // 追加属性
     protected $append = [
-        'create_time_text',
-        'update_time_text'
+//        'create_time_text',
+//        'update_time_text'
     ];
     
 
-    
+    public function getRepeatTypeList()
+    {
+        return MissionCommonModel::REPEAT_TYPE_TEXT;
+    }
 
-
+    public function getStatusList()
+    {
+        return MissionCommonModel::STATUS_TEXT;
+    }
 
     public function getCreateTimeTextAttr($value, $data)
     {
@@ -50,5 +57,8 @@ class Mission extends Model
         return $value && !is_numeric($value) ? strtotime($value) : $value;
     }
 
-
+    public function updateCache()
+    {
+        return MissionCommonModel::refreshMissionConfig();
+    }
 }

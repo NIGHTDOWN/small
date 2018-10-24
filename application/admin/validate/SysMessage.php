@@ -25,7 +25,7 @@ class SysMessage extends Validate
         'cover_img'=>'url',
         'link'=>'url',
         'user_range'=>['require','in'=>SysMessageCommonModel::USER_RANGE,'checkTargetUserIds'],
-        'target_user_ids'=>['regex'=>'[0-9|,]+'],
+        'target_user_ids'=>['regex'=>'^[0-9|,]+$'],
         'is_now'=>['require','in'=>[0,1]],
         'send_time'=>'require|date',
     ];

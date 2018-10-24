@@ -13,6 +13,35 @@ use think\Model;
 
 class Mission extends Model
 {
+    /**
+     * 状态
+     */
+    const STATUS=[
+        'close'=>0,
+        'open'=>1,
+    ];
+
+    const STATUS_TEXT=[
+        0 => '关闭',
+        1 => '开启',
+    ];
+
+    /**
+     * 任务类型
+     */
+    const REPEAT_TYPE=[
+        'disposable'=>1,
+        'day_repeat'=>2,
+        'single_repeat'=>3,
+    ];
+
+    const REPEAT_TYPE_TEXT=[
+        1=>'一次性',
+        2=>'按日重复',
+        3=>'单次重复',
+    ];
+
+
     const MISSION_CACHE                         = 'mission_cache';
     const MISSION_CACHE_LOCK_PREFIX             = 'mission_cache_lock_';
     const USER_DAILY_MISSION_PREFIX             = 'mission_user_daily_';

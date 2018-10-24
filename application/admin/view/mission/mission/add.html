@@ -1,7 +1,7 @@
 <form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
 
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Mission_group')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('任务组')}:</label>
         <div class="col-xs-12 col-sm-8">
             <input id="c-mission_group" data-rule="required" class="form-control form-control" name="row[mission_group]" type="text" value="">
         </div>
@@ -15,13 +15,7 @@
     <div class="form-group">
         <label class="control-label col-xs-12 col-sm-2">{:__('Mission_explain')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-mission_explain" data-rule="required" class="form-control form-control" name="row[mission_explain]" type="text" value="">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Repeat_type')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-repeat_type" data-rule="required" class="form-control form-control" name="row[repeat_type]" type="number" value="1">
+            <input id="c-mission_explain" data-rule="" class="form-control form-control" name="row[mission_explain]" type="text" value="" >
         </div>
     </div>
     <div class="form-group">
@@ -31,21 +25,15 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Bonus_setting')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('任务类型')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-bonus_setting" data-rule="required" class="form-control form-control" name="row[bonus_setting]" type="text">
+            <?php echo  build_radios('row[repeat_type]',$repeatTypeList,null) ?>
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Create_time')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('奖励设置')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-create_time" data-rule="required" class="form-control datetimepicker form-control" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[create_time]" type="text" value="{:date('Y-m-d H:i:s')}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Update_time')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input id="c-update_time" data-rule="required" class="form-control datetimepicker form-control" data-date-format="YYYY-MM-DD HH:mm:ss" data-use-current="true" name="row[update_time]" type="text" value="{:date('Y-m-d H:i:s')}">
+            <input id="c-bonus_setting" data-rule="required" class="form-control form-control" name="row[bonus_setting]" type="text" placeholder="概率*下限-上限">
         </div>
     </div>
     <div class="form-group">
@@ -55,15 +43,15 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Quantity_condition')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('数量条件')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-quantity_condition" data-rule="required" class="form-control form-control" name="row[quantity_condition]" type="text" value="">
+            <input id="c-quantity_condition" data-rule="required" class="form-control form-control" name="row[quantity_condition]" type="number" value="">
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('Status')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('状态')}:</label>
         <div class="col-xs-12 col-sm-8">
-            <input id="c-status" data-rule="required" class="form-control form-control" name="row[status]" type="number">
+            <?php echo build_radios('row[status]',$statusList,null) ?>
         </div>
     </div>
     <div class="form-group layer-footer">

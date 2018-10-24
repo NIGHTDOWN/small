@@ -27,7 +27,7 @@ class PushMessage extends Validate
         'action'=>['require','in'=>PushMessageCommonModel::ACTION],
         'action_param'=>'checkActionParam',
         'user_range'=>['require','in'=>PushMessageCommonModel::USER_RANGE,'checkTargetUserIds'],
-        'target_user_ids'=>['regex'=>'[0-9|,]+'],
+        'target_user_ids'=>['regex'=>'^[0-9|,]+$'],
         'is_now'=>'require|in:0,1',
         'send_time'=>'require|data',
         'msg_type'=>'require|in:0,1',

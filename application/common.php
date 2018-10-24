@@ -475,3 +475,40 @@ function get_cache_prefix()
 {
     return config('cache.redis')['prefix'];
 }
+
+/**
+ * 根据一个时间段取出相应单位时间
+ * @param $range
+ * @param $format
+ * @param $time
+ * @return array
+ */
+function getDayInRange($range, $format, $time)
+{
+    $num = ($range[1] - $range[0]) / ($time);
+    $days = $num;
+    $start_day = $range[0];
+    $arr = [];
+    for ($i = 0; $i < $days; $i++) {
+        $arr[] = date($format, $start_day + $i * $time);
+    }
+    return $arr;
+}
+
+/**
+ * 获取本周所有日期
+ * @param string $time
+ * @param string $format
+ * @return array
+ */
+function getWeek($time = '', $format = 'Y-m-d')
+{
+    $time = $time != '' ? $time : time();
+    //获取当前周几
+    $week = date('w', $time);
+    $date = [];
+    for ($i = 1; $i <= 7; $i++) {
+        $date[$i - 1] = date($format, strtotime('+' . $i - $week . ' days', $time));
+    }
+    return $date;
+}

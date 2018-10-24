@@ -4,8 +4,9 @@ namespace app\admin\model;
 
 use app\common\model\Robot AS RobotCommonModel;
 use think\Db;
+use think\Model;
 
-class Robot extends RobotCommonModel
+class Robot extends Model
 {
 	/**
      * 机器人参数验证
@@ -49,7 +50,7 @@ class Robot extends RobotCommonModel
 
         $data = $params;
         $keys=array_keys($data);
-        $default_keys=array_keys(self::DEFAULT_ROBOT_PARAM);
+        $default_keys=array_keys(RobotCommonModel::DEFAULT_ROBOT_PARAM);
         if ($keys!==$default_keys){
             $this->error='参数格式不正确';
             return false;
@@ -58,7 +59,7 @@ class Robot extends RobotCommonModel
             $this->error='用户发布视频事件参数格式不正确';
             return false;
         }
-        if (array_keys(self::DEFAULT_ROBOT_PARAM['user_put_video_event_param'])!==array_keys($data['user_put_video_event_param'])){
+        if (array_keys(RobotCommonModel::DEFAULT_ROBOT_PARAM['user_put_video_event_param'])!==array_keys($data['user_put_video_event_param'])){
             $this->error='用户发布视频事件参数格式不正确';
             return false;
         }
@@ -66,7 +67,7 @@ class Robot extends RobotCommonModel
             $this->error='用户行为事件参数格式不正确';
             return false;
         }
-        if (array_keys(self::DEFAULT_ROBOT_PARAM['user_action_event_param'])!==array_keys($data['user_action_event_param'])){
+        if (array_keys(RobotCommonModel::DEFAULT_ROBOT_PARAM['user_action_event_param'])!==array_keys($data['user_action_event_param'])){
             $this->error='用户行为事件参数格式不正确';
             return false;
         }
@@ -74,7 +75,7 @@ class Robot extends RobotCommonModel
             $this->error='用户长期不活跃事件参数格式不正确';
             return false;
         }
-        if (array_keys(self::DEFAULT_ROBOT_PARAM['user_long_time_inactivity_event_param'])!==array_keys($data['user_long_time_inactivity_event_param'])){
+        if (array_keys(RobotCommonModel::DEFAULT_ROBOT_PARAM['user_long_time_inactivity_event_param'])!==array_keys($data['user_long_time_inactivity_event_param'])){
             $this->error='用户长期不活跃事件参数格式不正确';
             return false;
         }
@@ -120,27 +121,27 @@ class Robot extends RobotCommonModel
             $this->error='范围第二个值不可小于第一个值';
             return false;
         }
-        if ($data['user_put_video_event_param']['finish_time']>self::MAX_FINISH_TIME){
+        if ($data['user_put_video_event_param']['finish_time']>RobotCommonModel::MAX_FINISH_TIME){
             $this->error='完成时限不可大于七天';
             return false;
         }
-        if ($data['user_action_event_param']['finish_time']>self::MAX_FINISH_TIME){
+        if ($data['user_action_event_param']['finish_time']>RobotCommonModel::MAX_FINISH_TIME){
             $this->error='完成时限不可大于七天';
             return false;
         }
-        if ($data['user_long_time_inactivity_event_param']['finish_time']>self::MAX_FINISH_TIME){
+        if ($data['user_long_time_inactivity_event_param']['finish_time']>RobotCommonModel::MAX_FINISH_TIME){
             $this->error='完成时限不可大于七天';
             return false;
         }
-        if ($data['user_put_video_event_param']['finish_time']<self::MIN_FINISH_TIME){
+        if ($data['user_put_video_event_param']['finish_time']<RobotCommonModel::MIN_FINISH_TIME){
             $this->error='完成时限不可小于一分钟';
             return false;
         }
-        if ($data['user_action_event_param']['finish_time']<self::MIN_FINISH_TIME){
+        if ($data['user_action_event_param']['finish_time']<RobotCommonModel::MIN_FINISH_TIME){
             $this->error='完成时限不可小于一分钟';
             return false;
         }
-        if ($data['user_long_time_inactivity_event_param']['finish_time']<self::MIN_FINISH_TIME){
+        if ($data['user_long_time_inactivity_event_param']['finish_time']<RobotCommonModel::MIN_FINISH_TIME){
             $this->error='完成时限不可小于一分钟';
             return false;
         }
@@ -185,7 +186,7 @@ class Robot extends RobotCommonModel
             $this->error = '设置失败';
             return false;
         }
-        $this->initRobotParamCache();
+        RobotCommonModel::initRobotParamCache();
         return true;
     }
 

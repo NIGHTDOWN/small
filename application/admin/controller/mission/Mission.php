@@ -63,8 +63,6 @@ class Mission extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                         $this->model->validate($validate);
                     }
-                    dump("AAA");
-                    die();
                     $result = $this->model->allowField(['mission_group','title','mission_explain','mission_tag','repeat_type','bonus_setting','bonus_limit','quantity_condition','status'])->save($params);
                     if ($result !== false) {
                         $this->success();

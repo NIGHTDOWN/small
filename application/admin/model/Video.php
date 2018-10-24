@@ -149,6 +149,16 @@ class Video extends Model
             $this->error = '封面不是合法的url地址';
             return false;
         }
+        try{
+            $img_info=getimagesize($cover_imgs);
+        }catch (\Exception $e){
+            $this->error='无效的图片';
+            return false;
+        }
+        if ($img_info[0]!=$this->getAttr('width')||$img_info[1]!=$this->getAttr('height')){
+            $this->error='图片尺寸与视频不一致';
+            return false;
+        }
         $oldCoverImg = $this->getAttr('extend')->getAttr('cover_imgs');
         $ret = $this->getAttr('extend')->save(['cover_imgs' => $cover_imgs]);
         if ($ret) {

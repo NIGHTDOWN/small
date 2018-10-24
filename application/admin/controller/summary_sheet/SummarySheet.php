@@ -18,12 +18,52 @@ class SummarySheet extends Backend
      */
     protected $model = null;
 
+    /**
+     * 类型
+     * @var array
+     */
+    public $operate = [
+        'activate' => '激活量',
+        'register' => '注册量',
+    ];
+
     public function _initialize()
     {
         parent::_initialize();
         $this->model = new \app\admin\model\SummarySheet;
 
     }
+
+//    /**
+//     * 列表
+//     * @return string|\think\response\Json
+//     * @throws \think\Exception
+//     */
+//    public function index()
+//    {
+//        if ($this->request->isAjax()) {
+//            // 展示列表图形
+//            return $this->addEchart();
+//
+//            // TODO 这里用于导出
+//            $model = model('SummarySheet');
+//            // 搜索条件
+//            $where = json_decode(input('filter'),  true);
+//            if (isset($where['day_time'])) {
+//                if (strpos($where['day_time'], ' - ') === false) {
+//                    $this->error('时间格式不正确');
+//                }
+//                $where['day_time'] = explode(' - ', $where['day_time']);
+//                $where['day_time'][0] = strtotime(date('Y-m-d 0:0:0', strtotime($where['day_time'][0])));
+//                $where['day_time'][1] = strtotime(date('Y-m-d 23:59:59', strtotime($where['day_time'][1])));
+//            }
+//            // 数据
+//            $list = $model->getList($where);
+//
+//            return json($list);
+//        }
+//        return $this->view->fetch('summarysheet/summarysheet/index');
+//    }
 
     /**
      * 列表
@@ -33,63 +73,55 @@ class SummarySheet extends Backend
     public function index()
     {
         if ($this->request->isAjax()) {
-            // 展示列表图形
-            return $this->addEchart();
-
-            // TODO 这里用于导出
             $model = model('SummarySheet');
             // 搜索条件
-            $where = json_decode(input('filter'),  true);
-            if (isset($where['day_time'])) {
-                if (strpos($where['day_time'], ' - ') === false) {
-                    $this->error('时间格式不正确');
-                }
-                $where['day_time'] = explode(' - ', $where['day_time']);
-                $where['day_time'][0] = strtotime(date('Y-m-d 0:0:0', strtotime($where['day_time'][0])));
-                $where['day_time'][1] = strtotime(date('Y-m-d 23:59:59', strtotime($where['day_time'][1])));
-            }
-            // 数据
-            $list = $model->getList($where);
+            $param = json_decode(input('filter'),  true);
+            list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
 
+            // 数据
+            $list = $model->getList($where, $field, $channel, $column, $timeData);
             return json($list);
-        } else {
-            return $this->view->fetch('summarysheet/summarysheet/index');
         }
+        return $this->view->fetch('summarysheet/summarysheet/index');
     }
 
     /**
-     * 列表
-     * @return string|\think\response\Json
-     * @throws \think\Exception
+     * 导出
      */
-    public function addEchart()
+    public function export()
     {
-        if ($this->request->isAjax()) {
-            $model = model('SummarySheet');
-            // 搜索条件
-            $where = json_decode(input('filter'),  true);
-            if (! empty($where['operate_type'])) {
-                $operateType = [$where['operate_type']];
-                unset($where['operate_type']);
-            } else {
-                $operateType = $model->operateText;
-            }
-            if (isset($where['day'])) {
-                $where['day_time'] = $where['day'];
-                unset($where['day']);
-                if (strpos($where['day_time'], ' - ') === false) {
-                    $this->error('时间格式不正确');
-                }
-                $where['day_time'] = explode(' - ', $where['day_time']);
-                $where['day_time'][0] = strtotime(date('Y-m-d 0:0:0', strtotime($where['day_time'][0])));
-                $where['day_time'][1] = strtotime(date('Y-m-d 23:59:59', strtotime($where['day_time'][1])));
-            }
+        $model = model('SummarySheet');
+        // 搜索条件
+        $param = json_decode(input('filter'),  true);
+        list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
 
-            // 数据
-            $list = $model->echart($where);
-            $list['rows']['operate_data']['operate_type'] = $operateType;
-            return json($list);
+        // 数据
+        $field[] = 'sum(register) as register';
+        $field[] = 'sum(activate) as activate';
+        $field[] = 'sum(register_total) as register_total';
+        $field[] = 'sum(activate_total) as activate_total';
+        $lists = $model->listGroupDay($where, $field, $channel, $column, $timeData);
+
+        // 整合导出数据
+        $result = [];
+        $dayArr = array_keys($lists);
+        $result[] = ['日期', '注册量', '激活量', '总注册量', '总激活量'];
+        foreach ($timeData as $k => $v) {
+            if (!in_array($v, $dayArr)) {
+                $temp = [$v, 0, 0, 0, 0];
+            } else {
+                $temp = [$v];
+                foreach ($lists as $lk => $lv) {
+                    $temp[] = array_sum(array_column($lv, 'register'));
+                    $temp[] = array_sum(array_column($lv, 'activate'));
+                    $temp[] = array_sum(array_column($lv, 'register_total'));
+                    $temp[] = array_sum(array_column($lv, 'activate_total'));
+                }
+            }
+            $result[] = $temp;
         }
+        $model->export($result, '渠道' . $this->operate[$column] . '日报表.xls');
+        exit;
     }
 
     /**
@@ -115,7 +147,7 @@ class SummarySheet extends Backend
      */
     public function operateType()
     {
-        return model('SummarySheet')->operateText;
+        return $this->operate;
     }
 
 }

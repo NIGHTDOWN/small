@@ -51,7 +51,7 @@ class SummarySheet extends Model
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getList($where = [])
+    public function getList2($where = [])
     {
         // 时间区间
         if (isset($where['day_time'])) {
@@ -104,32 +104,26 @@ class SummarySheet extends Model
         return ['rows' => $data, 'total' => 0];
     }
 
-
     /**
-     * 新增用户统计列表
+     * 列表
      * @param array $where
+     * @param array $field
+     * @param array $channel
+     * @param string $column
+     * @param array $timeData
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function echart($where = [])
+    public function getList($where = [], $field = [], $channel = [], $column = '', $timeData = [])
     {
-        // 时间区间
-        if (isset($where['day_time'])) {
-            $timeData = get_day_in_range($where['day_time']);
-            $where['day_time'] = ['between', [$where['day_time'][0], $where['day_time'][1]]];
-        } else {
-            // 默认展示一周内的数据
-            $timeData = get_week();
-        }
-
         // app机器操作记录表
-        $list = $this->allRow($where);
+        $field[] = 'channel_id';
+        $list = $this->allRow($where, $field);
 
-        $activate = $register = $active = $install = [];
-        $data = [];
         // 按天分组
+        $data = [];
         foreach ($timeData as $v => $k) {
             foreach ($list as $key => $val) {
                 if ($val['day'] == $k) {
@@ -139,34 +133,34 @@ class SummarySheet extends Model
         }
 
         // 取具体的数据列表
+        $result = [];
         $keyArr = array_keys($data);
-
         foreach ($timeData as $v => $k) {
             if (!in_array($k, $keyArr)) {
                 // 当天没有数据
-                $activate[] = $register[] = $active[] = $install[] = 0;
+                $result[$column][] = 0; // 单类型
+//                foreach ($field as $fk => $fv) {// 多类型
+//                    $field[$fk][] = 0;
+//                }
             } else {
                 foreach ($data as $key => $val) {
                     if ($key == $k) {
-                        $activate[] = array_sum(array_column($val, 'activate'));
-                        $register[] = array_sum(array_column($val, 'register'));
-                        $active[] = array_sum(array_column($val, 'active'));
-                        $install[] = array_sum(array_column($val, 'install'));
+                        $result[$column][] = array_sum(array_column($val, $column));
+//                        foreach ($field as $fk => $fv) {
+//                            $field[$fk][] = array_sum(array_column($val, $fk));
+//                        }
                     }
                 }
             }
         }
 
-        return ['rows' => [
-            'list' => $list,
-            'operate_data' => [
-                'activate' => $activate,
-                'register' => $register,
-                'active' => $active,
-                'install' => $install,
+        return [
+            'rows' => [
+                'list' => $list,
+                'operate_data' => $result,
                 'time_data' => $timeData
-            ]
-        ], 'total' => 0];
+            ],
+            'total' => 0];
     }
 
     /**
@@ -192,20 +186,18 @@ class SummarySheet extends Model
     }
 
     /**
-     * 活跃用户统计列表
-     * @param $export
+     * 获取数据列表按天分组
      * @param array $where
      * @param array $field
      * @param array $channel
      * @param string $column
      * @param array $timeData
-     *
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function activeList($export, $where = [], $field = [], $channel = [], $column = '', $timeData = [])
+    public function listGroupDay($where = [], $field = [], $channel = [], $column = '', $timeData = [])
     {
         // app机器操作记录表
         $field[] = 'channel_id';
@@ -220,42 +212,11 @@ class SummarySheet extends Model
                 }
             }
         }
-        if ($export) {
-            return $data;
-        }
-
-        // 取具体的数据列表 TODO 三个列表都合并一起
-        $result = [];
-        $keyArr = array_keys($data);
-        foreach ($timeData as $v => $k) {
-            if (!in_array($k, $keyArr)) {
-                // 当天没有数据
-                $result[$column][] = 0;
-//                foreach ($field as $fk => $fv) {// 多类型
-//                    $field[$fk][] = 0;
-//                }
-            } else {
-                foreach ($data as $key => $val) {
-                    if ($key == $k) {
-                        $result[$column][] = array_sum(array_column($val, $column));
-//                        foreach ($field as $fk => $fv) {
-//                            $field[$fk][] = array_sum(array_column($val, $fk));
-//                        }
-                    }
-                }
-            }
-        }
-
-        return [
-            'rows' => [
-                'list' => $list,
-                'operate_data' => $result,
-                'time_data' => $timeData
-            ], 'total' => 0];
+        return $data;
     }
 
     /**
-     * 活跃用户统计列表
+     * 渠道活跃用户统计列表 TODO 优化
      * @param int $export 导出
      * @param array $where
      * @param array $field

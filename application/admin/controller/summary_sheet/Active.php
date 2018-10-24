@@ -47,14 +47,14 @@ class Active extends Backend
             $param = json_decode(input('filter'),  true);
             list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
             // 数据
-            $list = $model->activeList(0, $where, $field, $channel, $column, $timeData);
+            $list = $model->getList($where, $field, $channel, $column, $timeData);
             return json($list);
         }
         return $this->fetch('summarysheet/active/index');
     }
 
     /**
-     * 导出
+     * 导出 TODO 优化
      */
     public function export()
     {
@@ -68,12 +68,12 @@ class Active extends Backend
         list($param, $field, $column, $channel, $where, $timeData) = $model->filter(
             array_merge($param, ['show_time' => 0]));
         $field[] = 'sum(active_rate) as active_rate';
-        $list['active'] = $model->activeList(1, $where, $field, $channel, $column, $timeData);
+        $list['active'] = $model->listGroupDay($where, $field, $channel, $column, $timeData);
         $time = $timeData;
         // 周活跃度
         list($param, $field, $column, $channel, $where, $timeData) = $model->filter(
             array_merge($param, ['show_time' => 1, 'operate_type' => 'active_rate']));
-        $list['week_active_rate'] = $model->activeList(1, $where, $field, $channel, $column, $timeData);
+        $list['week_active_rate'] = $model->listGroupDay($where, $field, $channel, $column, $timeData);
         $weekActiveRate = $monthActiveRate = [];
         foreach ($list['week_active_rate'] as $k => $v) {
             // 具体到每个日期，方便下面遍历取值
@@ -86,7 +86,7 @@ class Active extends Backend
         // 月活跃度
         list($param, $field, $column, $channel, $where, $timeData) = $model->filter(
             array_merge($param, ['show_time' => 2, 'operate_type' => 'active_rate']));
-        $list['month_active_rate'] = $model->activeList(1, $where, $field, $channel, $column, $timeData);
+        $list['month_active_rate'] = $model->listGroupDay($where, $field, $channel, $column, $timeData);
         foreach ($list['month_active_rate'] as $k => $v) {
             $start = strtotime($k . '-01');
             $end =  strtotime(date('Y-m-d 23:59:59', $start) . "+1 month -1 day");
@@ -114,6 +114,7 @@ class Active extends Backend
             $result[] = $temp;
         }
         $model->export($result, '活跃数据表.xls');
+        exit;
     }
 
     /**

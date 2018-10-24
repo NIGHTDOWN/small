@@ -20,7 +20,7 @@ class CommentLibrary extends Model
             ->field(['id'])
             ->chunk(100,function ($comment_library_array) use ($redis,$cache_key){
                 foreach ($comment_library_array as $comment_library){
-                    $redis->sAdd(config('cache.prefix').$cache_key,$comment_library['id']);
+                    $redis->sAdd(get_cache_prefix().$cache_key,$comment_library['id']);
                 }
             });
     }
@@ -33,7 +33,7 @@ class CommentLibrary extends Model
     {
         $cache_key=self::COMMENT_LIBRARY_IDS_CACHE_KEY;
         $redis=Cache::init()->handler();
-        $redis->sAdd(config('cache.prefix').$cache_key,$id);
+        $redis->sAdd(get_cache_prefix().$cache_key,$id);
     }
 
     /**
@@ -44,7 +44,7 @@ class CommentLibrary extends Model
     {
         $cache_key=self::COMMENT_LIBRARY_IDS_CACHE_KEY;
         $redis=Cache::init()->handler();
-        $redis->sRem(config('cache.prefix').$cache_key,$id);
+        $redis->sRem(get_cache_prefix().$cache_key,$id);
     }
 
     /**
@@ -59,6 +59,6 @@ class CommentLibrary extends Model
             self::initCommentLibraryIdsCache();
         }
         $redis=Cache::init()->handler();
-        return $redis->sRandMember(config('cache.prefix').$cache_key,$number);
+        return $redis->sRandMember(get_cache_prefix().$cache_key,$number);
     }
 }

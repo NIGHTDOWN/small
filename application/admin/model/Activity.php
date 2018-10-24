@@ -290,7 +290,7 @@ class Activity extends Model
      */
     public static function getRemoteImgBucket()
     {
-        return config('qiniu.other_image_bkt');
+        return config('site.avatar_bucket');
     }
 
     /**

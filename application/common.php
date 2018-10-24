@@ -483,7 +483,7 @@ function get_cache_prefix()
  * @param $time
  * @return array
  */
-function getDayInRange($range, $format, $time)
+function get_day_in_range($range, $format, $time)
 {
     $num = ($range[1] - $range[0]) / ($time);
     $days = $num;
@@ -501,7 +501,7 @@ function getDayInRange($range, $format, $time)
  * @param string $format
  * @return array
  */
-function getWeek($time = '', $format = 'Y-m-d')
+function get_week($time = '', $format = 'Y-m-d')
 {
     $time = $time != '' ? $time : time();
     //获取当前周几
@@ -511,4 +511,18 @@ function getWeek($time = '', $format = 'Y-m-d')
         $date[$i - 1] = date($format, strtotime('+' . $i - $week . ' days', $time));
     }
     return $date;
+}
+
+/**
+ * 周数对应的日期区间
+ * @param $week
+ * @return array
+ */
+function week_range($week)
+{
+    $time = $week * 7 * 24 * 60 *60; // 周数对应的时间戳
+    $firstDay = strtotime(date("Y",time()) . '0101'); // 今年的第一天
+    $weekStart = $time + $firstDay; // 算出周数所对应的那一天日期
+    $weekEnd = $weekStart + (7 * 24 * 60 *60) - 1;
+    return [$weekStart, $weekEnd];
 }

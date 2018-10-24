@@ -58,16 +58,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     classname: 'btn btn-xs btn-primary btn-dialog btn-success',
                                     url: 'activity/activity/edit'
                                 },
-                                {
-                                    name: 'show_video',
-                                    title: __('查看视频'),
-                                    text: __('查看视频'),
-                                    classname: 'btn btn-xs btn-danger show_video',
-                                    url: function (data) {
-                                        return '/admin/video/video?ref=addtabs&activity_id=' + data.id;
-                                    },
-                                    extend: 'target="_blank"'
-                                },
+                                // {
+                                //     name: 'show_video',
+                                //     title: __('查看视频'),
+                                //     text: __('查看视频'),
+                                //     classname: 'btn btn-xs btn-danger show_video',
+                                //     url: function (data) {
+                                //         return '/admin/video/video?ref=addtabs&activity_id=' + data.id;
+                                //     },
+                                //     extend: 'target="_blank"'
+                                // },
                                 {
                                     name: 'top',
                                     title: __('活动排行榜'),

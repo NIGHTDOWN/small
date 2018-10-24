@@ -1,9 +1,8 @@
 <?php
 
-namespace app\admin\controller;
+namespace app\admin\controller\summary_sheet;
 
 use app\common\controller\Backend;
-use think\Console;
 
 /**
  * 新增数据统计管理
@@ -12,7 +11,7 @@ use think\Console;
  */
 class SummarySheet extends Backend
 {
-    
+
     /**
      * SummarySheet模型对象
      * @var \app\admin\model\SummarySheet
@@ -33,8 +32,12 @@ class SummarySheet extends Backend
      */
     public function index()
     {
-        $model = model('SummarySheet');
         if ($this->request->isAjax()) {
+            // 展示列表图形
+            return $this->addEchart();
+
+            // TODO 这里用于导出
+            $model = model('SummarySheet');
             // 搜索条件
             $where = json_decode(input('filter'),  true);
             if (isset($where['day_time'])) {
@@ -50,7 +53,7 @@ class SummarySheet extends Backend
 
             return json($list);
         } else {
-            return $this->view->fetch('summarysheet/index');
+            return $this->view->fetch('summarysheet/summarysheet/index');
         }
     }
 
@@ -59,7 +62,7 @@ class SummarySheet extends Backend
      * @return string|\think\response\Json
      * @throws \think\Exception
      */
-    public function echart()
+    public function addEchart()
     {
         if ($this->request->isAjax()) {
             $model = model('SummarySheet');
@@ -71,7 +74,9 @@ class SummarySheet extends Backend
             } else {
                 $operateType = $model->operateText;
             }
-            if (isset($where['day_time'])) {
+            if (isset($where['day'])) {
+                $where['day_time'] = $where['day'];
+                unset($where['day']);
                 if (strpos($where['day_time'], ' - ') === false) {
                     $this->error('时间格式不正确');
                 }

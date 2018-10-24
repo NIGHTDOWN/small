@@ -55,11 +55,11 @@ class SummarySheet extends Model
     {
         // 时间区间
         if (isset($where['day_time'])) {
-            $timeData = getDayInRange($where['day_time']);
+            $timeData = get_day_in_range($where['day_time']);
             $where['day_time'] = ['between', [$where['day_time'][0], $where['day_time'][1]]];
         } else {
             // 默认展示一周内的数据
-            $timeData = getWeek();
+            $timeData = get_week();
         }
 
         // app机器操作记录表
@@ -117,11 +117,11 @@ class SummarySheet extends Model
     {
         // 时间区间
         if (isset($where['day_time'])) {
-            $timeData = getDayInRange($where['day_time']);
+            $timeData = get_day_in_range($where['day_time']);
             $where['day_time'] = ['between', [$where['day_time'][0], $where['day_time'][1]]];
         } else {
             // 默认展示一周内的数据
-            $timeData = getWeek();
+            $timeData = get_week();
         }
 
         // app机器操作记录表
@@ -199,6 +199,7 @@ class SummarySheet extends Model
      * @param array $channel
      * @param string $column
      * @param array $timeData
+     *
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
@@ -218,6 +219,9 @@ class SummarySheet extends Model
                     $data[$k][] = $val;
                 }
             }
+        }
+        if ($export) {
+            return $data;
         }
 
         // 取具体的数据列表 TODO 三个列表都合并一起
@@ -242,16 +246,12 @@ class SummarySheet extends Model
             }
         }
 
-        if ($export) {
-            return $result;
-        } else {
-            return [
-                'rows' => [
-                    'list' => $list,
-                    'operate_data' => $result,
-                    'time_data' => $timeData
-                ], 'total' => 0];
-        }
+        return [
+            'rows' => [
+                'list' => $list,
+                'operate_data' => $result,
+                'time_data' => $timeData
+            ], 'total' => 0];
     }
 
     /**
@@ -381,7 +381,7 @@ class SummarySheet extends Model
             // TODO 优化
             $start = strtotime(date('Y-m-d 0:0:0', strtotime($where['day_time'][0])));
             $end = strtotime(date('Y-m-d 23:59:59', strtotime($where['day_time'][1])));
-            $timeData = getDayInRange(
+            $timeData = get_day_in_range(
                 [$start, $end],
                 $this->showTimeFormat[$param['show_time']],
                 $this->showTimeSec[$param['show_time']]
@@ -390,7 +390,7 @@ class SummarySheet extends Model
         } else {
             if ($param['show_time'] == 0) { // 天
                 // 默认展示一周内的数据
-//                $timeData = getWeek();
+//                $timeData = get_week();
                 $start = strtotime(date('Y-m-d', (time() - ((date('w') == 0 ? 7 : date('w')) - 1) * 24 * 3600)));
                 $end = $start + 24 * 60 * 60 * 7 - 1;
             } elseif ($param['show_time'] == 1) { // 周
@@ -402,7 +402,7 @@ class SummarySheet extends Model
                 $start = strtotime(date('Y').'-1-1');
                 $end = strtotime(date('Y').'-12-31 23:59:59');
             }
-            $timeData = getDayInRange(
+            $timeData = get_day_in_range(
                 [$start, $end],
                 $this->showTimeFormat[$param['show_time']],
                 $this->showTimeSec[$param['show_time']]

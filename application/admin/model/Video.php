@@ -421,4 +421,31 @@ class Video extends Model
         }
         return $ret;
     }
+
+    /**
+     * 获取今日评论总数
+     */
+    public function getTodayUploadTotal()
+    {
+        $year = date("Y");
+        $month = date("m");
+        $day = date("d");
+        $start = mktime(0,0,0,$month,$day,$year);
+        $end= mktime(23,59,59,$month,$day,$year);
+        $count=$this
+            ->where([
+                'create_time'=>['between',[$start,$end]],
+            ])
+            ->count();
+        return $count;
+    }
+
+    /**
+     * 获取今日播放总数
+     * @return bool|string
+     */
+    public function getTodayViewTotal()
+    {
+        return VideoCommonModel::getTodayViewTotal();
+    }
 }

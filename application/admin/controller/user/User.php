@@ -196,6 +196,26 @@ class User extends Backend
         return $this->view->fetch();
     }
 
+    /*
+    * 设置活跃值任务参数
+    */
+    public function set_active_param()
+    {
+        if ($this->request->isPost()) {
+            $params = input('post.');
+            /** @var \app\admin\model\ActiveTask $model */
+            $model = model('ActiveTask');
+            foreach ($params['row'] as $key =>$value){
+               $model->setActiveParam($key,$value);
+            }
+            $this->success();
+
+        }
+        $data = \app\common\model\ActiveTask::getActiveParam();
+        $this->view->assign('row', $data);
+        return $this->view->fetch();
+    }
+
 
     /**
      * 秒转换时/分

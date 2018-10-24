@@ -1,0 +1,87 @@
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    <div class="form-group">
+        <label for="c-user_active_sign_in" class="control-label col-xs-12 col-sm-2">签到:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_sign_in" data-rule="required" class="form-control" name="row[user_active_sign_in]" type="number" value="{$row.user_active_sign_in}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_video_share" class="control-label col-xs-12 col-sm-2">分享视频:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_video_share" data-rule="required" class="form-control" name="row[user_active_video_share]" type="number" value="{$row.user_active_video_share}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_video_play" class="control-label col-xs-12 col-sm-2">观看视频:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_video_play" data-rule="required" class="form-control" name="row[user_active_video_play]" type="number" value="{$row.user_active_video_play}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_video_comment" class="control-label col-xs-12 col-sm-2">评论视频:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_video_comment" data-rule="required" class="form-control" name="row[user_active_video_comment]" type="number" value="{$row.user_active_video_comment}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_video_upload" class="control-label col-xs-12 col-sm-2">上传视频:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_video_upload" data-rule="required" class="form-control" name="row[user_active_video_upload]" type="number" value="{$row.user_active_video_upload}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_video_hot_refresh" class="control-label col-xs-12 col-sm-2">刷新视频（首页）:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_video_hot_refresh" data-rule="required" class="form-control" name="row[user_active_video_hot_refresh]" type="number" value="{$row.user_active_video_hot_refresh}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_video_sort_refresh" class="control-label col-xs-12 col-sm-2">刷新视频（分类）:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_video_sort_refresh" data-rule="required" class="form-control" name="row[user_active_video_sort_refresh]"  step="1" type="number" value="{$row.user_active_video_sort_refresh}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_video_foward" class="control-label col-xs-12 col-sm-2">转发视频:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_video_foward" data-rule="required" class="form-control" name="row[user_active_video_foward]" type="number" value="{$row.user_active_video_foward}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_at_user" class="control-label col-xs-12 col-sm-2">@其他用户:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_at_user" data-rule="required" class="form-control" name="row[user_active_at_user]" type="number" value="{$row.user_active_at_user}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_follow_user" class="control-label col-xs-12 col-sm-2">关注用户:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_follow_user" data-rule="required" class="form-control" name="row[user_active_follow_user]" type="number" value="{$row.user_active_follow_user}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_video_like" class="control-label col-xs-12 col-sm-2">点赞:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_video_like" data-rule="required" class="form-control" name="row[user_active_video_like]" type="number" value="{$row.user_active_video_like}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_video_dislike" class="control-label col-xs-12 col-sm-2">不感兴趣:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_video_dislike" data-rule="required" class="form-control" name="row[user_active_video_dislike]" type="number" value="{$row.user_active_video_dislike}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-user_active_video_serach" class="control-label col-xs-12 col-sm-2">搜索视频:</label>
+        <div class="col-xs-12 col-sm-4">
+            <input id="c-user_active_video_serach" data-rule="required" class="form-control" name="row[user_active_video_serach]" type="number" value="{$row.user_active_video_serach}">
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

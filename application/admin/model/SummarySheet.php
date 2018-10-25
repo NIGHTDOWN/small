@@ -168,6 +168,30 @@ class SummarySheet extends Model
     }
 
     /**
+     * 统计列表
+     * @param string $field
+     * @param array $where
+     * @param string $order
+     * @param string $group
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function summaryList($field = '', $where = [], $order = 'day_time asc', $group = '')
+    {
+        $res = Db::name('summary_sheet')
+            ->alias('ss')
+            ->field($field)
+            ->join('summary_sheet_ext sse', 'ss.id = sse.ss_id')
+            ->where($where)
+            ->order($order)
+            ->group($group)
+            ->select() ?: [];
+        return $res;
+    }
+
+    /**
      * 版本列表
      * @return array
      */
@@ -312,9 +336,7 @@ class SummarySheet extends Model
             ->where($where)
             ->order($order)
             ->group('day')
-//            ->fetchSql()
             ->select() ?: [];
-//        dump($data);exit;
         return $data;
     }
 
@@ -328,7 +350,11 @@ class SummarySheet extends Model
         $where = [];
         $param['operate_type'] = isset($param['operate_type']) ? $param['operate_type'] : 'active';
         $param['show_time'] = isset($param['show_time']) ? $param['show_time'] : 0;
-        $field = ['sum(' . $param['operate_type'] . ') as ' . $param['operate_type']];
+        if (strpos($param['operate_type'], 'rate')) {
+            $field = ['max(' . $param['operate_type'] . ') as ' . $param['operate_type']];
+        } else {
+            $field = ['sum(' . $param['operate_type'] . ') as ' . $param['operate_type']];
+        }
         $column = $param['operate_type'];
         // 展示方式
         if (isset($param['show_time'])) {
@@ -382,6 +408,57 @@ class SummarySheet extends Model
             $channel[] = $param['channel_id'];
         }
         return [$param, $field, $column, $channel, $where, $timeData];
+    }
+
+    /**
+     * 导出数据
+     * @param $fieldArr
+     * @param $order
+     * @param $group
+     * @param $firstCol
+     * @param $arrKey
+     * @param $name
+     * @throws \PHPExcel_Exception
+     * @throws \PHPExcel_Writer_Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function exportList($fieldArr, $order, $group, $firstCol, $arrKey, $name)
+    {
+        // 搜索条件
+        $param = json_decode(input('filter'),  true);
+        if (isset($param['show_time'])) unset($param['show_time']);
+        if (isset($param['operate_type'])) unset($param['operate_type']);
+        if (isset($param['channel_id'])) unset($param['channel_id']);
+
+        // 统计列表
+        list($param, $field, $column, $channel, $where, $timeData) = $this->filter(
+            array_merge($param, ['show_time' => 0]));
+        $list = $this->summaryList($fieldArr, $where, $order, $group);
+        // 按天分组
+        $data = [];
+        foreach ($timeData as $v => $k) {
+            foreach ($list as $key => $val) {
+                if ($val['day'] == $k) {
+                    $data[$k] = $val;
+                }
+            }
+        }
+        // 整合导出数据
+        $result = [];
+        $result[] = $firstCol;
+        $dayArr = array_keys($data);
+        foreach ($timeData as $v => $k) {
+            if (!in_array($k, $dayArr)) {
+                $temp = [$k, 0, 0, 0, 0]; // 当天没有数据
+            } else {
+                $temp = [$k, $data[$k][$arrKey[0]], $data[$k][$arrKey[1]], $data[$k][$arrKey[2]], $data[$k][$arrKey[3]]];
+            }
+            $result[] = $temp;
+        }
+        $this->export($result, $name);
+        exit;
     }
 
     /**

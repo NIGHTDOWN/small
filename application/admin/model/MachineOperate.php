@@ -30,8 +30,7 @@ class MachineOperate extends Model
         'unknow' => 0,
         'activate' => 1,
         'register' => 2,
-        'install' => 3,
-        'active' => 4
+        'active' => 3
     ];
 
     /**

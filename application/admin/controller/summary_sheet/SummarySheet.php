@@ -3,6 +3,7 @@
 namespace app\admin\controller\summary_sheet;
 
 use app\common\controller\Backend;
+use think\Db;
 
 /**
  * 新增数据统计管理
@@ -92,19 +93,45 @@ class SummarySheet extends Backend
         $model = model('SummarySheet');
         // 搜索条件
         $param = json_decode(input('filter'),  true);
+
+        // 默认导出单位为天, 渠道不选
+        $param['show_time'] = 0;
+        if (isset($param['channel_id'])) {
+            unset($param['channel_id']);
+        }
         list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
 
-        // 数据
-        $field[] = 'sum(register) as register';
-        $field[] = 'sum(activate) as activate';
-        $field[] = 'sum(register_total) as register_total';
-        $field[] = 'sum(activate_total) as activate_total';
-        $lists = $model->listGroupDay($where, $field, $channel, $column, $timeData);
+        unset($field[0]);
+        if (isset($param['show_time']) && $param['show_time'] == 1) { // 周导出
+            // 数据
+            $field[] = 'max(week_register) as register';
+            $field[] = 'max(week_activate) as activate';
+        } elseif (isset($param['show_time']) && $param['show_time'] == 2) { // 月导出
+            // 数据
+            $field[] = 'max(month_register) as register';
+            $field[] = 'max(month_activate) as activate';
+        } else {
+            // 数据
+            $field[] = 'sum(register) as register';
+            $field[] = 'sum(activate) as activate';
+        }
+        $field[] = 'max(register_total) as register_total';
+        $field[] = 'max(activate_total) as activate_total';
+        $list = $model->summaryList($field, $where, 'day desc', 'day');
+        // 按天分组
+        $data = [];
+        foreach ($timeData as $v => $k) {
+            foreach ($list as $key => $val) {
+                if ($val['day'] == $k) {
+                    $data[$k] = $val;
+                }
+            }
+        }
 
         // 整合导出数据
         $result = [];
-        $dayArr = array_keys($lists);
         $result[] = ['日期', '注册量', '激活量', '总注册量', '总激活量'];
+        $dayArr = array_keys($data);
         if (isset($param['show_time']) && $param['show_time'] == 1) {
             $weekDay = $model->timeData($timeData);
         } else {
@@ -114,19 +141,17 @@ class SummarySheet extends Backend
             if (!in_array($v, $dayArr)) {
                 $temp = [$weekDay[$k], 0, 0, 0, 0];
             } else {
-                $temp = [$weekDay[$k]];
-                foreach ($lists as $lk => $lv) {
-                    if ($v == $lk) {
-                        $temp[] = array_sum(array_column($lv, 'register'));
-                        $temp[] = array_sum(array_column($lv, 'activate'));
-                        $temp[] = array_sum(array_column($lv, 'register_total'));
-                        $temp[] = array_sum(array_column($lv, 'activate_total'));
-                    }
-                }
+                $temp = [
+                    $weekDay[$k],
+                    $data[$v]['register'],
+                    $data[$v]['activate'],
+                    $data[$v]['register_total'],
+                    $data[$v]['activate_total']
+                ];
             }
             $result[] = $temp;
         }
-        $model->export($result, '新增统计数据日报表.xls');
+        $model->export($result, '新增统计数据表.xls');
         exit;
     }
 

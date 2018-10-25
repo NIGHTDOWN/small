@@ -115,6 +115,9 @@ class Activity extends Model
             ->select();
 
         //查询主题
+        $subject_ids=array_unique(array_filter(array_column($list,'subject_id')));
+        $subject_names = Db::name('subject')->where('id', 'in',$subject_ids)->column('subject_name','id');
+
         $user_total_array = Db::name("activity_top_data")
             ->field(['count(DISTINCT user_id) as user_total,activity_id'])
             ->where(['status' => CommonActivity::$topDataStatus['PASS']])
@@ -126,6 +129,7 @@ class Activity extends Model
             $user_totals[$value['activity_id']] = $value['user_total'];
         }
         foreach ($list as $key => $value) {
+            $list[$key]['subject_name']=$subject_names[$value['subject_id']]??'';
             $list[$key]['start_time'] = date('Y-m-d H:i:s', $value['start_time']);
             $list[$key]['end_time'] = date('Y-m-d H:i:s', $value['end_time']);
             $list[$key]['user_total'] = isset($user_totals[$value['id']]) ? $user_totals[$value['id']] : 0;

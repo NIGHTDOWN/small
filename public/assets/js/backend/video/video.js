@@ -18,7 +18,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     del_url: 'video/video/del',
                     statistics_url: 'video/video/statistics',
                     table: 'video'
-                }
+                },
+                // queryParams: function (params) {
+                //     var subject_id=Fast.api.query('subject_id');
+                //     return params;
+                // }
             });
 
             var table = $("#table");

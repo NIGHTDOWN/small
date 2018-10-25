@@ -19,6 +19,26 @@ class User extends Model
     protected $append = [
     ];
 
+    protected static function init()
+    {
+        self::beforeUpdate(function ($row) {
+            $changed = $row->getChangedData();
+            //如果有修改密码
+            if (isset($changed['password'])) {
+                if ($changed['password']) {
+                    $row->password = create_password($changed['password']);
+                } else {
+                    unset($row->password);
+                }
+            }
+        });
+    }
+
+    public function getGenderList()
+    {
+        return ['1' => __('Male'), '0' => __('Female')];
+    }
+
     public function getStatusList()
     {
         $status_list=UserCommonModel::STATUS_TEXT;
@@ -62,9 +82,7 @@ class User extends Model
     {
         //密码处理
         if (isset($data['password'])){
-            if ($data['password']){
-                $data['password']=create_password($data['password']);
-            }else{
+            if (!$data['password']){
                 unset($data['password']);
             }
         }

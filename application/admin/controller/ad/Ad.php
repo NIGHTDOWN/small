@@ -18,6 +18,8 @@ class Ad extends Backend
 
     protected $modelSceneValidate=true;
 
+    protected $noNeedRight=['tableBaseData'];
+
     /**
      * Advertising模型对象
      * @var \app\admin\model\Advertising
@@ -102,7 +104,7 @@ class Ad extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                         $this->model->validate($validate);
                     }
-                    $result = $this->model->allowField(['type_id','title','image','url','order_sort','status'])->save($params);
+                    $result = $this->model->allowField(['type_id','title','image','url','order_sort','start_time','end_time','status'])->save($params);
                     if ($result !== false) {
                         $this->success();
                     } else {
@@ -147,7 +149,7 @@ class Ad extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
                         $row->validate($validate);
                     }
-                    $result = $row->allowField(['type_id','title','image','url','order_sort','status'])->edit($params);
+                    $result = $row->edit($params);
                     if ($result !== false) {
                         $this->success();
                     } else {

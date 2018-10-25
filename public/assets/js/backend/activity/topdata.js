@@ -14,9 +14,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 },
                 queryParams: function (params) {
                     var activity_id=Fast.api.query('activity_id');
-                    var filter = JSON.parse(params.filter);
-                    var op = JSON.parse(params.op);
                     if (activity_id){
+                        var filter = JSON.parse(params.filter);
+                        var op = JSON.parse(params.op);
                         filter.activity_id=activity_id;
                         op.activity_id='=';
                         params.filter=JSON.stringify(filter);

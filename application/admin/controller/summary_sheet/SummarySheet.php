@@ -77,9 +77,8 @@ class SummarySheet extends Backend
             // 搜索条件
             $param = json_decode(input('filter'),  true);
             list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
-
             // 数据
-            $list = $model->getList($where, $field, $channel, $column, $timeData);
+            $list = $model->getList($where, $field, $channel, $column, $timeData, $param);
             return json($list);
         }
         return $this->view->fetch('summarysheet/summarysheet/index');
@@ -106,21 +105,28 @@ class SummarySheet extends Backend
         $result = [];
         $dayArr = array_keys($lists);
         $result[] = ['日期', '注册量', '激活量', '总注册量', '总激活量'];
+        if (isset($param['show_time']) && $param['show_time'] == 1) {
+            $weekDay = $model->timeData($timeData);
+        } else {
+            $weekDay = $timeData;
+        }
         foreach ($timeData as $k => $v) {
             if (!in_array($v, $dayArr)) {
-                $temp = [$v, 0, 0, 0, 0];
+                $temp = [$weekDay[$k], 0, 0, 0, 0];
             } else {
-                $temp = [$v];
+                $temp = [$weekDay[$k]];
                 foreach ($lists as $lk => $lv) {
-                    $temp[] = array_sum(array_column($lv, 'register'));
-                    $temp[] = array_sum(array_column($lv, 'activate'));
-                    $temp[] = array_sum(array_column($lv, 'register_total'));
-                    $temp[] = array_sum(array_column($lv, 'activate_total'));
+                    if ($v == $lk) {
+                        $temp[] = array_sum(array_column($lv, 'register'));
+                        $temp[] = array_sum(array_column($lv, 'activate'));
+                        $temp[] = array_sum(array_column($lv, 'register_total'));
+                        $temp[] = array_sum(array_column($lv, 'activate_total'));
+                    }
                 }
             }
             $result[] = $temp;
         }
-        $model->export($result, '渠道' . $this->operate[$column] . '日报表.xls');
+        $model->export($result, '新增统计数据日报表.xls');
         exit;
     }
 

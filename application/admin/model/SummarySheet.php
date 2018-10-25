@@ -111,12 +111,13 @@ class SummarySheet extends Model
      * @param array $channel
      * @param string $column
      * @param array $timeData
+     * @param array $param
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getList($where = [], $field = [], $channel = [], $column = '', $timeData = [])
+    public function getList($where = [], $field = [], $channel = [], $column = '', $timeData = [], $param = [])
     {
         // app机器操作记录表
         $field[] = 'channel_id';
@@ -154,6 +155,9 @@ class SummarySheet extends Model
             }
         }
 
+        if (isset($param['show_time']) && $param['show_time'] == 1) {
+            $timeData = $this->timeData($timeData);
+        }
         return [
             'rows' => [
                 'list' => $list,
@@ -334,6 +338,7 @@ class SummarySheet extends Model
         }
         // 时间
         if (isset($param['day'])) {
+            // 有时间筛选
             $where['day_time'] = $param['day'];
             if (strpos($where['day_time'], ' - ') === false) {
                 $this->error('时间格式不正确');
@@ -417,6 +422,24 @@ class SummarySheet extends Model
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Pragma: no-cache");
         $obj_Writer->save('php://output');
+    }
+
+    /**
+     * 周转时间
+     * @param $timeData
+     * @return mixed
+     */
+    public function timeData($timeData)
+    {
+        if (!is_array($timeData) || empty($timeData)) {
+            return [];
+        }
+        foreach ($timeData as $k => &$v ) {
+            $num = explode('-', $v);
+            $temp = week_range($num[1]);
+            $v = date('Y-m-d', $temp[0]) . '~' . date('Y-m-d', $temp[1]);
+        }
+        return $timeData;
     }
 
 }

@@ -47,7 +47,7 @@ class Active extends Backend
             $param = json_decode(input('filter'),  true);
             list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
             // 数据
-            $list = $model->getList($where, $field, $channel, $column, $timeData);
+            $list = $model->getList($where, $field, $channel, $column, $timeData, $param);
             return json($list);
         }
         return $this->fetch('summarysheet/active/index');

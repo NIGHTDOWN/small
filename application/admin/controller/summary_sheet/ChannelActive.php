@@ -72,6 +72,7 @@ class ChannelActive extends Backend
         array_unshift($dataObj, '日期');
         // 行数据
         $dataArray[] = $dataObj;
+        isset($param['show_time']) && $param['show_time'] == 1 && $timeData = $model->timeData($timeData);
         foreach ($timeData as $k => $v) {
             $temp = [$v];
             foreach ($lists as $lk => $lv) {
@@ -79,7 +80,15 @@ class ChannelActive extends Backend
             }
             $dataArray[] = $temp;
         }
-        $model->export($dataArray, '渠道' . $this->operate[$column] . '日报表.xls');
+        if (!isset($param['show_time']) || $param['show_time'] == 0) {
+            $timeType = '日';
+        } elseif ($param['show_time'] == 1) {
+            $timeType = '周';
+        } else {
+            $timeType = '月';
+        }
+
+        $model->export($dataArray, "渠道{$this->operate[$column]}{$timeType}报表.xls");
         exit;
     }
 

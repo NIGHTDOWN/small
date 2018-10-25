@@ -41,8 +41,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'create_time', title: __('Createtime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
                         {field: 'update_time', title: __('Updatetime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
                         {field: 'last_login', title: __('Logintime'), formatter: Table.api.formatter.datetime, operate: 'RANGE', addclass: 'datetimerange', sortable: true},
-                        {field: 'burse.coin', title: '金币',sortable:true},
-                        {field: 'fans_total', title: '粉丝',sortable:true},
+                        {field: 'fans_total', title: '粉丝',sortable:true,operate: 'BETWEEN'},
+                        {field: 'burse.coin', title: '金币',sortable:true,operate: 'BETWEEN'},
+                        {field: 'burse.coin_earning_total', title: '累计获得金币',sortable:true,operate: 'BETWEEN'},
+                        {field: 'burse.withdraw_coin', title: '累计提现金币',sortable:true,operate: 'BETWEEN'},
                         {field: 'group_id', title: '用户组', searchList: base_data.group_list,formatter:function (value) {
                             return base_data.group_list[value];
                         }},

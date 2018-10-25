@@ -20,6 +20,8 @@ class Advertising extends Model
     // 追加属性
     protected $append = [
         'status_text',
+        'start_time_text',
+        'end_time_text',
         'create_time_text',
         'update_time_text'
     ];
@@ -39,6 +41,18 @@ class Advertising extends Model
         $value = $value ? $value : (isset($data['status']) ? $data['status'] : '');
         $list = $this->getStatusList();
         return isset($list[$value]) ? $list[$value] : '';
+    }
+
+    public function getStartTimeTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['start_time'])&&$data['start_time'] ? $data['start_time'] : '');
+        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
+    }
+
+    public function getEndTimeTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['end_time'])&&$data['end_time'] ? $data['end_time'] : '');
+        return is_numeric($value) ? date("Y-m-d H:i:s", $value) : $value;
     }
 
 
@@ -65,6 +79,16 @@ class Advertising extends Model
         return $value && !is_numeric($value) ? strtotime($value) : $value;
     }
 
+    protected function setStartTimeAttr($value)
+    {
+        return $value && !is_numeric($value) ? strtotime($value) : $value;
+    }
+
+    protected function setEndTimeAttr($value)
+    {
+        return $value && !is_numeric($value) ? strtotime($value) : $value;
+    }
+
     public function type()
     {
         return $this->belongsTo('AdvertisingType', 'type_id', 'id', [])->setEagerlyType(1);
@@ -78,7 +102,7 @@ class Advertising extends Model
     public function edit($data)
     {
         $old_image=$this->getAttr('image');
-        $ret=$this->save($data);
+        $ret=$this->allowField(['type_id','title','image','url','order_sort','start_time','end_time','status'])->save($data);
         if ($ret){
             //图片处理
             if (isset($data['image'])){

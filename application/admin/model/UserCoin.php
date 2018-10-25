@@ -3,6 +3,7 @@
 namespace app\admin\model;
 
 use think\Model;
+use think\Db;
 
 class UserCoin extends Model
 {
@@ -190,6 +191,60 @@ class UserCoin extends Model
         $consumeTotal = $this->where($map)->sum('amount');
 
         return ! empty($consumeTotal) ? abs($consumeTotal) : 0;
+    }
+
+    private static function tradeParams($user_id, $title, $amount, $params = [])
+    {
+        if(!isset($params['trade_no']))
+        {
+            $trade_number_prefix = isset($params['mission_tag']) ? 'MS' : 'SY';
+            $params['trade_no'] = self::buildTradeNumber($trade_number_prefix, $user_id);
+        }
+        $params['user_id']      = $user_id;
+        $params['create_time']  = time();
+        $params['amount']       = $params['type'] == 1 ? abs($amount) : 0 - abs($amount);
+        $params['reason']       = $title;
+        return $params;
+    }
+
+    public static function unFreezeCoin($user_id, $log_id)
+    {
+        $success = true;
+        $log_info = Db('UserCoin')->where(['id' => $log_id, 'is_freeze' => 1])->find();
+        if($log_info['user_id'] == $user_id)
+        {
+            $params['type']         = 1;
+            $params['is_freeze']    = 1;
+            $params['trade_no']     = $log_info['trade_no'];
+            $params = self::tradeParams($user_id, $log_info['reason'] . '(unfreeze)', $log_info['amount'], $params);
+            $params['verification'] = self::verificationKey($params);
+            Db::startTrans();
+            try {
+                Db::name('UserCoin')->insert($params);
+                Db::name('UserBurse')->where('user_id', $user_id)->update(['coin' => ['inc', $params['amount']], 'frozen_coin' => ['dec', $params['amount']]]);
+                Db::commit();
+            } catch (\Exception $e) {
+                Db::rollback();
+                $success = false;
+            }
+        }else{
+            return ['success' => false, 'log' => 0];
+        }
+        return ['success' => $success, 'log' => $log_info['id']];
+    }
+
+    private static function verificationKey($params = [])
+    {
+        $accept_data = array_fill_keys(['trade_no', 'user_id', 'type', 'amount', 'is_freeze', 'create_time'], 0);
+        $params = array_merge($accept_data, array_intersect_key($params, $accept_data));
+        ksort($params);
+        return md5((config('other.verification_key').'/'.implode('/', $params)));
+    }
+
+    public static function buildTradeNumber($prefix = '', $in_user = 0, $out_user = 0, $time = 0)
+    {
+        if($time == 0)$time = time();
+        return $prefix . str_pad($in_user, 10, 0, STR_PAD_LEFT) . str_pad($out_user, 10, 0, STR_PAD_LEFT) . $time . str_pad(rand(0, 99999), 5, 0, STR_PAD_LEFT);
     }
 
 }

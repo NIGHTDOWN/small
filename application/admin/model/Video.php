@@ -156,6 +156,7 @@ class Video extends Model
             return false;
         }
         if ($img_info[0]!=$this->getAttr('width')||$img_info[1]!=$this->getAttr('height')){
+            VideoCommonModel::deleteCoverImgFile($cover_imgs);
             $this->error='图片尺寸与视频不一致';
             return false;
         }

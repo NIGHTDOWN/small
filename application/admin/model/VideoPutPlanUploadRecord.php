@@ -70,7 +70,7 @@ class VideoPutPlanUploadRecord extends Model
             return false;
         }
         // 队列
-        publishMessage([
+        publish_message([
             'action' => 'videoPutPlanRelationTableParse',
             'params' => [
                 'upload_record_id' => $id,

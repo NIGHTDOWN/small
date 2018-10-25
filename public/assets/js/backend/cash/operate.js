@@ -46,7 +46,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             table: table, 
                             buttons: [
                                 {
-                                    name: 'set_category',
+                                    name: 'adopt',
                                     title: __('通过审核'),
                                     text: __('通过'),
                                     classname: 'btn btn-xs btn-success btn-adopt',
@@ -57,10 +57,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     }
                                 },
                                 {
-                                    name: 'set_category',
+                                    name: 'refuse',
                                     title: __('拒绝审核'),
                                     text: __('拒绝'),
-                                    classname: 'btn btn-xs btn-danger btn-refuse',
+                                    classname: 'btn btn-xs btn-primary btn-dialog btn-danger btn-refuse',
+                                    url: 'cash/operate/refuse',
                                     hidden: function (row) {
                                         if (row.status != 0) {
                                             return true;
@@ -83,6 +84,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Controller.api.buttons(table);
         },
         default_list: function () {
+            Controller.api.bindevent();
+        },
+        adopt: function () {
+            Controller.api.bindevent();
+        },
+        refuse: function () {
             Controller.api.bindevent();
         },
         api: {
@@ -108,16 +115,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     );
                 });
                 // 拒绝审核
-                $(toolbar).on('click', '.btn-refuse', function () {
-                    Layer.confirm(
-                         __('确定要拒绝审核吗?'),
-                        {icon: 3, title: __('Warning'), shadeClose: true},
-                        function (index) {
-                            var ids = Table.api.selectedids(table);
-                            Controller.api.method.sendAjax(index, options.extend.refuse, {ids: ids});
-                        }
-                    );
-                });
+                // $(toolbar).on('click', '.btn-refuse', function () {
+                //     Layer.confirm(
+                //          __('确定要拒绝审核吗?'),
+                //         {icon: 3, title: __('Warning'), shadeClose: true},
+                //         function (index) {
+                //             var ids = Table.api.selectedids(table);
+                //             Controller.api.method.sendAjax(index, options.extend.refuse, {ids: ids});
+                //         }
+                //     );
+                // });
                 // 审核理由
                 $(toolbar).on('click', '.btn-default_list', function () {
                     Fast.api.open('cash/operate/default_list', __('拒绝理由'));
@@ -137,16 +144,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         );
                     },
                     // 拒绝审核
-                    'click .btn-refuse': function (e, value, row, index) {
-                        Layer.confirm(
-                             __('确定要拒绝审核吗?'),
-                            {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
-                            function (index) {
-                                var ids = [row.id];
-                                Controller.api.method.sendAjax(index, 'cash/operate/refuse', {ids: ids});
-                            }
-                        );
-                    }
+                    // 'click .btn-refuse': function (e, value, row, index) {
+                    //     Layer.confirm(
+                    //          __('确定要拒绝审核吗?'),
+                    //         {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
+                    //         function (index) {
+                    //             var ids = [row.id];
+                    //             Controller.api.method.sendAjax(index, 'cash/operate/refuse', {ids: ids});
+                    //         }
+                    //     );
+                    // }
                 }
             },
             formatter: {

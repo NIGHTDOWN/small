@@ -79,12 +79,45 @@ class Audit extends Backend
 
     public function adopt()
     {
+        if ($this->request->isPost()) {
+            $ids = input('ids/a', []);
+            $result = $this->model->adopt($ids, session('admin')['id']);
+            if($result) {
+                $this->success();
+            } else {
+                $this->error($this->model->getError());
+            }
+        }
         $this->success();
     }
 
-    public function refuse()
+    public function refuse($ids)
     {
-        $this->success();
+        if ($ids) {
+            if ($this->request->isPost()) {
+                $id = input('ids/a', []);
+                $msg = input('msg/s', []);
+                $type = input('type/d');
+
+                $result = $this->model->refuse($id, session('admin')['id'], $msg, $type);
+                if ($result) {
+                    $this->success();
+                } else {
+                    $this->error($this->model->getError());
+                }
+            }
+            $param = [
+                'type' => \app\admin\model\FeedbackDefaultReply::TYPE['CASH'],
+                'status' => \app\admin\model\FeedbackDefaultReply::STATUS['ENABLED']
+            ];
+
+            $defaultList = model('FeedbackDefaultReply')->getList($param);
+            $this->view->assign('id', $ids);
+            $this->view->assign('list', $defaultList);
+            return $this->view->fetch();
+        }
+
+        $this->error('缺少ID');
     }
 
 }

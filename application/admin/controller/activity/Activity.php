@@ -2,6 +2,7 @@
 
 namespace app\admin\controller\activity;
 
+use app\admin\controller\video\Video;
 use app\common\controller\Backend;
 use app\common\model\Activity as CommonActivity;
 
@@ -295,5 +296,15 @@ class Activity extends Backend
         } else {
             $this->error(__($model->getError()));
         }
+    }
+
+
+    /**
+     * 播放
+     */
+    public function play($video_id='')
+    {
+        $videoController=new Video();
+        return $videoController->play($video_id);
     }
 }

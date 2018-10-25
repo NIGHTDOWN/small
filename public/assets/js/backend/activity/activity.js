@@ -35,7 +35,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'id', title: __('Id'), sortable: true, width: '4%', operate: false},
                         {field: 'order_sort', title: __('Order_sort'), sortable: true, width: '5%', operate: false},
                         {field: 'title', title: __('Title'), operate: false},
-                        {field: 'subject_name', title: __('标签'), operate: false},
+                        {field: 'subject_name', title: __('关联标签'), operate: false},
                         {field: 'start_time', title: __('Start_time'), addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
                         {field: 'end_time', title: __('End_time'), addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
                         {field: 'user_total', title: __('User_total'), operate: false},
@@ -59,15 +59,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     classname: 'btn btn-xs btn-primary btn-dialog btn-success',
                                     url: 'activity/activity/edit'
                                 },
-                                // {
-                                //     name: 'show_video',
-                                //     title: __('查看视频'),
-                                //     text: __('查看视频'),
-                                //     classname: 'btn btn-xs btn-danger btn-addtabs',
-                                //     url: function (data) {
-                                //         return '/admin/video/video?subject_id=' + data.subject_id;
-                                //     }
-                                // },
+                                {
+                                    name: 'show_video',
+                                    title: __('查看视频'),
+                                    text: __('查看视频'),
+                                    classname: 'btn btn-xs btn-danger btn-dialog',
+                                    url: 'activity/topdata/index?activity_id={id}'
+                                },
                                 {
                                     name: 'top',
                                     title: __('活动排行榜'),

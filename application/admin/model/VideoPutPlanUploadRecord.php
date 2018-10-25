@@ -70,12 +70,12 @@ class VideoPutPlanUploadRecord extends Model
             return false;
         }
         // 队列
-        // publishMessage([
-        //     'action' => 'videoPutPlanRelationTableParse',
-        //     'params' => [
-        //         'upload_record_id' => $id,
-        //     ],
-        // ]);
+        publishMessage([
+            'action' => 'videoPutPlanRelationTableParse',
+            'params' => [
+                'upload_record_id' => $id,
+            ],
+        ]);
         return true;
     }
 

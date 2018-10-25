@@ -149,6 +149,16 @@ class Video extends Model
             $this->error = '封面不是合法的url地址';
             return false;
         }
+        try{
+            $img_info=getimagesize($cover_imgs);
+        }catch (\Exception $e){
+            $this->error='无效的图片';
+            return false;
+        }
+        if ($img_info[0]!=$this->getAttr('width')||$img_info[1]!=$this->getAttr('height')){
+            $this->error='图片尺寸与视频不一致';
+            return false;
+        }
         $oldCoverImg = $this->getAttr('extend')->getAttr('cover_imgs');
         $ret = $this->getAttr('extend')->save(['cover_imgs' => $cover_imgs]);
         if ($ret) {
@@ -420,5 +430,32 @@ class Video extends Model
             $ret=$this->getAttr('hotVideo')->save(['status'=>HotVideoCommonModel::STATUS['cancel']]);
         }
         return $ret;
+    }
+
+    /**
+     * 获取今日评论总数
+     */
+    public function getTodayUploadTotal()
+    {
+        $year = date("Y");
+        $month = date("m");
+        $day = date("d");
+        $start = mktime(0,0,0,$month,$day,$year);
+        $end= mktime(23,59,59,$month,$day,$year);
+        $count=$this
+            ->where([
+                'create_time'=>['between',[$start,$end]],
+            ])
+            ->count();
+        return $count;
+    }
+
+    /**
+     * 获取今日播放总数
+     * @return bool|string
+     */
+    public function getTodayViewTotal()
+    {
+        return VideoCommonModel::getTodayViewTotal();
     }
 }

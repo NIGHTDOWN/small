@@ -1,0 +1,126 @@
+<style type="text/css">
+.form-horizontal .control-label {
+    padding-top: 0px;
+    width: 200px;
+}
+.btn-button {
+    left: inherit;
+    float: right;
+    margin-right: 300px;
+    background-color: #18bc9c;
+    color: #fff;
+}
+</style>
+
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">金币价值:</label>
+        <div>
+            <input type="number" name="coin" value="{$data['coin_to_price']}"> <button type="button" class="btn-button" id="coin">保存</button>
+        </div>
+        <div style="margin-left: 230px;">1元兑换xxxx金币</div>
+        <br />
+        <label class="control-label col-xs-12 col-sm-2">首次提现最低金额:</label>
+        <div>
+            <input type="number" name="price" value="{$data['first_coin_to_price']}">元 <button type="button" class="btn-button" id="price">保存</button>
+        </div>
+        <br />
+        <label class="control-label col-xs-12 col-sm-2" class="btn-button">后续提现最低金额:</label>
+        <div>
+            <input type="number" name="behind_price" value="{$data['normal_coin_to_price']}">元 <button type="button" class="btn-button" id="behind_price">保存</button>
+        </div>
+        <br />
+        <label class="control-label col-xs-12 col-sm-2">月可提现总额:</label>
+        <div>
+            <input type="number" name="total_price" value="{$data['total_coin_to_price']}">元 <button type="button" class="btn-button" id="total_price">保存</button>
+        </div>
+        <br />
+        <label class="control-label col-xs-12 col-sm-2">每月可提现次数:</label>
+        <div>
+            <input type="number" name="total_action" value="{$data['total_coin_to_price_num']}">次 <button type="button" class="btn-button" id="total_action">保存</button>
+        </div>
+        <br />
+        <label class="control-label col-xs-12 col-sm-2" class="btn-button">需填身份证提现额度:</label>
+        <div>
+            <input type="number" name="card_price" value="{$data['need_id_card_price']}">元 <button type="button" class="btn-button" id="card_price">保存</button>
+        </div>
+        <br />
+        <label class="control-label col-xs-12 col-sm-2">延迟到账时间:</label>
+        <div>
+            <input type="number" name="delay" value="{$data['delay_pay']}">分钟 <button type="button" class="btn-button" id="delay">保存</button>
+        </div>
+        <br />
+        
+    </div>
+
+</form>
+<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+// 设置金币价格
+$(document).on('click', '#coin', function () {
+    method.sentAjax(this, '/admin/{:url("user/coin/setCoinToPrice")}', {coin: method.btnStatus(this)});
+});
+
+// 首次提现最低金额
+$(document).on('click', '#price', function () {
+    method.sentAjax(this, '/admin/{:url("user/coin/setFirstCoinToPrice")}', {price: method.btnStatus(this)});
+});
+
+// 后续提现最低金额
+$(document).on('click', '#behind_price', function () {
+    method.sentAjax(this, '/admin/{:url("user/coin/setNormalCoinToPrice")}', {price: method.btnStatus(this)});
+});
+
+// 月可提现总额
+$(document).on('click', '#total_price', function () {
+    method.sentAjax(this, '/admin/{:url("user/coin/setTotalCoinToPrice")}', {price: method.btnStatus(this)});
+});
+
+// 需填身份证提现额度
+$(document).on('click', '#card_price', function () {
+    method.sentAjax(this, '/admin/{:url("user/coin/setNeedIdCardPrice")}', {price: method.btnStatus(this)});
+});
+
+// 延迟到账时间
+$(document).on('click', '#delay', function () {
+    method.sentAjax(this, '/admin/{:url("user/coin/setDelayPay")}', {delay: method.btnStatus(this)});
+});
+
+// 每月可提现次数
+$(document).on('click', '#total_action', function () {
+    method.sentAjax(this, '/admin/{:url("user/coin/setTotalCoinToPriceNum")}', {price: method.btnStatus(this)});
+});
+
+var method = {
+    sentAjax: function (index, url, data = {}) {
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: data,
+            dataType: 'json'
+        }).done(function (result) {
+            if (result.code == 1) {
+                layer.msg('成功');
+            } else {
+                layer.msg(result.msg);
+            }
+            $(index).attr('disabled', false);
+            $(index).css({'background-color': '#18bc9c', 'color': '#fff'});
+        });
+        $(document).ajaxError(function() {
+            layer.msg('请求服务器失败');
+            $(index).attr('disabled', false);
+            $(index).css({'background-color': '#18bc9c', 'color': '#fff'});
+            return false;
+        });
+    },
+    btnStatus: function (index) {
+        var id = $(index).attr('id');
+        var value = $("input[name='"+ id +"']").val();
+        $(index).attr('disabled', 'disabled');
+        $(index).css({'background-color': '#ddd', 'color': '#000'});
+        return value;
+    }
+};
+</script>

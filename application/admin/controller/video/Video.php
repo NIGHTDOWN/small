@@ -503,4 +503,29 @@ class Video extends Backend
             }
         }
     }
+
+    /**
+     * 统计
+     */
+    public function statistics()
+    {
+        $data=$this->model
+            ->field([
+                'count(id) as history_upload_total',
+                'sum(user_view_total) as history_view_total',
+                'sum(user_like_total) as history_like_total',
+                'sum(user_comment_total) as history_comment_total',
+            ])
+            ->find();
+        /** @var \app\admin\model\VideoComment $commentModel */
+        $commentModel=model('VideoComment');
+        /** @var \app\admin\model\UserVideoLike $likeModel */
+        $likeModel=model('UserVideoLike');
+        $data['today_upload_total']=$this->model->getTodayUploadTotal();
+        $data['today_view_total']=$this->model->getTodayViewTotal();
+        $data['today_like_total']=$likeModel->getTodayTotal();
+        $data['today_comment_total']=$commentModel->getTodayTotal();
+        $this->view->assign("data", $data);
+        return $this->view->fetch();
+    }
 }

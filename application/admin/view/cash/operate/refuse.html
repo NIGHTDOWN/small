@@ -1,0 +1,41 @@
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">不通过原因:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-name msg" data-rule="required" class="form-control" name="msg" type="text" value="">
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">理由:</label>
+        <div class="col-xs-12 col-sm-8">
+
+            <select id="select" class="form-control selectpicker" name="">
+                <option value="" >选择理由</option>
+                {foreach name="list" item="vo"}
+                <option value="{$vo.content}" >{$vo.content}</option>
+                {/foreach}
+            </select>
+
+        </div>
+    </div>
+    <input type="hidden" name="ids" value="{$id}" />
+    <input type="hidden" name="type" value="1" />
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>
+<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+<script>
+    $('#select').change(function () {
+        var value = jQuery("#select  option:selected").val();
+        $("input[name='msg']").val(value);
+    });
+</script>
+

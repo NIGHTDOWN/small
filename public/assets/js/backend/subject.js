@@ -27,12 +27,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     [
                         {checkbox: true},
                         {field: 'id', title: __('Id'), sortable: true, width: '5%', operate: false},
-                        {field: 'recommend', title: __('Recommend'), sortable: true, width: '5%', operate: false},
-                        {field: 'subject_name', title: __('Subject_name'), width: '15%'},
-                        {field: 'create_user_nickname', title: __('Create_user_nickname'), operate: false},
-                        {field: 'compere_user_nickname', title: __('Compere_user_nickname'), operate: false},
-                        {field: 'video_total', title: __('Video_total'), operate: false},
-                        {field: 'new_join_time', title: __('New_join_time'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime, operate: false},
+                        {field: 'subject_name', title: __('标签'), width: '15%'},
                         {field: 'status_text', title: __('Status'), operate: false},
                         {
                             field: 'status',

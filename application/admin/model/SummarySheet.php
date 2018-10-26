@@ -46,90 +46,24 @@ class SummarySheet extends Model
     /**
      * 列表
      * @param array $where
+     * @param array $field
+     * @param array $channel
+     * @param string $column
+     * @param array $timeData
+     * @param array $param
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getList($where = [])
+    public function getList($where = [], $field = [], $channel = [], $column = '', $timeData = [], $param = [])
     {
-        // 时间区间
-        if (isset($where['day_time'])) {
-            $timeData = get_day_in_range($where['day_time']);
-            $where['day_time'] = ['between', [$where['day_time'][0], $where['day_time'][1]]];
-        } else {
-            // 默认展示一周内的数据
-            $timeData = get_week();
-        }
-
         // app机器操作记录表
-        $list = Db::name('summary_sheet')
-            ->field('register, activate, activate_total, register_total, FROM_UNIXTIME(day_time, "%Y-%m-%d") day')
-            ->where($where)
-            ->order('day_time asc')
-            ->select() ?: [];
+        $field[] = 'channel_id';
+        $list = $this->allRow($where, $field);
 
-        $data = [];
         // 按天分组
-        foreach ($timeData as $v => $k) {
-            foreach ($list as $key => $val) {
-                if ($val['day'] == $k) {
-//                    $data[$k][] = $val;
-                    $data[$k]['activate'] = !isset($data[$k]['activate'])
-                        ? $val['activate'] : $data[$k]['activate'] + $val['activate'];
-                    $data[$k]['register'] = !isset($data[$k]['register'])
-                        ? $val['register'] : $data[$k]['register'] + $val['register'];
-                    $data[$k]['activate_total'] = !isset($data[$k]['activate_total'])
-                        ? $val['activate_total'] : $data[$k]['activate'] + $val['activate_total'];
-                    $data[$k]['register_total'] = !isset($data[$k]['register_total'])
-                        ? $val['register_total'] : $data[$k]['activate'] + $val['register_total'];
-                }
-            }
-//            $data[$k]['day'] = $k;
-        }
-        $keyArr = array_keys($data);
-        foreach ($timeData as $v => $k) {
-            if (!in_array($k, $keyArr)) {
-                // 当天没有数据的补零
-                $data[$k]['activate'] = 0;
-                $data[$k]['register'] = 0;
-                $data[$k]['activate_total'] = 0;
-                $data[$k]['register_total'] = 0;
-            }
-            $data[$k]['day'] = $k;
-        }
-        // 重置键名
-        sort($data);
-
-        return ['rows' => $data, 'total' => 0];
-    }
-
-
-    /**
-     * 新增用户统计列表
-     * @param array $where
-     * @return array
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    public function echart($where = [])
-    {
-        // 时间区间
-        if (isset($where['day_time'])) {
-            $timeData = get_day_in_range($where['day_time']);
-            $where['day_time'] = ['between', [$where['day_time'][0], $where['day_time'][1]]];
-        } else {
-            // 默认展示一周内的数据
-            $timeData = get_week();
-        }
-
-        // app机器操作记录表
-        $list = $this->allRow($where);
-
-        $activate = $register = $active = $install = [];
         $data = [];
-        // 按天分组
         foreach ($timeData as $v => $k) {
             foreach ($list as $key => $val) {
                 if ($val['day'] == $k) {
@@ -139,34 +73,61 @@ class SummarySheet extends Model
         }
 
         // 取具体的数据列表
+        $result = [];
         $keyArr = array_keys($data);
-
         foreach ($timeData as $v => $k) {
             if (!in_array($k, $keyArr)) {
                 // 当天没有数据
-                $activate[] = $register[] = $active[] = $install[] = 0;
+                $result[$column][] = 0; // 单类型
+//                foreach ($field as $fk => $fv) {// 多类型
+//                    $field[$fk][] = 0;
+//                }
             } else {
                 foreach ($data as $key => $val) {
                     if ($key == $k) {
-                        $activate[] = array_sum(array_column($val, 'activate'));
-                        $register[] = array_sum(array_column($val, 'register'));
-                        $active[] = array_sum(array_column($val, 'active'));
-                        $install[] = array_sum(array_column($val, 'install'));
+                        $result[$column][] = array_sum(array_column($val, $column));
+//                        foreach ($field as $fk => $fv) {
+//                            $field[$fk][] = array_sum(array_column($val, $fk));
+//                        }
                     }
                 }
             }
         }
 
-        return ['rows' => [
-            'list' => $list,
-            'operate_data' => [
-                'activate' => $activate,
-                'register' => $register,
-                'active' => $active,
-                'install' => $install,
+        if (isset($param['show_time']) && $param['show_time'] == 1) {
+            $timeData = $this->timeData($timeData);
+        }
+        return [
+            'rows' => [
+                'list' => $list,
+                'operate_data' => $result,
                 'time_data' => $timeData
-            ]
-        ], 'total' => 0];
+            ],
+            'total' => 0];
+    }
+
+    /**
+     * 统计列表
+     * @param string $field
+     * @param array $where
+     * @param string $order
+     * @param string $group
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function summaryList($field = '', $where = [], $order = 'day_time asc', $group = '')
+    {
+        $res = Db::name('summary_sheet')
+            ->alias('ss')
+            ->field($field)
+            ->join('summary_sheet_ext sse', 'ss.id = sse.ss_id')
+            ->where($where)
+            ->order($order)
+            ->group($group)
+            ->select() ?: [];
+        return $res;
     }
 
     /**
@@ -192,20 +153,18 @@ class SummarySheet extends Model
     }
 
     /**
-     * 活跃用户统计列表
-     * @param $export
+     * 获取数据列表按天分组
      * @param array $where
      * @param array $field
      * @param array $channel
      * @param string $column
      * @param array $timeData
-     *
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function activeList($export, $where = [], $field = [], $channel = [], $column = '', $timeData = [])
+    public function listGroupDay($where = [], $field = [], $channel = [], $column = '', $timeData = [])
     {
         // app机器操作记录表
         $field[] = 'channel_id';
@@ -220,42 +179,11 @@ class SummarySheet extends Model
                 }
             }
         }
-        if ($export) {
-            return $data;
-        }
-
-        // 取具体的数据列表 TODO 三个列表都合并一起
-        $result = [];
-        $keyArr = array_keys($data);
-        foreach ($timeData as $v => $k) {
-            if (!in_array($k, $keyArr)) {
-                // 当天没有数据
-                $result[$column][] = 0;
-//                foreach ($field as $fk => $fv) {// 多类型
-//                    $field[$fk][] = 0;
-//                }
-            } else {
-                foreach ($data as $key => $val) {
-                    if ($key == $k) {
-                        $result[$column][] = array_sum(array_column($val, $column));
-//                        foreach ($field as $fk => $fv) {
-//                            $field[$fk][] = array_sum(array_column($val, $fk));
-//                        }
-                    }
-                }
-            }
-        }
-
-        return [
-            'rows' => [
-                'list' => $list,
-                'operate_data' => $result,
-                'time_data' => $timeData
-            ], 'total' => 0];
+        return $data;
     }
 
     /**
-     * 活跃用户统计列表
+     * 渠道活跃用户统计列表 TODO 优化
      * @param int $export 导出
      * @param array $where
      * @param array $field
@@ -347,9 +275,8 @@ class SummarySheet extends Model
             ->where($where)
             ->order($order)
             ->group('day')
-//            ->fetchSql()
             ->select() ?: [];
-//        dump($data);exit;
+        // TODO 这里统计可能有误，需要用buildSql
         return $data;
     }
 
@@ -363,7 +290,11 @@ class SummarySheet extends Model
         $where = [];
         $param['operate_type'] = isset($param['operate_type']) ? $param['operate_type'] : 'active';
         $param['show_time'] = isset($param['show_time']) ? $param['show_time'] : 0;
-        $field = ['sum(' . $param['operate_type'] . ') as ' . $param['operate_type']];
+        if (strpos($param['operate_type'], 'rate')) {
+            $field = ['max(' . $param['operate_type'] . ') as ' . $param['operate_type']];
+        } else {
+            $field = ['sum(' . $param['operate_type'] . ') as ' . $param['operate_type']];
+        }
         $column = $param['operate_type'];
         // 展示方式
         if (isset($param['show_time'])) {
@@ -373,6 +304,7 @@ class SummarySheet extends Model
         }
         // 时间
         if (isset($param['day'])) {
+            // 有时间筛选
             $where['day_time'] = $param['day'];
             if (strpos($where['day_time'], ' - ') === false) {
                 $this->error('时间格式不正确');
@@ -419,6 +351,57 @@ class SummarySheet extends Model
     }
 
     /**
+     * 导出数据
+     * @param $fieldArr
+     * @param $order
+     * @param $group
+     * @param $firstCol
+     * @param $arrKey
+     * @param $name
+     * @throws \PHPExcel_Exception
+     * @throws \PHPExcel_Writer_Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function exportList($fieldArr, $order, $group, $firstCol, $arrKey, $name)
+    {
+        // 搜索条件
+        $param = json_decode(input('filter'),  true);
+        if (isset($param['show_time'])) unset($param['show_time']);
+        if (isset($param['operate_type'])) unset($param['operate_type']);
+        if (isset($param['channel_id'])) unset($param['channel_id']);
+
+        // 统计列表
+        list($param, $field, $column, $channel, $where, $timeData) = $this->filter(
+            array_merge($param, ['show_time' => 0]));
+        $list = $this->summaryList($fieldArr, $where, $order, $group);
+        // 按天分组
+        $data = [];
+        foreach ($timeData as $v => $k) {
+            foreach ($list as $key => $val) {
+                if ($val['day'] == $k) {
+                    $data[$k] = $val;
+                }
+            }
+        }
+        // 整合导出数据
+        $result = [];
+        $result[] = $firstCol;
+        $dayArr = array_keys($data);
+        foreach ($timeData as $v => $k) {
+            if (!in_array($k, $dayArr)) {
+                $temp = [$k, 0, 0, 0, 0]; // 当天没有数据
+            } else {
+                $temp = [$k, $data[$k][$arrKey[0]], $data[$k][$arrKey[1]], $data[$k][$arrKey[2]], $data[$k][$arrKey[3]]];
+            }
+            $result[] = $temp;
+        }
+        $this->export($result, $name);
+        exit;
+    }
+
+    /**
      * 导出
      * @param $dataArray
      * @param $fileName
@@ -456,6 +439,24 @@ class SummarySheet extends Model
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Pragma: no-cache");
         $obj_Writer->save('php://output');
+    }
+
+    /**
+     * 周转时间
+     * @param $timeData
+     * @return mixed
+     */
+    public function timeData($timeData)
+    {
+        if (!is_array($timeData) || empty($timeData)) {
+            return [];
+        }
+        foreach ($timeData as $k => &$v ) {
+            $num = explode('-', $v);
+            $temp = week_range($num[1]);
+            $v = date('Y-m-d', $temp[0]) . '~' . date('Y-m-d', $temp[1]);
+        }
+        return $timeData;
     }
 
 }

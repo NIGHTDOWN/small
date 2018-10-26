@@ -38,7 +38,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                         {field: 'channel_id', title: __('Channel_name'), searchList: channel_list, visible: false},
                         {field: 'version_id', title: __('Version_name'), searchList: version_list, visible: false, operate: false},
                         {field: 'operate_type', title: __('Operate_type'), searchList: operate_list, visible: false, defaultValue: 'active'},
-                        {field: 'show_time', title: __('展示方式'), searchList: {0:'天', 1:'周', 2:'月'}, visible: false, defaultValue: 'active'},
+                        {field: 'show_time', title: __('展示方式'), searchList: {0:'天', 1:'周', 2:'月'}, visible: false, defaultValue: 0},
                     ]
                 ]
             });

@@ -496,24 +496,6 @@ function get_day_in_range($range, $format, $time)
 }
 
 /**
- * 获取本周所有日期
- * @param string $time
- * @param string $format
- * @return array
- */
-function get_week($time = '', $format = 'Y-m-d')
-{
-    $time = $time != '' ? $time : time();
-    //获取当前周几
-    $week = date('w', $time);
-    $date = [];
-    for ($i = 1; $i <= 7; $i++) {
-        $date[$i - 1] = date($format, strtotime('+' . $i - $week . ' days', $time));
-    }
-    return $date;
-}
-
-/**
  * 周数对应的日期区间
  * @param $week
  * @return array

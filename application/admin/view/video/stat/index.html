@@ -1,20 +1,111 @@
-<style>
-    .pagination-info{display: none;}
-    .search{display: none;}
-    /*#table{display: none;}*/
-</style>
 <div class="panel panel-default panel-intro">
-    {:build_heading()}
-
     <div class="panel-body">
         <div id="myTabContent" class="tab-content">
             <div class="tab-pane fade active in" id="one">
                 <div class="widget-body no-padding">
-                    <div id="toolbar" class="toolbar">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="info-box bg-aqua">
+                                <span class="info-box-icon"><i class="fa fa-bookmark-o"></i></span>
 
+                                <div class="info-box-content">
+                                    <span class="info-box-text">总上传数</span>
+                                    <span class="info-box-number">{$data.history_upload_total}</span>
 
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 20%"></div>
+                                    </div>
+                                    <span class="progress-description">
+                                        上传并设置分类的视频总数
+                                    </span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="info-box bg-green">
+                                <span class="info-box-icon"><i class="fa fa-thumbs-o-up"></i></span>
+
+                                <div class="info-box-content">
+                                    <span class="info-box-text">总点赞数</span>
+                                    <span class="info-box-number">{$data.history_like_total}</span>
+
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 20%"></div>
+                                    </div>
+                                    <span class="progress-description">
+                                        所有点赞操作的总数
+                                      </span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="info-box bg-yellow">
+                                <span class="info-box-icon"><i class="fa fa-calendar"></i></span>
+
+                                <div class="info-box-content">
+                                    <span class="info-box-text">总播放数</span>
+                                    <span class="info-box-number">{$data.history_view_total}</span>
+
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 20%"></div>
+                                    </div>
+                                    <span class="progress-description">
+                                        历史累计播放数
+                                      </span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="info-box bg-red">
+                                <span class="info-box-icon"><i class="fa fa-comments-o"></i></span>
+
+                                <div class="info-box-content">
+                                    <span class="info-box-text">总评论数</span>
+                                    <span class="info-box-number">{$data.history_comment_total}</span>
+
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 20%"></div>
+                                    </div>
+                                    <span class="progress-description">
+                                    所有评论操作的数量
+                                  </span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
                     </div>
-                    <div id="echart" style="width: 100%; height:400px;"></div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="page-header">
+                                <h4 class="no-margin">订单趋势</h4>
+                            </div>
+                            <div id="datefilter">
+                                <form action="" role="form" novalidate class="form-inline">
+                                    <a href="javascript:;" class="btn btn-primary btn-refresh"><i class="fa fa-refresh"></i></a>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input type="text" class="form-control input-inline datetimerange" placeholder="指定日期" style="width:270px;" />
+                                    </div>
+                                    <div  class="input-group">
+                                        <?php echo build_select('category_id',$categoryList,null,['placeholder'=>'选择分类']) ?>
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="echart" style="height:500px;width:100%"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -62,6 +62,7 @@ class ChannelActive extends Backend
         $model = model('SummarySheet');
         // 搜索条件
         $param = json_decode(input('filter'), true);
+        if (isset($param['show_time'])) unset($param['show_time']);
         list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
         // 数据
         $lists = $model->activeChannelList(1, $where, $field, $channel, $column, $timeData);
@@ -80,12 +81,12 @@ class ChannelActive extends Backend
             }
             $dataArray[] = $temp;
         }
-        if (!isset($param['show_time']) || $param['show_time'] == 0) {
-            $timeType = '日';
-        } elseif ($param['show_time'] == 1) {
+        if (isset($param['show_time']) && $param['show_time'] == 2) {
+            $timeType = '月';
+        } elseif (isset($param['show_time']) && $param['show_time'] == 1) {
             $timeType = '周';
         } else {
-            $timeType = '月';
+            $timeType = '日';
         }
 
         $model->export($dataArray, "渠道{$this->operate[$column]}{$timeType}报表.xls");

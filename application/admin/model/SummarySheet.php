@@ -46,67 +46,6 @@ class SummarySheet extends Model
     /**
      * 列表
      * @param array $where
-     * @return array
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    public function getList2($where = [])
-    {
-        // 时间区间
-        if (isset($where['day_time'])) {
-            $timeData = get_day_in_range($where['day_time']);
-            $where['day_time'] = ['between', [$where['day_time'][0], $where['day_time'][1]]];
-        } else {
-            // 默认展示一周内的数据
-            $timeData = get_week();
-        }
-
-        // app机器操作记录表
-        $list = Db::name('summary_sheet')
-            ->field('register, activate, activate_total, register_total, FROM_UNIXTIME(day_time, "%Y-%m-%d") day')
-            ->where($where)
-            ->order('day_time asc')
-            ->select() ?: [];
-
-        $data = [];
-        // 按天分组
-        foreach ($timeData as $v => $k) {
-            foreach ($list as $key => $val) {
-                if ($val['day'] == $k) {
-//                    $data[$k][] = $val;
-                    $data[$k]['activate'] = !isset($data[$k]['activate'])
-                        ? $val['activate'] : $data[$k]['activate'] + $val['activate'];
-                    $data[$k]['register'] = !isset($data[$k]['register'])
-                        ? $val['register'] : $data[$k]['register'] + $val['register'];
-                    $data[$k]['activate_total'] = !isset($data[$k]['activate_total'])
-                        ? $val['activate_total'] : $data[$k]['activate'] + $val['activate_total'];
-                    $data[$k]['register_total'] = !isset($data[$k]['register_total'])
-                        ? $val['register_total'] : $data[$k]['activate'] + $val['register_total'];
-                }
-            }
-//            $data[$k]['day'] = $k;
-        }
-        $keyArr = array_keys($data);
-        foreach ($timeData as $v => $k) {
-            if (!in_array($k, $keyArr)) {
-                // 当天没有数据的补零
-                $data[$k]['activate'] = 0;
-                $data[$k]['register'] = 0;
-                $data[$k]['activate_total'] = 0;
-                $data[$k]['register_total'] = 0;
-            }
-            $data[$k]['day'] = $k;
-        }
-        // 重置键名
-        sort($data);
-
-        return ['rows' => $data, 'total' => 0];
-    }
-
-    /**
-     * 列表
-     * @param array $where
      * @param array $field
      * @param array $channel
      * @param string $column
@@ -337,6 +276,7 @@ class SummarySheet extends Model
             ->order($order)
             ->group('day')
             ->select() ?: [];
+        // TODO 这里统计可能有误，需要用buildSql
         return $data;
     }
 

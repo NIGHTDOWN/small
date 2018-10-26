@@ -91,68 +91,15 @@ class SummarySheet extends Backend
     public function export()
     {
         $model = model('SummarySheet');
-        // 搜索条件
-        $param = json_decode(input('filter'),  true);
-
-        // 默认导出单位为天, 渠道不选
-        $param['show_time'] = 0;
-        if (isset($param['channel_id'])) {
-            unset($param['channel_id']);
-        }
-        list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
-
-        unset($field[0]);
-        if (isset($param['show_time']) && $param['show_time'] == 1) { // 周导出
-            // 数据
-            $field[] = 'max(week_register) as register';
-            $field[] = 'max(week_activate) as activate';
-        } elseif (isset($param['show_time']) && $param['show_time'] == 2) { // 月导出
-            // 数据
-            $field[] = 'max(month_register) as register';
-            $field[] = 'max(month_activate) as activate';
-        } else {
-            // 数据
-            $field[] = 'sum(register) as register';
-            $field[] = 'sum(activate) as activate';
-        }
-        $field[] = 'max(register_total) as register_total';
-        $field[] = 'max(activate_total) as activate_total';
-        $list = $model->summaryList($field, $where, 'day desc', 'day');
-        // 按天分组
-        $data = [];
-        foreach ($timeData as $v => $k) {
-            foreach ($list as $key => $val) {
-                if ($val['day'] == $k) {
-                    $data[$k] = $val;
-                }
-            }
-        }
-
-        // 整合导出数据
-        $result = [];
-        $result[] = ['日期', '注册量', '激活量', '总注册量', '总激活量'];
-        $dayArr = array_keys($data);
-        if (isset($param['show_time']) && $param['show_time'] == 1) {
-            $weekDay = $model->timeData($timeData);
-        } else {
-            $weekDay = $timeData;
-        }
-        foreach ($timeData as $k => $v) {
-            if (!in_array($v, $dayArr)) {
-                $temp = [$weekDay[$k], 0, 0, 0, 0];
-            } else {
-                $temp = [
-                    $weekDay[$k],
-                    $data[$v]['register'],
-                    $data[$v]['activate'],
-                    $data[$v]['register_total'],
-                    $data[$v]['activate_total']
-                ];
-            }
-            $result[] = $temp;
-        }
-        $model->export($result, '新增统计数据表.xls');
-        exit;
+        $model->exportList(
+            "sum(register) as register, sum(activate) as activate, max(register_total) as register_total,
+            max(activate_total) as activate_total, FROM_UNIXTIME(day_time, '%Y-%m-%d') as day",
+            'day desc',
+            'day',
+            ['日期', '注册量', '激活量', '总注册量', '总激活量'],
+            ['register', 'activate', 'register_total', 'activate_total'],
+            '新增统计数据表.xls'
+        );
     }
 
     /**

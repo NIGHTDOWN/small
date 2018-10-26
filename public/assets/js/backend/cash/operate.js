@@ -16,7 +16,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             var table = $("#table");
             var paymentText = {0: '微信', 1: '支付宝'};
-            var statusText = {0: '审核中', 1: '已打款', 2: '审核未通过', 3: '已到账', 4: '打款失败', 6: '审核通过'};
+            var statusText = {0: '审核中', 1: '已打款', 2: '审核未通过', 3: '已到账', 4: '打款失败', 6: '审核通过', 7: '财务审核未通过'};
 
             // 初始化表格
             table.bootstrapTable({
@@ -76,8 +76,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 ]
             });
 
-            
-
             // 为表格绑定事件
             Table.api.bindevent(table);
             // 添加按钮
@@ -115,16 +113,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     );
                 });
                 // 拒绝审核
-                // $(toolbar).on('click', '.btn-refuse', function () {
-                //     Layer.confirm(
-                //          __('确定要拒绝审核吗?'),
-                //         {icon: 3, title: __('Warning'), shadeClose: true},
-                //         function (index) {
-                //             var ids = Table.api.selectedids(table);
-                //             Controller.api.method.sendAjax(index, options.extend.refuse, {ids: ids});
-                //         }
-                //     );
-                // });
+                $(toolbar).on('click', '.btn-refuse', function () {
+                    var that = this;
+                    //循环弹出多个编辑框
+                    $.each(table.bootstrapTable('getSelections'), function (index, row) {
+                        var url = options.extend.refuse;
+                        row = $.extend({}, row ? row : {}, {ids: row[options.pk]});
+                        var url = Table.api.replaceurl(url, row, table);
+                        Fast.api.open(url, __('拒绝审核'), $(that).data() || {});
+                    });
+                });
                 // 审核理由
                 $(toolbar).on('click', '.btn-default_list', function () {
                     Fast.api.open('cash/operate/default_list', __('拒绝理由'));
@@ -142,18 +140,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                 Controller.api.method.sendAjax(index, 'cash/operate/adopt', {ids: ids});
                             }
                         );
-                    },
-                    // 拒绝审核
-                    // 'click .btn-refuse': function (e, value, row, index) {
-                    //     Layer.confirm(
-                    //          __('确定要拒绝审核吗?'),
-                    //         {icon: 3, title: __('Warning'), offset: Controller.api.method.windowSize(this), shadeClose: true},
-                    //         function (index) {
-                    //             var ids = [row.id];
-                    //             Controller.api.method.sendAjax(index, 'cash/operate/refuse', {ids: ids});
-                    //         }
-                    //     );
-                    // }
+                    }
                 }
             },
             formatter: {

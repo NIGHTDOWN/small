@@ -21,6 +21,7 @@ class CashWithdraw extends Model
     
     // 追加属性
     protected $append = [
+        'checkbox'
         // 'apply_time_text',
         // 'admin_time_text',
         // 'pay_time_text'

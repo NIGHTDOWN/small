@@ -9,6 +9,7 @@ use wsj\WQiniu;
 use app\common\model\HotVideo as HotVideoCommonModel;
 use app\common\model\ActivityTop as ActivityTopCommonModel;
 use app\common\model\Robot as RobotCommonModel;
+use app\common\model\VideoStatDay as VideoStatDayCommonModel;
 
 class Video extends Model
 {
@@ -128,6 +129,9 @@ class Video extends Model
         $oldCategoryId = $this->getAttr('category_id');
         $ret = $this->allowField(['category_id'])->save($data);
         if ($ret) {
+            if (!$oldCategoryId){
+                VideoStatDayCommonModel::statInc($this->getAttr('category_id'),'upload');
+            }
             if ($this->getAttr('recommend')) {
                 if ($oldCategoryId != $data['category_id']) {
                     VideoCommonModel::delTopVideoFromCache($this->getAttr('id'), $oldCategoryId);
@@ -431,32 +435,5 @@ class Video extends Model
             $ret=$this->getAttr('hotVideo')->save(['status'=>HotVideoCommonModel::STATUS['cancel']]);
         }
         return $ret;
-    }
-
-    /**
-     * 获取今日评论总数
-     */
-    public function getTodayUploadTotal()
-    {
-        $year = date("Y");
-        $month = date("m");
-        $day = date("d");
-        $start = mktime(0,0,0,$month,$day,$year);
-        $end= mktime(23,59,59,$month,$day,$year);
-        $count=$this
-            ->where([
-                'create_time'=>['between',[$start,$end]],
-            ])
-            ->count();
-        return $count;
-    }
-
-    /**
-     * 获取今日播放总数
-     * @return bool|string
-     */
-    public function getTodayViewTotal()
-    {
-        return VideoCommonModel::getTodayViewTotal();
     }
 }

@@ -38,7 +38,7 @@ class Audit extends Backend
      */
     public function index()
     {
-        //设置过滤方法
+        // 设置过滤方法
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax()) {
             $map = [

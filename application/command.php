@@ -17,5 +17,8 @@ return [
     'app\admin\command\Min',
     'app\admin\command\Addon',
     'app\admin\command\Api',
-    'app\admin\command\MachineOperateStatistics'
+    'app\admin\command\MachineOperateStatistics',
+
+    //视频
+    'app\common\command\video\Stat'
 ];

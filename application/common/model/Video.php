@@ -43,10 +43,6 @@ class Video extends Model
     const USER_VIDEO_LIST_EXPIRE    = 86400;
     const TOP_VIDEO_QUANTITY        = 4;
 
-
-    /** 视频今日播放总计 */
-    const VIDEO_TODAY_VIEW_TOTAL_CACHE_KEY='video_today_view_total';
-
     /**
      * 增加es
      * @param int $video_id
@@ -155,49 +151,5 @@ class Video extends Model
             $url.='.mp4';
         }
         return $url;
-    }
-
-    /**
-     * 初始化今日播放总计
-     */
-    public static function initTodayViewTotal()
-    {
-        /** @var \Redis $redis */
-        $redis=Cache::init()->handler();
-        $cache_key=get_cache_prefix().self::VIDEO_TODAY_VIEW_TOTAL_CACHE_KEY;
-        $year = date("Y");
-        $month = date("m");
-        $day = date("d");
-        $ex = mktime(23,59,59,$month,$day,$year)-time();
-        $redis->set($cache_key,0,['ex'=>$ex,'nx']);
-    }
-
-    /**
-     * 今日播放量增加
-     */
-    public static function incTodayViewTotal()
-    {
-        /** @var \Redis $redis */
-        $redis=Cache::init()->handler();
-        $cache_key=get_cache_prefix().self::VIDEO_TODAY_VIEW_TOTAL_CACHE_KEY;
-        if (!$redis->exists($cache_key)){
-            self::initTodayViewTotal();
-        }
-        $redis->incr($cache_key);
-    }
-
-    /**
-     * 获取今日播放量
-     * @return bool|string
-     */
-    public static function getTodayViewTotal()
-    {
-        /** @var \Redis $redis */
-        $redis=Cache::init()->handler();
-        $cache_key=get_cache_prefix().self::VIDEO_TODAY_VIEW_TOTAL_CACHE_KEY;
-        if (!$redis->exists($cache_key)){
-            self::initTodayViewTotal();
-        }
-        return $redis->get($cache_key);
     }
 }

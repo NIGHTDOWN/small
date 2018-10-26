@@ -16,7 +16,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 extend: {
                     index_url: 'video/video/index',
                     del_url: 'video/video/del',
-                    statistics_url: 'video/video/statistics',
                     table: 'video'
                 },
                 // queryParams: function (params) {

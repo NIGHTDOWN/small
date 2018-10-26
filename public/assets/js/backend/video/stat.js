@@ -46,7 +46,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                     series_list.push({
                         name:value.name,
                         type:'line',
-                        data: value.list
+                        data: value.list,
+                        showAllSymbol:true
                     })
                 });
 
@@ -55,13 +56,39 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                     title: {
                         text: '视频统计'
                     },
-                    tooltip: {},
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'cross'
+                        },
+                        backgroundColor: 'rgba(245, 245, 245, 0.8)',
+                        borderWidth: 1,
+                        borderColor: '#ccc',
+                        padding: 10,
+                        textStyle: {
+                            color: '#000'
+                        },
+                        position: function (pos, params, el, elRect, size) {
+                            var obj = {top: 10};
+                            obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+                            return obj;
+                        },
+                        extraCssText: 'width: 170px'
+                    },
+
                     legend: {
                         data:['']
                     },
                     xAxis: {
                         type:'category',
                         data: settings.date_list
+                    },
+                    brush: {
+                        xAxisIndex: 'all',
+                        brushLink: 'all',
+                        outOfBrush: {
+                            colorAlpha: 0.1
+                        }
                     },
                     yAxis: {},
                     series: series_list

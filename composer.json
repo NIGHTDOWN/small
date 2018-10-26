@@ -30,7 +30,8 @@
         "phpoffice/phpspreadsheet": "^1.3",
         "elasticsearch/elasticsearch": "~6.0",
         "jpush/jpush": "^3.6",
-        "lokielse/aliyun-open-api-mns": "^1.0"
+        "lokielse/aliyun-open-api-mns": "^1.0",
+        "topthink/think-queue": "^2.0"
     },
     "config": {
         "preferred-install": "dist"

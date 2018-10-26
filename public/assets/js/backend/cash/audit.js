@@ -114,6 +114,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         }
                     );
                 });
+                // 拒绝审核
+                $(toolbar).on('click', '.btn-refuse', function () {
+                    var that = this;
+                    //循环弹出多个编辑框
+                    $.each(table.bootstrapTable('getSelections'), function (index, row) {
+                        var url = options.extend.refuse;
+                        row = $.extend({}, row ? row : {}, {ids: row[options.pk]});
+                        var url = Table.api.replaceurl(url, row, table);
+                        Fast.api.open(url, __('拒绝审核'), $(that).data() || {});
+                    });
+                });
                 // 审核理由
                 $(toolbar).on('click', '.btn-default_list', function () {
                     var ids = Table.api.selectedids(table);

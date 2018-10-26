@@ -16,7 +16,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             var table = $("#table");
             var paymentText = {0: '微信', 1: '支付宝'};
-            var statusText = {0: '审核中', 1: '已打款', 2: '审核未通过', 3: '已到账', 4: '打款失败', 6: '审核通过', 7: '财务审核未通过'};
+            var statusText = {0: '审核中', 1: '已打款', 2: '审核未通过', 3: '已到账', 4: '打款失败', 5: '财务审核通过', 6: '审核通过', 7: '财务审核未通过'};
 
             // 初始化表格
             table.bootstrapTable({
@@ -27,7 +27,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 sortName: 'id',
                 columns: [
                     [
-                        {checkbox: true},
+                        {
+                            field: 'checkbox',
+                            checkbox: true,
+                            formatter: function (data) {
+                                if (data == true) {
+                                    this.checkbox = false;
+                                } else {
+                                    this.checkbox = true;
+                                }
+                            }
+                        },
                         {field: 'id', title: __('Id')},
                         {field: 'user.nickname', title: __('Nickname')},
                         // 订单号

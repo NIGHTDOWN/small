@@ -27,7 +27,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 sortName: 'cash_withdraw.id',
                 columns: [
                     [
-                        {checkbox: true},
+                        {
+                            field: 'checkbox',
+                            checkbox: true,
+                            formatter: function (data) {
+                                if (data == true) {
+                                    this.checkbox = false;
+                                } else {
+                                    this.checkbox = true;
+                                }
+                            }
+                        },
                         {field: 'id', title: __('Id')},
                         {field: 'user.nickname', title: __('Nickname')},
                         // 订单号

@@ -65,6 +65,7 @@ class Audit extends Backend
                 ->select();
                 
             foreach ($list as $key => $value) {
+                $value->checkbox = $value->status == \app\admin\model\CashWithdraw::STATUS['OPERATIVE'] ? false : true;
                 $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment']);
                 $value->visible(['user']);
                 $value->getRelation('user')->visible(['nickname']);

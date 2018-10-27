@@ -35,37 +35,6 @@ class SummarySheet extends Backend
 
     }
 
-//    /**
-//     * 列表
-//     * @return string|\think\response\Json
-//     * @throws \think\Exception
-//     */
-//    public function index()
-//    {
-//        if ($this->request->isAjax()) {
-//            // 展示列表图形
-//            return $this->addEchart();
-//
-//            // TODO 这里用于导出
-//            $model = model('SummarySheet');
-//            // 搜索条件
-//            $where = json_decode(input('filter'),  true);
-//            if (isset($where['day_time'])) {
-//                if (strpos($where['day_time'], ' - ') === false) {
-//                    $this->error('时间格式不正确');
-//                }
-//                $where['day_time'] = explode(' - ', $where['day_time']);
-//                $where['day_time'][0] = strtotime(date('Y-m-d 0:0:0', strtotime($where['day_time'][0])));
-//                $where['day_time'][1] = strtotime(date('Y-m-d 23:59:59', strtotime($where['day_time'][1])));
-//            }
-//            // 数据
-//            $list = $model->getList($where);
-//
-//            return json($list);
-//        }
-//        return $this->view->fetch('summarysheet/summarysheet/index');
-//    }
-
     /**
      * 列表
      * @return string|\think\response\Json

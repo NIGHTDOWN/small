@@ -77,7 +77,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
             })
 
             // 导出
-            var submitForm = function (ids, layero) {
+            var submitForm = function (ids, layero, $flag) {
                 var options = echart.bootstrapTable('getOptions');
                 console.log(options);
                 var columns = [];
@@ -91,6 +91,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                 $("input[name=filter]", layero).val(search.filter);
                 $("input[name=op]", layero).val(search.op);
                 $("input[name=columns]", layero).val(columns.join(','));
+                $("input[name=flag]", layero).val($flag);
                 $("form", layero).submit();
             };
             $(document).on("click", ".btn-export", function () {
@@ -98,16 +99,22 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                 var page = echart.bootstrapTable('getData');
                 var all = echart.bootstrapTable('getOptions').totalRows;
                 console.log(ids, page, all);
-                Layer.confirm("确认导出数据<form action='" + Fast.api.fixurl("summary_sheet/channel_active/export") + "' method='post' target='_blank'><input type='hidden' name='ids' value='' /><input type='hidden' name='filter' ><input type='hidden' name='op'><input type='hidden' name='search'><input type='hidden' name='columns'></form>", {
+                Layer.confirm("确认导出数据<form action='" + Fast.api.fixurl("summary_sheet/channel_active/export") + "' method='post' target='_blank'><input type='hidden' name='ids' value='' /><input type='hidden' name='filter' ><input type='hidden' name='op'><input type='hidden' name='search'><input type='hidden' name='columns'><input type='hidden' name='flag'></form>", {
                     title: '导出数据',
-                    btn: ["确认"],
+                    btn: ["日报表", "总报表"],
                     success: function (layero, index) {
+                        console.log(111111)
                         $(".layui-layer-btn a", layero).addClass("layui-layer-btn0");
                     }, yes: function (index, layero) {
-                        submitForm(all, layero);
+                        console.log(222222222)
+                        submitForm(all, layero, 1);
                         Layer.close(index);
-                        // submitForm(all, layero);
-                        // return false;
+                        return false;
+                    }, btn2: function (index, layero) {
+                        console.log(3333333)
+                        submitForm(all, layero, 2);
+                        Layer.close(index);
+                        return false;
                     }
                 });
             });

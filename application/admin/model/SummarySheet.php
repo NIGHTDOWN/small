@@ -44,6 +44,16 @@ class SummarySheet extends Model
     public $operateText = ['激活量', '注册量'];
 
     /**
+     * 平台
+     */
+    public $type = [0 => '未知', 1 => '安卓', 2 => '苹果'];
+
+    /**
+     * 苹果设备
+     */
+    public $appleType = ['iphone', 'ios', 'mac', 'macbook', 'ipad', 'ipod'];
+
+    /**
      * 列表
      * @param array $where
      * @param array $field
@@ -153,36 +163,6 @@ class SummarySheet extends Model
     }
 
     /**
-     * 获取数据列表按天分组
-     * @param array $where
-     * @param array $field
-     * @param array $channel
-     * @param string $column
-     * @param array $timeData
-     * @return array
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    public function listGroupDay($where = [], $field = [], $channel = [], $column = '', $timeData = [])
-    {
-        // app机器操作记录表
-        $field[] = 'channel_id';
-        $list = $this->allRow($where, $field);
-
-        // 按天分组
-        $data = [];
-        foreach ($timeData as $v => $k) {
-            foreach ($list as $key => $val) {
-                if ($val['day'] == $k) {
-                    $data[$k][] = $val;
-                }
-            }
-        }
-        return $data;
-    }
-
-    /**
      * 渠道活跃用户统计列表 TODO 优化
      * @param int $export 导出
      * @param array $where
@@ -258,6 +238,69 @@ class SummarySheet extends Model
     }
 
     /**
+     * 导出总报表
+     * @param $where
+     * @param $timeData
+     * @throws \PHPExcel_Exception
+     * @throws \PHPExcel_Writer_Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function exportAll($where, $timeData)
+    {
+        // 渠道
+        $channel = Db::name('channel')->field('id, channel_name, type')->select() ?: [];
+        $channelData = [];
+        foreach ($channel as $key => $val) {
+            $temp = $val;
+            $channelData[$val['id']] = $temp;
+        }
+        // 数据
+        $list = Db::name('summary_sheet')
+            ->alias('ss')
+            ->field('channel_id, sum(activate) activate, sum(active) active, max(activate_total) activate_total, 
+                FROM_UNIXTIME(day_time,"%Y-%m-%d" ) day')
+            ->where($where)
+            ->group('channel_id, day')
+            ->select() ?: [];
+        // 按天分组
+        $data = [];
+        foreach ($timeData as $v => $k) {
+            foreach ($list as $key => $val) {
+                if ($val['day'] == $k) {
+                    $data[$k] = $val;
+                }
+            }
+        }
+        // 整合导出数据
+        $result = [];
+        $result[] = ['日期', '平台',	'渠道名称','激活', '启动数', '累计激活量', '日激活占比'];
+        $dayArr = array_keys($data);
+        foreach ($timeData as $v => $k) {
+            if (!in_array($k, $dayArr)) {
+                $temp = [$k, 0, 0, 0, 0, 0, 0]; // 当天没有数据
+            } else {
+                $temp = [$k];
+                if (isset($channel[$data[$k]['channel_id']])) {
+                    $cName = $channel[$data[$k]['channel_id']]['channel_name'];
+                    $platform = $this->type[$channel[$data[$k]['channel_id']]['type']];
+                }
+                $temp[] = $platform ?? '';
+                $temp[] =  $cName ?? '';
+                $temp[] = $data[$k]['activate'] ?? 0;
+                $temp[] = $data[$k]['active'] ?? 0;
+                $temp[] = $data[$k]['activate_total'] ?? 0;
+                $temp[] = $data[$k]['activate_total'] > 0 ?
+                    round($data[$k]['active']/$data[$k]['activate_total'], 2) * 100 . '%' : 0 . '%';
+            }
+            $result[] = $temp;
+        }
+        $this->export($result, '渠道激活量、注册量总报表.xls');
+        exit;
+    }
+
+    /**
      * 所有数据
      * @param $where
      * @param string $field
@@ -307,12 +350,14 @@ class SummarySheet extends Model
             // 有时间筛选
             $where['day_time'] = $param['day'];
             if (strpos($where['day_time'], ' - ') === false) {
-                $this->error('时间格式不正确');
+                $this->error = '时间格式不正确';
+                return false;
             }
             $where['day_time'] = explode(' - ', $where['day_time']);
             // TODO 优化
             $start = strtotime(date('Y-m-d 0:0:0', strtotime($where['day_time'][0])));
             $end = strtotime(date('Y-m-d 23:59:59', strtotime($where['day_time'][1])));
+            $end > time() && $end =  time(); // 不能超过当前时间
             $timeData = get_day_in_range(
                 [$start, $end],
                 $this->showTimeFormat[$param['show_time']],
@@ -322,7 +367,6 @@ class SummarySheet extends Model
         } else {
             if ($param['show_time'] == 0) { // 天
                 // 默认展示一周内的数据
-//                $timeData = get_week();
                 $start = strtotime(date('Y-m-d', (time() - ((date('w') == 0 ? 7 : date('w')) - 1) * 24 * 3600)));
                 $end = $start + 24 * 60 * 60 * 7 - 1;
             } elseif ($param['show_time'] == 1) { // 周
@@ -334,6 +378,7 @@ class SummarySheet extends Model
                 $start = strtotime(date('Y').'-1-1');
                 $end = strtotime(date('Y').'-12-31 23:59:59');
             }
+            $end > time() && $end =  time(); // 不能超过当前时间
             $timeData = get_day_in_range(
                 [$start, $end],
                 $this->showTimeFormat[$param['show_time']],
@@ -402,7 +447,7 @@ class SummarySheet extends Model
     }
 
     /**
-     * 导出
+     * 导出 TODO 放到公共模块
      * @param $dataArray
      * @param $fileName
      * @throws \PHPExcel_Exception

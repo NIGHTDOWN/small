@@ -8,6 +8,8 @@ use think\Db;
 
 use think\Session;
 
+use app\common\model\AppVersion as CommonAppVersion;
+
 class Appversion extends Model
 {
     // 表名
@@ -76,6 +78,18 @@ class Appversion extends Model
             'down_list' => $input_down_list,
             'update_time' => $now,
             'status'=>$status,
+        ]);
+    }
+
+    public function del($ids)
+    {
+        $admin_id = Session::get('admin')['id'];
+        $db = Db::name('app_version');
+        $now=time();
+        return  $db->where('id','eq',$ids)->update([
+            'last_mod_admin_id' => $admin_id,
+            'update_time' => $now,
+            'status'=>CommonAppVersion::STATUS['DELETE'],
         ]);
     }
 

@@ -14,8 +14,8 @@ return [
     'Send_total'  =>  '发送数量',
     'Queue_id'  =>  '消息队列id',
     'Status'  =>  '状态',
-    'Status 0'  =>  '未处理',
-    'Status 1'  =>  '待发送',
+    'Status 0'  =>  '未发送',
+    'Status 1'  =>  '等待发送',
     'Status 2'  =>  '已发送',
     'Create_time'  =>  '创建时间',
     'Update_time'  =>  '更新时间'

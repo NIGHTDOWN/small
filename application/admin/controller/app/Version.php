@@ -4,6 +4,7 @@ namespace app\admin\controller\app;
 
 use app\common\controller\Backend;
 
+use app\common\model\AppVersion;
 
 /**
  * 
@@ -38,13 +39,13 @@ class Version extends Backend
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
                 ->where($where)
-                ->where('status' , 'neq', -1)
+                ->where('status' , 'neq', AppVersion::STATUS['DELETE'])
                 ->order($sort, $order)
                 ->count();
             $page_size = input('page_size/d', 20);
             $list = $this->model
                 ->where($where)
-                ->where('status' , 'neq', -1)
+                ->where('status' , 'neq', AppVersion::STATUS['DELETE'])
                 ->order('id', 'desc')
                 ->order($sort, $order)
                 ->limit($offset, $limit)
@@ -143,6 +144,27 @@ class Version extends Backend
             $this->error(__('Parameter %s can not be empty', ''));
         }
         return $this->view->fetch();
+    }
+
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        if ($ids) {
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $count = $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $count = $this->model->del($ids);
+
+            if ($count) {
+                $this->success();
+            } else {
+                $this->error(__('No rows were deleted'));
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
     }
 
     /**

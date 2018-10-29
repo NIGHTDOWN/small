@@ -2,8 +2,9 @@
 
 namespace app\admin\controller\site;
 
-use app\admin\model\SiteBannerType;
 use app\common\controller\Backend;
+
+use app\common\model\SiteBanner as CommonSiteBanner;
 
 /**
  * 官网轮播图
@@ -44,21 +45,21 @@ class SiteBanner extends Backend
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
                 ->where($where)
-                ->where('status','neq',-1)
+                ->where('status','neq',CommonSiteBanner::STATUS['DELETE'])
                 ->order($sort, $order)
                 ->count();
 
             $list = $this->model
                 ->with('SiteBannerType')
                 ->where($where)
-                ->where('status','neq',-1)
+                ->where('status','neq',CommonSiteBanner::STATUS['DELETE'])
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
 
             $list = collection($list)->toArray();
             foreach ($list as $key =>$value){
-                $list[$key]['status_text']  =$this->model::STATUS_TXET[$value['status']];
+                $list[$key]['status_text']  =CommonSiteBanner::STATUS_TXET[$value['status']];
             }
 
             $result = array("total" => $total, "rows" => $list);
@@ -140,10 +141,31 @@ class SiteBanner extends Backend
             $this->error(__('Parameter %s can not be empty', ''));
         }
         $this->assign('type_list',$this->allType());
-        $this->assign('status_list',$this->model::STATUS_TXET);
-        $this->assign('client_list',$this->model::CLIENT_TYPE_TEXT);
+        $this->assign('status_list',CommonSiteBanner::STATUS_TXET);
+        $this->assign('client_list',CommonSiteBanner::CLIENT_TYPE_TEXT);
         $this->view->assign("row", $row);
         return $this->view->fetch();
+    }
+
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        if ($ids) {
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $count = $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $count = $this->model->del($ids);
+
+            if ($count) {
+                $this->success();
+            } else {
+                $this->error(__('No rows were deleted'));
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
     }
 
     /**

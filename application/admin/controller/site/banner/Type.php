@@ -4,6 +4,8 @@ namespace app\admin\controller\site\banner;
 
 use app\common\controller\Backend;
 
+use app\admin\model\SiteBanner as SiteBanner;
+
 /**
  * 官网轮播图类别
  *
@@ -23,6 +25,26 @@ class Type extends Backend
         parent::_initialize();
         $this->model = new \app\admin\model\SiteBannerType;
 
+    }
+
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        if ($ids) {
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $count = $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $count = SiteBanner::TypeDel($ids);
+            if ($count) {
+                $this->success();
+            } else {
+                $this->error(__('No rows were deleted'));
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
     }
     
     /**

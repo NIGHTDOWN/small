@@ -49,7 +49,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         // 支付方式
                         {field: 'payment', title: __('Payment'), searchList: paymentText, formatter: function (data) {return paymentText[data];}},
                         // 状态 0 审核中 1 已打款 2 运营审核未通过  3 已到账 4 打款失败 5 审核通过 6 运营已审核 7 财务审核未通过
-                        {field: 'status', title: __('Status'), searchList: statusText, formatter: function (data) {return statusText[data];}},
+                        {field: 'status', title: __('Status'), searchList: statusText, operate: 'IN', formatter: function (data) {return statusText[data];}},
                         {
                             field: 'operate',
                             title: __('Operate'),

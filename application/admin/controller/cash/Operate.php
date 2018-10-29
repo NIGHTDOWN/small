@@ -56,8 +56,8 @@ class Operate extends Backend
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
                 ->with('user')
-                ->where($map)
-                ->whereOr($where)
+                ->where($where)
+                ->whereOr($map)
                 ->order($sort, $order)
                 ->count();
 

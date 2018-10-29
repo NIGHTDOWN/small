@@ -29,7 +29,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     [
                         {
                             field: 'checkbox',
-                            checkbox: true,
+                            checkbox: false,
                             formatter: function (data) {
                                 if (data == true) {
                                     this.checkbox = false;

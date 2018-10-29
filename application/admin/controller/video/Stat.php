@@ -103,6 +103,7 @@ class Stat extends Backend
             $categoryModel=model('Category');
             $categoryList=$categoryModel->getList('video');
             $categoryList[0]='选择分类';
+            ksort($categoryList);
 
             $this->assign('data',$data);
             $this->assign('categoryList',$categoryList);

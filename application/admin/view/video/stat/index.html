@@ -6,7 +6,7 @@
                     <div class="row">
                         <div class="col-md-3 col-sm-6 col-xs-12">
                             <div class="info-box bg-aqua">
-                                <span class="info-box-icon"><i class="fa fa-bookmark-o"></i></span>
+                                <span class="info-box-icon"><i class="fa fa-upload"></i></span>
 
                                 <div class="info-box-content">
                                     <span class="info-box-text">总上传数</span>
@@ -46,7 +46,7 @@
                         <!-- /.col -->
                         <div class="col-md-3 col-sm-6 col-xs-12">
                             <div class="info-box bg-yellow">
-                                <span class="info-box-icon"><i class="fa fa-calendar"></i></span>
+                                <span class="info-box-icon"><i class="fa fa-play"></i></span>
 
                                 <div class="info-box-content">
                                     <span class="info-box-text">总播放数</span>
@@ -96,10 +96,13 @@
                                     <a href="javascript:;" class="btn btn-primary btn-refresh"><i class="fa fa-refresh"></i></a>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                        <input type="text" class="form-control input-inline datetimerange" placeholder="指定日期" style="width:270px;" />
+                                        <input type="text" class="form-control input-inline datetimerange btn-filter" id="date" placeholder="指定日期" style="width:270px;" />
                                     </div>
                                     <div  class="input-group">
-                                        <?php echo build_select('category_id',$categoryList,null,['placeholder'=>'选择分类']) ?>
+                                        <?php echo build_select('category_id',$categoryList,0,['placeholder'=>'选择分类','class'=>'form-control input-inline btn-filter','id'=>'category_id']) ?>
+                                    </div>
+                                    <div  class="input-group">
+                                        <button type="submit" class="btn btn-success" formnovalidate="" id="submit">提交</button>
                                     </div>
                                 </form>
                             </div>

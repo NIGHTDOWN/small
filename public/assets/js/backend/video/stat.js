@@ -48,10 +48,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
 
             Form.api.bindevent($("form[role=form]"));
 
-            $(".datetimerange").on("blur", function () {
+            $("#submit").on("click", function () {
                 Fast.api.ajax({
                     url: 'video/stat/index',
-                    data: {date: $(this).val()}
+                    data: {date: $('#date').val(),category_id:$('#category_id').val()}
                 }, function (data) {
                     myChart.setOption({
                         xAxis: {
@@ -63,7 +63,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                 });
             });
             $(document).on("click", ".btn-refresh", function () {
-                $(".datetimerange").trigger("blur");
+                $("#submit").trigger("click");
             });
             //每隔一分钟定时刷新图表
             setInterval(function () {

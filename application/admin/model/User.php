@@ -128,21 +128,4 @@ class User extends Model
         }
         return $ret;
     }
-
-
-    /**
-     * 设置参数
-     */
-    public static function setActiveParam($data)
-    {
-        $data = json_encode($data);
-        $ret = Db::name('core_value')->where('name','=','active_task')->update($data);
-        if($ret){
-            self::initActiveParamCache();
-        }else{
-            $this->error = '设置失败';
-            return false;
-        }
-    }
-
 }

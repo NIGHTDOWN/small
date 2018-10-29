@@ -59,7 +59,6 @@ class Active extends Backend
      */
     public function export()
     {
-//        Console::call('MachineOperateStatistics');exit;
         $model = model('SummarySheet');
         $model->exportList(
             "ss.id, sum(active) as active, max(active_rate) as active_rate,
@@ -79,6 +78,14 @@ class Active extends Backend
     public function operateType()
     {
         return $this->operate;
+    }
+
+    /**
+     * 计划任务
+     */
+    public function planTask()
+    {
+        Console::call('MachineOperateStatistics');exit;
     }
 
 }

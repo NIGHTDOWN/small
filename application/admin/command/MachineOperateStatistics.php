@@ -71,13 +71,13 @@ class MachineOperateStatistics extends Command
                 $v['create_time'] = time();
                 $v['activate_total'] = $machineCount; // 总激活量
                 $v['register_total'] = $usersCount; // 总注册量
-                $v['active_rate'] =  $v['active'] / $v['activate_total']; // 活跃度
+                $v['active_rate'] =  $v['activate_total'] > 0 ? $v['active'] / $v['activate_total'] : 0; // 活跃度
                 $v['wastage'] = $this->wastage([
                     ['mp.create_time' => ['<', $v['day_time'] - (60 * 24 * 60 * 60)]],
                     ['mp.create_time' => ['>', $v['day_time']]],
                     'mp.id is null'
                 ]);
-                $v['wastage_rate'] = $v['wastage'] / $machineCount; // 流失率
+                $v['wastage_rate'] = $machineCount > 0 ? $v['wastage'] / $machineCount : 0; // 流失率
                 // 周月数据
                 $ext = $this->ext($v, $machineCount);
                 return ['base' => $v, 'ext' => $ext];
@@ -121,13 +121,13 @@ class MachineOperateStatistics extends Command
         $ext['week_register'] = $this->userCount($weekMap);
         $ext['week_activate'] = $this->machineCount($weekMap);
         $ext['week_active'] = $this->machineOperateCount(array_merge($weekMap, ['operate' => $operate['active']]));
-        $ext['week_active_rate'] = $ext['week_active'] / $v['activate_total'];
+        $ext['week_active_rate'] = $v['activate_total'] > 0 ? $ext['week_active'] / $v['activate_total'] : 0;
         $ext['week_wastage'] = $this->wastage([
             ['mp.create_time' => ['<', $weekStart - (60 * 24 * 60 * 60)]],
             ['mp.create_time' => ['>', $weekEnd]],
             'mp.id is null'
         ]);
-        $ext['week_wastage_rate'] = $ext['week_wastage'] / $machineCount;
+        $ext['week_wastage_rate'] = $machineCount > 0 ? $ext['week_wastage'] / $machineCount : 0;
         // 月数据
         $monthStart = date('Y-m-01', $v['day_time']);
         $monthEnd = strtotime($monthStart . '+1 month -1 day') + 86399;
@@ -136,13 +136,13 @@ class MachineOperateStatistics extends Command
         $ext['month_register'] = $this->userCount($monthMap);
         $ext['month_activate'] = $this->machineCount($monthMap);
         $ext['month_active'] = $this->machineOperateCount(array_merge($monthMap, ['operate' => $operate['active']]));
-        $ext['month_active_rate'] = $ext['week_active'] / $v['activate_total'];
+        $ext['month_active_rate'] = $v['activate_total'] > 0 ? $ext['week_active'] / $v['activate_total'] : 0;
         $ext['month_wastage'] = $this->wastage([
             ['mp.create_time' => ['<', $monthStart - (60 * 24 * 60 * 60)]],
             ['mp.create_time' => ['>', $monthEnd]],
             'mp.id is null'
         ]);
-        $ext['month_wastage_rate'] = $ext['week_wastage'] / $machineCount;
+        $ext['month_wastage_rate'] = $machineCount > 0 ? $ext['week_wastage'] / $machineCount : 0;
         return $ext;
     }
 

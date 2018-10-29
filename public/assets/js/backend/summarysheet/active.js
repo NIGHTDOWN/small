@@ -114,8 +114,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                     title: '导出数据',
                     btn: ["确认"],
                     success: function (layero, index) {
+                        console.log(111111)
                         $(".layui-layer-btn a", layero).addClass("layui-layer-btn0");
                     }, yes: function (index, layero) {
+                        console.log(222222)
                         submitForm(all, layero);
                         Layer.close(index);
                         // submitForm(all, layero);

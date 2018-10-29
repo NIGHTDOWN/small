@@ -3,6 +3,7 @@
 namespace app\admin\controller\summary_sheet;
 
 use app\common\controller\Backend;
+use think\Db;
 
 /**
  * 新增数据统计管理
@@ -34,7 +35,6 @@ class ChannelActive extends Backend
     {
         parent::_initialize();
         $this->model = new \app\admin\model\summary\Sheet;
-
     }
 
     /**
@@ -59,11 +59,20 @@ class ChannelActive extends Backend
      */
     public function export()
     {
+
         $model = model('SummarySheet');
         // 搜索条件
         $param = json_decode(input('filter'), true);
         if (isset($param['show_time'])) unset($param['show_time']);
         list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
+
+        // 导出总报表
+        $flag = input('flag') ?? 1;
+        if ($flag == 2) {
+            if (isset($where['channel_id'])) unset($where['channel_id']);
+            $model->exportAll($where, $timeData);
+        }
+
         // 数据
         $lists = $model->activeChannelList(1, $where, $field, $channel, $column, $timeData);
 

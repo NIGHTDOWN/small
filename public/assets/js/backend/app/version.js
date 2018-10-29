@@ -34,7 +34,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'app_version_code', title: __('版本代码'),operate:false},
                         {
                             field: 'update_type',
-                            title: __('Update_type'),
+                            title: __('更新类型'),
                             formatter:function (data) {
                                 if(data==1){
                                     return '提示更新'

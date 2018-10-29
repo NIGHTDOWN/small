@@ -7,8 +7,8 @@ class AliSms
 
     /**
      * 发送短信
-     * @param $mobile
-     * @param $template_code
+     * @param string $mobile
+     * @param string $template_code
      * @param array $data
      * @param null $config
      * @param string $outId

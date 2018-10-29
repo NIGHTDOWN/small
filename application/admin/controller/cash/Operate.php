@@ -46,6 +46,16 @@ class Operate extends Backend
             if ($this->request->request('keyField')) {
                 return $this->selectpage();
             }
+            // 筛选状态
+            $requestData = $this->request->param();
+            $statusData = json_decode($requestData['filter'], true);
+            if (isset($statusData['status']) && $statusData['status'] == \app\admin\model\CashWithdraw::STATUS['OPERATIVE']) {
+                $statusData['status'] = [1, 2, 3, 4, 5, 6, 7];
+                $requestData['filter'] = json_encode($statusData);
+            }
+            $this->request->get($requestData);
+            // end
+
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
                 ->with('user')

@@ -23,7 +23,7 @@ class SmsSendTask extends Validate
         'user_range'=>['require','in'=>SmsSendTaskCommonModel::USER_RANGE,'checkTargetUserIds'],
         'target_user_ids'=>['regex'=>'^[0-9|,]+$'],
         'is_now'=>['require','in'=>[0,1]],
-        'send_time'=>'require|date',
+        'send_time'=>'require|date|checkSendTime',
     ];
     /**
      * 提示消息
@@ -43,6 +43,20 @@ class SmsSendTask extends Validate
         if ($value==SmsSendTaskCommonModel::USER_RANGE['portion']){
             if (!isset($data['target_user_ids'])||!$data['target_user_ids']){
                 return '选择部分用户时必须填写用户ID';
+            }
+        }
+        return true;
+    }
+
+    protected function checkSendTime($value,$rule,$data)
+    {
+        if (!$data['is_now']){
+            $send_time=strtotime($value);
+            $diff_time=$send_time-time();
+            if ($diff_time>=604800){
+                return '最大支持延迟7天';
+            }elseif ($diff_time<0){
+                return '定时时间不能小于当前时间';
             }
         }
         return true;

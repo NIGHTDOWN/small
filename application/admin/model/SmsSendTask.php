@@ -105,6 +105,15 @@ class SmsSendTask extends Model
         return $value && !is_numeric($value) ? strtotime($value) : $value;
     }
 
+    public function add($data)
+    {
+        if (isset($data['is_now'])&&$data['is_now']){
+            $data['send_time']=date('Y-m-d H:i:s');
+        }
+
+        return $this->allowField(['admin_id','sms_template_code','user_range','target_user_ids','is_now','send_time'])->save($data);
+    }
+
     /**
      * 发送
      */

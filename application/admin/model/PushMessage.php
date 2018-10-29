@@ -156,6 +156,10 @@ class PushMessage extends Model
             }
         }
 
+        if (isset($data['is_now'])&&$data['is_now']){
+            $data['send_time']=date('Y-m-d H:i:s');
+        }
+
         $data['admin_id']=session('admin.id');
         $data['status']=PushMessageCommonModel::STATUS['no_send'];
         $this->startTrans();

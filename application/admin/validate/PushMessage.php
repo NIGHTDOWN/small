@@ -29,7 +29,7 @@ class PushMessage extends Validate
         'user_range'=>['require','in'=>PushMessageCommonModel::USER_RANGE,'checkTargetUserIds'],
         'target_user_ids'=>['regex'=>'^[0-9|,]+$'],
         'is_now'=>'require|in:0,1',
-        'send_time'=>'require|data',
+        'send_time'=>'require|data|checkSendTime',
         'msg_type'=>'require|in:0,1',
     ];
     /**
@@ -64,6 +64,20 @@ class PushMessage extends Validate
         }elseif ($data['action']=='playVideo'){
             if (!self::is($value,'integer')){
                 return '参数不是有效的视频ID';
+            }
+        }
+        return true;
+    }
+
+    protected function checkSendTime($value,$rule,$data)
+    {
+        if (!$data['is_now']){
+            $send_time=strtotime($value);
+            $diff_time=$send_time-time();
+            if ($diff_time>=604800){
+                return '最大支持延迟7天';
+            }elseif ($diff_time<0){
+                return '定时时间不能小于当前时间';
             }
         }
         return true;

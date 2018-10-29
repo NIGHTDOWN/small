@@ -57,7 +57,7 @@ class SmsTask extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : true) : $this->modelValidate;
                         $this->model->validate($validate);
                     }
-                    $result = $this->model->allowField(['admin_id','sms_template_code','user_range','target_user_ids','is_now','send_time'])->save($params);
+                    $result = $this->model->add($params);
                     if ($result !== false) {
                         $this->success();
                     } else {

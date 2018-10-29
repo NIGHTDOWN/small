@@ -42,6 +42,13 @@ class Operate extends Backend
         //设置过滤方法
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax()) {
+            // 筛选状态
+            $map = [];
+            $statusData = input('get.filter');
+            if (strstr($statusData, '"status":"' . \app\admin\model\CashWithdraw::STATUS['OPERATIVE'] . '"')) {
+                $map['cash_withdraw.status'] = ['in', [1, 2, 3, 4, 5, 6, 7]];
+            }
+            // end
             //如果发送的来源是Selectpage，则转发到Selectpage
             if ($this->request->request('keyField')) {
                 return $this->selectpage();
@@ -49,13 +56,15 @@ class Operate extends Backend
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
             $total = $this->model
                 ->with('user')
-                ->where($where)
+                ->where($map)
+                ->whereOr($where)
                 ->order($sort, $order)
                 ->count();
 
             $list = $this->model
                 ->with('user')
                 ->where($where)
+                ->whereOr($map)
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();

@@ -20,5 +20,9 @@ return [
     'app\admin\command\MachineOperateStatistics',
 
     //视频
-    'app\common\command\video\Stat'
+    'app\common\command\video\Stat',
+    'app\common\command\video\CoverImg',
+
+    //活动
+    'app\common\command\activity\UpdateImg',
 ];

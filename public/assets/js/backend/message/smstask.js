@@ -5,7 +5,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'message/sms_task/index',
+                    index_url: 'message/smstask/index',
                     // add_url: 'message/smstask/add',
                     // edit_url: 'message/smstask/edit',
                     // del_url: 'message/smstask/del',
@@ -45,7 +45,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                         return false;
                                     },
                                     confirm:'确认发送?',
-                                    url: 'message/sms_task/send',
+                                    url: 'message/smstask/send',
                                     success: function (data, ret) {
                                         if (ret.code === 1){
                                             $('.btn-refresh').trigger('click');

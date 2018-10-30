@@ -36,7 +36,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     title: __('创建发送短信任务'),
                                     text: __('创建任务'),
                                     classname: 'btn btn-xs btn-info btn-dialog',
-                                    url: 'message/sms_task/add?template_code={template_code}'
+                                    url: 'message/smstask/add?template_code={template_code}'
                                 }
                             ]
                         }

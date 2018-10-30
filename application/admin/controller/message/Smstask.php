@@ -9,7 +9,7 @@ use app\common\controller\Backend;
  *
  * @icon fa fa-circle-o
  */
-class SmsTask extends Backend
+class Smstask extends Backend
 {
 
     protected $modelValidate=true;

@@ -35,9 +35,9 @@ class Video extends Model
         return $statusList;
     }
 
-    public function getPlayUrl($id, $status)
+    public function getPlayUrl($key, $status)
     {
-        VideoCommonModel::getPublicUrl($id, $status);
+        return VideoCommonModel::getPublicUrl($key, $status);
     }
 
     public function getProcessDoneTimeTextAttr($value, $data)
@@ -62,7 +62,7 @@ class Video extends Model
 
     public function getPlayUrlAttr($value, $data)
     {
-        return $this->getPlayUrl($data['id'], $data['status']);
+        return $this->getPlayUrl($data['key'], $data['status']);
     }
 
     protected function setProcessDoneTimeAttr($value)

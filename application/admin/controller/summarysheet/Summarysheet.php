@@ -1,6 +1,6 @@
 <?php
 
-namespace app\admin\controller\summary_sheet;
+namespace app\admin\controller\summarysheet;
 
 use app\common\controller\Backend;
 use think\Db;
@@ -10,7 +10,7 @@ use think\Db;
  *
  * @icon fa fa-circle-o
  */
-class SummarySheet extends Backend
+class Summarysheet extends Backend
 {
 
     /**

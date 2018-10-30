@@ -5,23 +5,23 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'summary_sheet.summary_sheet/index',
+                    index_url: 'summarysheet.summarysheet/index',
                     add_url: '',
                     edit_url: '',
                     del_url: '',
                     multi_url: '',
                     table: 'summary_sheet',
-                    // echart_url: 'summary_sheet.summary_sheet/addEchart',
+                    // echart_url: 'summarysheet.summarysheet/addEchart',
                 }
             });
             //
             // var table = $("#table");
             // 版本列表
-            var version_list = $.getJSON('summary_sheet.summary_sheet/versionList');
+            var version_list = $.getJSON('summarysheet.summarysheet/versionList');
             // 渠道列表
-            var channel_list = $.getJSON('summary_sheet.summary_sheet/channelList');
+            var channel_list = $.getJSON('summarysheet.summarysheet/channelList');
             // 操作类型
-            var operate_list = $.getJSON('summary_sheet.summary_sheet/operateType');
+            var operate_list = $.getJSON('summarysheet.summarysheet/operateType');
             //
             // // 初始化表格
             // table.bootstrapTable({
@@ -161,7 +161,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                 var page = echart.bootstrapTable('getData');
                 var all = echart.bootstrapTable('getOptions').totalRows;
                 console.log(ids, page, all);
-                Layer.confirm("确认导出数据<form action='" + Fast.api.fixurl("summary_sheet/summary_sheet/export") + "' method='post' target='_blank'><input type='hidden' name='ids' value='' /><input type='hidden' name='filter' ><input type='hidden' name='op'><input type='hidden' name='search'><input type='hidden' name='columns'></form>", {
+                Layer.confirm("确认导出数据<form action='" + Fast.api.fixurl("summarysheet/summarysheet/export") + "' method='post' target='_blank'><input type='hidden' name='ids' value='' /><input type='hidden' name='filter' ><input type='hidden' name='op'><input type='hidden' name='search'><input type='hidden' name='columns'></form>", {
                     title: '导出数据',
                     btn: ["确认"],
                     success: function (layero, index) {

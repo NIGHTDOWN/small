@@ -147,7 +147,7 @@ class Video extends Model
     public static function getPublicUrl($key,$status)
     {
         if (in_array($status,[self::STATUS['hide'],self::STATUS['display']])){
-            $url=config('site.original_url').'/'.$key.'.mp4';
+            $url=config('site.original_url').'/'.$key;
         }else{
             $url=config('site.public_url').'/'.$key;
         }

@@ -9,7 +9,7 @@ use app\common\controller\Backend;
  *
  * @icon fa fa-circle-o
  */
-class TopData extends Backend
+class Topdata extends Backend
 {
     protected $searchFields=['video.title'];
 

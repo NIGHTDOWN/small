@@ -136,23 +136,23 @@ class WQiniu{
     }
 
     public static function getUploadNotifyUrl(){
-        return self::getDomain().url('api/QiniuNotify/upload');
+        return self::getDomain().url('/api/QiniuNotify/upload');
     }
 
     public static function getScreenShotNotifyUrl(){
-        return self::getDomain().url('api/QiniuNotify/screenshot');
+        return self::getDomain().url('/api/QiniuNotify/screenshot');
     }
 
     public static function getTranscodePublicVideoNotifyUrl(){
-        return self::getDomain().url('api/QiniuNotify/transcodePublicVideo');
+        return self::getDomain().url('/api/QiniuNotify/transcodePublicVideo');
     }
 
     public static function getTranscodePrivateVideoNotifyUrl(){
-        return self::getDomain().url('api/QiniuNotify/transcodePrivateVideo');
+        return self::getDomain().url('/api/QiniuNotify/transcodePrivateVideo');
     }
 
     public static function getSaveOriginalVideoNotifyUrl(){
-        return self::getDomain().url('api/QiniuNotify/saveOriginalVideo');
+        return self::getDomain().url('/api/QiniuNotify/saveOriginalVideo');
     }
 
     public static function getJoinParams($params){

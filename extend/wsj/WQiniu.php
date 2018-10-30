@@ -105,11 +105,7 @@ class WQiniu{
     }
 
     public static function getDomain(){
-        if (request()->isCli()){
-            $domain=config('other.server_domain');
-        }else{
-            $domain=request()->domain();
-        }
+        $domain=config('site.video_coding_call');
         return $domain;
     }
 

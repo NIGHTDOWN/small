@@ -36,7 +36,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                     bottom: '3%',
                     containLabel: true
                 }],
-                series: echartConfig.stat.data
+                series: Config.stat.data
             };
 
             // 使用刚指定的配置项和数据显示图表。

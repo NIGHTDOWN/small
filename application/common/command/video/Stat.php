@@ -9,7 +9,7 @@ class Stat extends Command
 {
     protected function configure()
     {
-        $this->setName('Stat')->setDescription('统计');
+        $this->setName('VideoStat')->setDescription('视频统计');
     }
 
     protected function execute(Input $input, Output $output)

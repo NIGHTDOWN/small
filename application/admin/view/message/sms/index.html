@@ -10,7 +10,7 @@
                         <a href="javascript:;" class="btn btn-success btn-add {:$auth->check('message/sms/add')?'':'hide'}" title="{:__('Add')}" ><i class="fa fa-plus"></i> {:__('Add')}</a>
                         <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled {:$auth->check('message/sms/edit')?'':'hide'}" title="{:__('Edit')}" ><i class="fa fa-pencil"></i> {:__('Edit')}</a>
                         <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled {:$auth->check('message/sms/del')?'':'hide'}" title="{:__('Delete')}" ><i class="fa fa-trash"></i> {:__('Delete')}</a>
-                        <a href="<?php echo url('/admin/message/smstask/index') ?>" class="btn btn-success btn-dialog {:$auth->check('message/smstask/index?')?'':'hide'}" title="{:__('短信发送任务列表')}" ></i> {:__('任务列表')}</a>
+                        <a href="<?php echo url('/admin/message/sms_task/index') ?>" class="btn btn-success btn-dialog {:$auth->check('message/sms_task/index?')?'':'hide'}" title="{:__('短信发送任务列表')}" ></i> {:__('任务列表')}</a>
 <!--                        <a href="javascript:;" class="btn btn-danger btn-import {:$auth->check('message/sms/import')?'':'hide'}" title="{:__('Import')}" id="btn-import-file" data-url="ajax/upload" data-mimetype="csv,xls,xlsx" data-multiple="false"><i class="fa fa-upload"></i> {:__('Import')}</a>-->
 
 <!--                        <div class="dropdown btn-group {:$auth->check('message/sms/multi')?'':'hide'}">-->

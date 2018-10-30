@@ -64,7 +64,7 @@ class Appversion extends Model
         $app_version_code = $data['app_version_code'];
         $update_describe = $data['update_describe'];
         $update_type = $data['update_type'];
-        $input_down_list = $data['down_list'];
+        $down_url = $data['down_url'];
         $status = $data['status'];
         $admin_id = Session::get('admin')['id'];
         $db = Db::name('app_version');
@@ -75,7 +75,7 @@ class Appversion extends Model
             'update_describe' => $update_describe,
             'update_type' => $update_type,
             'last_mod_admin_id' => $admin_id,
-            'down_list' => $input_down_list,
+            'down_url' => $down_url,
             'update_time' => $now,
             'status'=>$status,
         ]);
@@ -99,7 +99,7 @@ class Appversion extends Model
         $app_version_code = $data['app_version_code'];
         $update_describe = $data['update_describe'];
         $update_type = $data['update_type'];
-        $input_down_list = $data['down_list'];
+        $down_url = $data['down_url'];
         $status = $data['status'];
 
         $admin_id = Session::get('admin')['id'];
@@ -111,7 +111,7 @@ class Appversion extends Model
             'update_describe' => $update_describe,
             'update_type' => $update_type,
             'create_admin_id' => $admin_id,
-            'down_list' => $input_down_list,
+            'down_url' => $down_url,
             'create_time'=>$now,
             'update_time' => $now,
             'status'=>$status,

@@ -169,7 +169,10 @@ define(['jquery', 'bootstrap', 'moment', 'moment/locale/zh-cn', 'bootstrap-table
                     if (url.indexOf("{ids}") !== -1) {
                         url = Table.api.replaceurl(url, {ids: ids.length > 0 ? ids.join(",") : 0}, table);
                     }
-                    Fast.api.open(url, __('Add'), $(this).data() || {});
+                    if($(this).size()<=1){
+                        Fast.api.open(url, __('Add'), $(this).data() || {});
+                    }
+
                 });
                 // 导入按钮事件
                 if ($(Table.config.importbtn, toolbar).size() > 0) {

@@ -114,6 +114,8 @@ define(['jquery', 'bootstrap', 'toastr', 'layer', 'lang'], function ($, undefine
             },
             //打开一个弹出窗口
             open: function (url, title, options) {
+                var times = $(".layui-layer-iframe").attr('times')
+
                 title = title ? title : "";
                 url = Fast.api.fixurl(url);
                 url = url + (url.indexOf("?") > -1 ? "&" : "?") + "dialog=1";
@@ -177,7 +179,9 @@ define(['jquery', 'bootstrap', 'toastr', 'layer', 'lang'], function ($, undefine
                     options.area = [top.$(".tab-pane.active").width() + "px", top.$(".tab-pane.active").height() + "px"];
                     options.offset = [top.$(".tab-pane.active").scrollTop() + "px", "0px"];
                 }
-                return Layer.open(options);
+                if(typeof(times)==='undefined') {
+                    return Layer.open(options);
+                }
             },
             //关闭窗口并回传数据
             close: function (data) {

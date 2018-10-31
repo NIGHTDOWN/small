@@ -68,7 +68,7 @@ class ActivityTop extends Model
                     ->column('key,status', 'id');
                 foreach ($value['data'] as $k => $val) {
                     $top[$key]['data'][$k]['video_play_url'] = isset($video_keys[$val['video_id']]) ?
-                        Video::getPlayUrl($video_keys[$val['video_id']]['key'], $video_keys[$val['video_id']]['status']) : '';
+                        model('Video')->getPlayUrl($video_keys[$val['video_id']]['key'], $video_keys[$val['video_id']]['status']) : '';
                 }
             }
             $top[$key]['text'] = CommonActivity::$matchText[$key];

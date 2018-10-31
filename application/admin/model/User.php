@@ -4,6 +4,7 @@ namespace app\admin\model;
 
 use think\Model;
 use app\common\model\User as UserCommonModel;
+use app\common\model\Robot as RobotCommonModel;
 
 class User extends Model
 {
@@ -87,8 +88,14 @@ class User extends Model
             }
         }
         $old_head_img=$this->getAttr('head_img');
-        $ret=$this->save($data);
+        $ret=$this->allowField(['nickname','head_img','password','mobile','group_id','is_robot','status'])->save($data);
         if ($ret){
+            //机器人id
+            if ($this->getAttr('is_robot')){
+                RobotCommonModel::addIdToRobotUserIdsCache($this->getAttr('id'));
+            }else{
+                RobotCommonModel::delIdFromRobotUserIdsCache($this->getAttr('id'));
+            }
             //头像处理
             if (isset($data['head_img'])){
                 if ($old_head_img&&($data['head_img']!=$old_head_img)){

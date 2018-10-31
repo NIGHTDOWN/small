@@ -293,7 +293,6 @@ class Ajax extends Backend
         switch ($type) {
             case 'content' || 'all':
                 rmdirs(CACHE_PATH, false);
-                Cache::clear();
                 if ($type == 'content')
                     break;
             case 'template' || 'all':

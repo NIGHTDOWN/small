@@ -63,4 +63,6 @@ return array (
   'sms_code_login' => 'SMS_145598458',
   'private_bucket' => 'videopri1',
   'private_url' => 'https://pa1ooso5l.bkt.clouddn.com',
+  'original_url' => 'http://p5kmv2o0x.bkt.clouddn.com',
+  'public_url' => 'https://videopub.actuive.com'
 );

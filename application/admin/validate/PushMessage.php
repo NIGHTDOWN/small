@@ -29,7 +29,7 @@ class PushMessage extends Validate
         'user_range'=>['require','in'=>PushMessageCommonModel::USER_RANGE,'checkTargetUserIds'],
         'target_user_ids'=>['regex'=>'^[0-9|,]+$'],
         'is_now'=>'require|in:0,1',
-        'send_time'=>'require|data|checkSendTime',
+        'send_time'=>'require|date|checkSendTime',
         'msg_type'=>'require|in:0,1',
     ];
     /**

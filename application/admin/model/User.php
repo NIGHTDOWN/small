@@ -122,7 +122,7 @@ class User extends Model
      */
     public function del()
     {
-        $ret = $this->delete();
+        $ret = $this->save(['status'=>UserCommonModel::STATUS['delete']]);
         if ($ret){
             //删除头像
             UserCommonModel::deleteHeadImgFile($this->getAttr('head_img'));

@@ -15,7 +15,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             });
 
             var table = $("#table");
-            var paymentText = {0: '微信', 1: '支付宝'};
+            var paymentText = {0: '支付宝', 1: '微信'};
             var statusText = {0: '审核中', 1: '已打款', 2: '审核未通过', 3: '已到账', 4: '打款失败', 5: '财务审核通过', 6: '审核通过', 7: '财务审核未通过'};
 
             // 初始化表格

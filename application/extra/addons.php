@@ -8,6 +8,10 @@ return array (
           array (
               0 => 'Qnupload',
           ),
+      'sms_send' =>
+          array (
+              0 => 'Alisms',
+          ),
   ),
   'route' => 
   array (

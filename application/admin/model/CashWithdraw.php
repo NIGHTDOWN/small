@@ -146,6 +146,7 @@ class CashWithdraw extends Model
                 return false;
             }
         }
+        return true;
     }
 
     /**

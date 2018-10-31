@@ -35,8 +35,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true},
                         {field: 'id', title: __('Id'),sortable:true},
                         {field: 'word', title: __('Word')},
-                        {field: 'order_sort', title: __('置顶'),searchList:base_data.order_sort_list,formatter:Table.api.formatter.toggle,yes:'1',no:'0'},
-                        {field: 'status', title: __('Status'),searchList:base_data.status_list,formatter:Table.api.formatter.toggle,yes:'1',no:'0'},
+                        {field: 'order_sort', title: __('置顶'),searchList:{0:'否',1:'是'},formatter:Table.api.formatter.toggle,yes:'1',no:'0'},
+                        {field: 'status', title: __('Status'),searchList:{0:'隐藏',1:'显示'},formatter:Table.api.formatter.toggle,yes:'1',no:'0'},
                         {field: 'use_count', title: __('Use_count'),sortable:true,operate:false},
                         {field: 'create_time', title: __('Create_time'),sortable:true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}

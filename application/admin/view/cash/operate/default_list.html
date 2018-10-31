@@ -63,7 +63,7 @@ var Controller = {
 	},
 	Initialization: function() {
 		$.ajax({
-			url: document.location.protocol + '//' + window.location.host + '/{$module}/{$controller}/default_list',
+			url: document.location.protocol + '//' + window.location.host + '/{$module}/cash/operate/default_list',
 			type: 'POST',
 			dataType: 'json',
 		}).done(function (result) {

@@ -16,7 +16,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 extend: {
                     index_url: 'user/user/index',
                     edit_url: 'user/user/edit',
-                    del_url: 'user/user/del',
+                    // del_url: 'user/user/del',
                     set_robot_param: 'user/user/set_robot_param',
                     set_active_param: 'user/user/set_active_param',
                     table: 'user',
@@ -48,10 +48,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'group_id', title: '用户组', searchList: base_data.group_list,formatter:function (value) {
                             return base_data.group_list[value];
                         }},
-                        {field: 'is_robot', title: '机器人', searchList: base_data.is_robot,formatter:function (value) {
+                        {field: 'is_robot', title: '机器人', searchList: {0:'否',1:'是'},formatter:function (value) {
                             return base_data.is_robot[value];
                         }},
-                        {field: 'status', title: __('Status'),searchList: base_data.status_list,formatter:function (value) {
+                        {field: 'status', title: __('Status'),searchList: {0:'禁用',1:'正常'},formatter:function (value) {
                             return base_data.status_list[value];
                         }},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}

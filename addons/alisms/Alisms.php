@@ -21,7 +21,7 @@ class Alisms
         $accessKeySecret = 'IseOzJdK0gi5S5HT9vnlUnKTZP8BlS';
         $domain = 'dysmsapi.aliyuncs.com';
         $params['PhoneNumbers'] = $param['mobile'];
-        $params['SignName'] = Config::get('site')['sign_name'];
+        $params['SignName'] = Config::get('site')['sms_sign_name'];
         $params['TemplateCode'] = Config::get('site')['sms_'.$param['event']];
         // fixme 可选: 设置模板参数, 假如模板中存在变量需要替换则为必填项
         

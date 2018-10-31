@@ -114,7 +114,6 @@ define(['jquery', 'bootstrap', 'toastr', 'layer', 'lang'], function ($, undefine
             },
             //打开一个弹出窗口
             open: function (url, title, options) {
-
                 title = title ? title : "";
                 url = Fast.api.fixurl(url);
                 url = url + (url.indexOf("?") > -1 ? "&" : "?") + "dialog=1";
@@ -179,7 +178,7 @@ define(['jquery', 'bootstrap', 'toastr', 'layer', 'lang'], function ($, undefine
                     options.offset = [top.$(".tab-pane.active").scrollTop() + "px", "0px"];
                 }
                 var times = $(".layui-layer-iframe").attr('times')
-                if(typeof(times)==='undefined') {
+                if(typeof(times)==='undefined'||title=='选择') {
                     return Layer.open(options);
                 }
             },

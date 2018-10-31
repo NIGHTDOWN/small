@@ -195,7 +195,7 @@ class OpinionFeedback extends Model
             ->alias('f')
             ->join('user u','f.user_id=u.id','left')
             ->join('admin a','f.user_id=a.id','left')
-            ->field('f.parent_id,f.type,f.content,f.image,f.create_time,f.user_id,f.id,u.nickname,a.nickname')
+            ->field('f.parent_id,f.type,f.content,f.image,f.create_time,f.user_id,f.id,u.nickname as uname,a.nickname as aname')
             ->where($where)
             ->order($param['order_field'],$param['order_direction']?'desc':'asc')
             ->paginate($param['limit'])
@@ -203,7 +203,7 @@ class OpinionFeedback extends Model
 
         foreach ($data['data'] as $key => &$value) {
             $data['data'][$key]['create_time'] = date("Y-m-d H:i",$data['data'][$key]['create_time']);
-            $data['data'][$key]['username']  = ($data['data'][$key]['type']==0) ? $data['data'][$key]['nickname'] :$data['data'][$key]['nickname'];
+            $data['data'][$key]['username']  = ($data['data'][$key]['type']==0) ? $data['data'][$key]['uname'] :$data['data'][$key]['aname'];
             // $data['data'][$key]['image']=$data['data'][$key]['image']?self::getImageUrl($data['data'][$key]['image']):'';
             unset($data['data'][$key]['nickname']);
             unset($data['data'][$key]['admin']);

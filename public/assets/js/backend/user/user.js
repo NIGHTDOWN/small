@@ -16,7 +16,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 extend: {
                     index_url: 'user/user/index',
                     edit_url: 'user/user/edit',
-                    del_url: 'user/user/del',
+                    // del_url: 'user/user/del',
                     set_robot_param: 'user/user/set_robot_param',
                     set_active_param: 'user/user/set_active_param',
                     table: 'user',

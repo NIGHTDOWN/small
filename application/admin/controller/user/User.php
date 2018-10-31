@@ -117,7 +117,7 @@ class User extends Backend
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : true) : $this->modelValidate;
                         $row->validate($validate);
                     }
-                    $result = $row->allowField(['nickname','head_img','password','mobile','group_id','status'])->edit($params);
+                    $result = $row->edit($params);
                     if ($result !== false) {
                         $this->success();
                     } else {
@@ -133,6 +133,7 @@ class User extends Backend
         }
         $this->view->assign("row", $row);
         $this->view->assign('status_list',$this->model->getStatusList());
+        $this->view->assign('isRobotList',$this->model->getIsRobotList());
         /** @var \app\admin\model\UserGroup $group_model */
         $group_model=model('user_group');
         $this->view->assign('group_list',$group_model->getList());

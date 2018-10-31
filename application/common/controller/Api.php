@@ -337,4 +337,30 @@ class Api
         define('APP_VERSION',       $header['app-version'] ?? '');  //app版本
         define('CLIENT_DEVICEID',   $header['deviceid'] ?? '');  //设备id
     }
+
+    public function apiResult($code = 0, $msg = '', $data = [])
+    {
+        return $this->apiReturn($data, $code, $msg);
+    }
+
+    public function apiReturn($data = [], $code = 0, $msg = '', $type = 'app', $extra = [])
+    {
+        //code必须为整型或者整型字符串
+        if (filter_var($code, FILTER_VALIDATE_INT) === false) {
+            $code = -1;
+        }
+        if(strlen($msg) == 0) {
+            $msg = get_code_msg($code, $type);
+        }
+        $result = [
+            'code' => $code,
+            'time' => time(),
+            'msg'  => $msg,
+            'data' => $data ? $data : new \stdClass(),
+        ];
+
+        if($extra) $result = array_merge($result, $extra);
+        $response = Response::create($result, 'JSON',200, [], ['json_encode_param' => JSON_UNESCAPED_SLASHES]);
+        throw new HttpResponseException($response);
+    }
 }

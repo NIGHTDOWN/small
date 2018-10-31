@@ -37,7 +37,7 @@
                                 <td>{$item.video_name}</td>
                                 <td>{$item.popular_value}</td>
                                 <td>{$item.ranking}</td>
-                                <td><a href="{:url('/admin/activity/activity/play/video_id/')}{$item.video_id}" class="btn btn-xs btn-warning btn-dialog">查看视频</a></td>
+                                <td><a href="{:url('/admin/activity/activity/play/video_id/')}{$item.video_id}" class="btn btn-xs btn-primary btn-dialog" title="查看视频" data-table-id="table">查看视频</a></td>
                             </tr>
                             {/foreach}
                         </tbody>

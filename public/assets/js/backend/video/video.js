@@ -116,6 +116,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                             }
                                         }
                                         return true;
+                                    },
+                                    success: function (data, ret) {
+                                        if (ret.code === 1){
+                                            $('.btn-refresh').trigger('click');
+                                        }
                                     }
                                 },
                                 {

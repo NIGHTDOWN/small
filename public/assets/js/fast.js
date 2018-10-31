@@ -114,7 +114,6 @@ define(['jquery', 'bootstrap', 'toastr', 'layer', 'lang'], function ($, undefine
             },
             //打开一个弹出窗口
             open: function (url, title, options) {
-                var times = $(".layui-layer-iframe").attr('times')
 
                 title = title ? title : "";
                 url = Fast.api.fixurl(url);
@@ -179,6 +178,7 @@ define(['jquery', 'bootstrap', 'toastr', 'layer', 'lang'], function ($, undefine
                     options.area = [top.$(".tab-pane.active").width() + "px", top.$(".tab-pane.active").height() + "px"];
                     options.offset = [top.$(".tab-pane.active").scrollTop() + "px", "0px"];
                 }
+                var times = $(".layui-layer-iframe").attr('times')
                 if(typeof(times)==='undefined') {
                     return Layer.open(options);
                 }

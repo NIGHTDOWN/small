@@ -14,6 +14,7 @@ class User extends Validate
         'password'=>'密码',
         'mobile'=>'手机号',
         'group_id'=>'用户组ID',
+        'is_robot'=>'是否机器人',
         'status'=>'状态',
     ];
     /**
@@ -26,6 +27,7 @@ class User extends Validate
         'password'=>'alphaNum|length:6,16',
         'mobile'=>'checkMobile|unique:user',
         'group_id'=>'require|integer',
+        'is_robot'=>'require|integer',
         'status'=>['require','in'=>UserCommonModel::STATUS],
     ];
     /**

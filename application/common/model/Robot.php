@@ -52,41 +52,48 @@ class Robot extends Model
      */
     public static function initRobotUserIdsCache()
     {
-        $cache_key=self::ROBOT_USER_IDS_CACHE_KEY;
-        if(Cache::has($cache_key)){
-            Cache::rm($cache_key);
-        }
+        $cache_key=get_cache_prefix().self::ROBOT_USER_IDS_CACHE_KEY;
+        /** @var \Redis $redis */
         $redis=Cache::init()->handler();
         Db::name('user')
             ->field(['id'])
             ->where(['is_robot'=>['eq',1]])
             ->chunk(100,function ($robot_users) use ($redis,$cache_key){
+                $user_ids=[];
                 foreach ($robot_users as $robot_user){
-                    $redis->sAdd(get_cache_prefix().$cache_key,$robot_user['id']);
+                    $user_ids[]=$robot_user['id'];
                 }
+                $redis->sAdd($cache_key,...$user_ids);
             });
     }
 
     /**
      * 增加一个机器人user_id到缓存
      * @param $robot_user_id
+     * @return int
      */
     public static function addIdToRobotUserIdsCache($robot_user_id)
     {
-        $cache_key=self::ROBOT_USER_IDS_CACHE_KEY;
+        $cache_key=get_cache_prefix().self::ROBOT_USER_IDS_CACHE_KEY;
+        /** @var \Redis $redis */
         $redis=Cache::init()->handler();
-        $redis->sAdd(get_cache_prefix().$cache_key,$robot_user_id);
+        if (!$redis->exists($cache_key)){
+            self::initRobotUserIdsCache();
+        }
+        return $redis->sAdd($cache_key,$robot_user_id);
     }
 
     /**
      * 从缓存删除一个机器人user_id
      * @param $robot_user_id
+     * @return int
      */
     public static function delIdFromRobotUserIdsCache($robot_user_id)
     {
-        $cache_key=self::ROBOT_USER_IDS_CACHE_KEY;
+        $cache_key=get_cache_prefix().self::ROBOT_USER_IDS_CACHE_KEY;
+        /** @var \Redis $redis */
         $redis=Cache::init()->handler();
-        $redis->sRem(get_cache_prefix().$cache_key,$robot_user_id);
+        return $redis->sRem($cache_key,$robot_user_id);
     }
 
     /**
@@ -96,26 +103,29 @@ class Robot extends Model
      */
     public static function randomGetMultiRobotUserId($number)
     {
-        $cache_key=self::ROBOT_USER_IDS_CACHE_KEY;
-        if (!Cache::has($cache_key)){
+        $cache_key=get_cache_prefix().self::ROBOT_USER_IDS_CACHE_KEY;
+        /** @var \Redis $redis */
+        $redis=Cache::init()->handler();
+        if (!$redis->exists($cache_key)){
             self::initRobotUserIdsCache();
         }
-        $redis=Cache::init()->handler();
-        return $redis->sRandMember(get_cache_prefix().$cache_key,$number);
+        return $redis->sRandMember($cache_key,$number);
     }
 
     /**
      * 用户是否为机器人
      * @param $user_id
+     * @return bool
      */
     public static function isRobot($user_id)
     {
-        $cache_key=self::ROBOT_USER_IDS_CACHE_KEY;
-        if (!Cache::has($cache_key)){
+        $cache_key=get_cache_prefix().self::ROBOT_USER_IDS_CACHE_KEY;
+        /** @var \Redis $redis */
+        $redis=Cache::init()->handler();
+        if (!$redis->exists($cache_key)){
             self::initRobotUserIdsCache();
         }
-        $redis=Cache::init()->handler();
-        return $redis->sIsMember(get_cache_prefix().$cache_key,$user_id);
+        return $redis->sIsMember($cache_key,$user_id);
     }
 
     /**

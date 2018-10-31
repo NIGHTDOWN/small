@@ -14,13 +14,44 @@ use think\Validate;
 class User extends Api
 {
 
-    protected $noNeedLogin = ['login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third'];
+    protected $noNeedLogin = ['loginSms', 'login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third'];
     protected $noNeedRight = '*';
 
     public function _initialize()
     {
         parent::_initialize();
     }
+
+    /**
+     * 登陆验证码
+     */
+    public function loginSms()
+    {
+        if ($this->request->isPost()) {
+            $mobile = input('post.mobile/s');
+            /** @var \app\api\model\User $logic */
+            $logic = model('User','logic');
+            $ret = $logic->getLoginSms($mobile);
+            if ($ret) {
+                $this->apiResult();
+            } else {
+                $this->apiResult($logic->getError());
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * 会员中心

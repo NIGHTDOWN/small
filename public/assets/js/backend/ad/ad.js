@@ -43,7 +43,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'order_sort', title: __('Order_sort'),sortable: true},
                         {field: 'start_time', title: __('开始时间'),sortable: true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'end_time', title: __('结束时间'),sortable: true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        {field: 'status', title: __('Status'), searchList: base_data.status_list, formatter: Table.api.formatter.status},
+                        {field: 'status', title: __('Status'), searchList: {0:'关闭',1:'开启'}, formatter: Table.api.formatter.status},
                         {field: 'create_time', title: __('Create_time'),sortable: true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'update_time', title: __('Update_time'),sortable: true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}

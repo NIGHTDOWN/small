@@ -5,13 +5,13 @@ namespace app\admin\controller\cash;
 use app\common\controller\Backend;
 
 /**
- * 
+ *
  *
  * @icon fa fa-circle-o
  */
 class Operate extends Backend
 {
-    
+
     /**
      * Withdraw模型对象
      * @var \app\admin\model\cash\Withdraw
@@ -26,13 +26,13 @@ class Operate extends Backend
         $this->model = new \app\admin\model\CashWithdraw();
 
     }
-    
+
     /**
      * 默认生成的控制器所继承的父类中有index/add/edit/del/multi五个基础方法、destroy/restore/recyclebin三个回收站方法
      * 因此在当前控制器中可不用编写增删改查的代码,除非需要自己控制这部分逻辑
      * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
      */
-    
+
 
     /**
      * 查看
@@ -128,7 +128,7 @@ class Operate extends Backend
 
     /**
      * 默认文案
-     * 
+     *
      * @return [type] [description]
      */
     public function default_list()
@@ -147,9 +147,9 @@ class Operate extends Backend
         return $this->view->fetch();
     }
 
-   /**
-    * 添加提现文案
-    */
+    /**
+     * 添加提现文案
+     */
     public function add()
     {
         if ($this->request->isPost()) {
@@ -170,7 +170,7 @@ class Operate extends Backend
 
     /**
      * 更新文案
-     * 
+     *
      * @return [type] [description]
      */
     public function update()
@@ -189,7 +189,7 @@ class Operate extends Backend
 
     /**
      * 删除文案
-     * 
+     *
      * @return [type] [description]
      */
     public function delete()

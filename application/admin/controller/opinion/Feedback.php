@@ -65,10 +65,9 @@ class Feedback extends Backend
                 ])
                 ->limit($offset, $limit)
                 ->select();
-
             foreach ($list as $key => $value) {
                  $value->visible(['id', 'content', 'create_time', 'reply_status']);
-                $value->visible(['user']);
+                $value->visible(['user.nickname']);
                 $value->getRelation('user')->visible(['nickname']);
             }
             $list = collection($list)->toArray();

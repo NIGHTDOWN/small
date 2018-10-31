@@ -47,7 +47,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'quantity_condition', title: __('数量条件')},
                         {field: 'create_time', title: __('Create_time'), sortable: true, operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {field: 'update_time', title: __('Update_time'),  sortable: true,operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
-                        {field: 'status', title: __('状态'),searchList: base_data.statusList,formatter:function (value) {
+                        {field: 'status', title: __('状态'),searchList: {0:'关闭',1:'开启'},formatter:function (value) {
                             return base_data.statusList[value]
                         }},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate,

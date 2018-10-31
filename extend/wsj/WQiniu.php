@@ -7,9 +7,8 @@
  */
 //七牛操作类
 namespace wsj;
-use app\common\logic\ActivityTop;
-use app\common\logic\Robot;
-use app\common\logic\User;
+use app\common\model\ActivityTop;
+use app\common\model\Robot;
 use app\common\model\Video;
 use \Qiniu\Auth;
 use \Qiniu\Storage\BucketManager;
@@ -17,8 +16,6 @@ use \Qiniu\Processing\PersistentFop;
 use Qiniu\Storage\UploadManager;
 use think\Db;
 use think\exception\ErrorException;
-use think\facade\Log;
-use Yurun\Until\Lock\Redis;
 
 class WQiniu{
     public static $qiniuConfig;
@@ -271,7 +268,7 @@ class WQiniu{
             $vid =$video_info['resource_id'];
             Db::name('resource_video')->where('resource_id','eq',$vid)->update(['process_status' => 1]);
         }
-        $duration = tofloat2($video_info['duration']);
+        $duration = round($video_info['duration'],2);
         $middle_sec = $duration / 2;
         $secs = [0,intval($middle_sec),floor($duration)-1];
         $prefopids = [];
@@ -355,23 +352,12 @@ class WQiniu{
             'time' => time(),
             'status' => 1,
         ];
-        $cache_config = config('cache.');
-        if(strtolower($cache_config['type']) == 'redis'){
-            $redis_config  = [];
-            if(isset($cache_config['host'])) $redis_config['host']  = $cache_config['host'];
-            if(isset($cache_config['port'])) $redis_config['port']  = $cache_config['port'];
-            if(isset($cache_config['password'])) $redis_config['password']  = $cache_config['password'];
-            $lock_key = 'screenshot_lock_'.$video_type.$vid;
-            $lock = new Redis($lock_key,$redis_config);
-            $lock->lock();
-        }
         Db::name('screenshot')->where('id','eq',$obj['id'])->update($data);
         $count = Db::name('screenshot')->master()->where([
-            ['vid','eq',$vid],
-            ['video_type','eq',$video_type],
-            ['status','eq',1],
+            'vid'=>['eq',$vid],
+            'video_type'=>['eq',$video_type],
+            'status'=>['eq',1],
         ])->count();
-        if(isset($lock)) $lock->unlock();
         if($count >= 3){
 
             if ( $video_type == 0 ) {
@@ -386,8 +372,8 @@ class WQiniu{
                 $cover_imgs = Db::name('screenshot')
                     ->master()
                     ->where([
-                        ['vid','eq',$vid],
-                        ['video_type','eq',$video_type],
+                        'vid'=>['eq',$vid],
+                        'video_type'=>['eq',$video_type],
                     ])
                     ->order('order_sort ASC')
                     ->column('file_name');
@@ -404,7 +390,7 @@ class WQiniu{
             }else{
                 if ($video_info['save_original_bkt']) {
                     $cover_imgs = ($video_type == 0) ? Db::name('video_extend')->where('video_id','eq',$vid)->value('cover_imgs') : $video_info['cover_imgs'];
-                    Video::displayCoverImgs($video_info['exists_cover_img'],$cover_imgs);
+//                    Video::displayCoverImgs($video_info['exists_cover_img'],$cover_imgs);
                 }
             }
 
@@ -418,21 +404,21 @@ class WQiniu{
                 if($video_type == 0){
                     Db::name('video')->where('id','eq',$vid)->update([
                         'process_status' => 0,
-                        'status' => Video::$status['ROBOT_FAILD']
+                        'status' => Video::STATUS['robot_fail']
                     ]);
                 }else{
                     Db::name('resource_video')->where('resource_id','eq',$vid)->update([
                         'process_status' => 0,
-                        'status' => Video::$status['ROBOT_FAILD']
+                        'status' => Video::STATUS['robot_fail']
                     ]);
                 }
             }else{
                 //合法
                 if($video_type == 0){
-                    $video_status = Video::$status['ROBOT_SUCCESS'];
+                    $video_status = Video::STATUS['robot_success'];
                     $user_info = Db::name('user')->where(['id' => $video_info['user_id'], 'status' => 1])->find();
-                    if ($user_info && $user_info['type'] == \app\common\model\User::TYPE['BIGV']) {
-                        $video_status = Video::$status['DISPLAY'];
+                    if ($user_info && $user_info['type'] == 2) {
+                        $video_status = Video::STATUS['display'];
                         self::transcodeVideo($vid);
                         ActivityTop::doTopData($vid);//启动排行数据
                     }
@@ -444,7 +430,7 @@ class WQiniu{
                 }else{
                     Db::name('resource_video')->where('resource_id','eq',$vid)->update([
                         'process_status' => 0,
-                        'status' => Video::$status['ROBOT_SUCCESS']
+                        'status' => Video::STATUS['robot_success']
                     ]);
                 }
             }
@@ -609,7 +595,7 @@ class WQiniu{
                     'status' => 1,
                 ]);
                 $vtable = $video_type == 0 ?  'video' : 'resource_video';
-                $map = $video_type == 0 ?  [['id','eq',$vid]] : [['resource_id','eq',$vid]];
+                $map = $video_type == 0 ?  ['id'=>['eq',$vid]] : ['resource_id'=>['eq',$vid]];
                 Db::name($vtable)->where($map)->setInc($type.'_video_transcode', 1);
                 $obj = $obj = Db::name($vtable)
                     ->master()
@@ -705,14 +691,14 @@ class WQiniu{
             ]);
             //发布视频过审任务
             \app\common\model\Mission::runMission('public_video_pass',$row['user_id']);
-            publishMessage([
+            publish_message([
                 'action' => 'newVideo',
                 'params' => [
                     'video_id' => $row['id'],
                 ],
             ]);
             //触发机器人
-            $data=User::getUserIsUploadVideo($row['user_id']);
+            $data=Db::name('video')->where(['user_id'=>['=', $row['user_id']],'status'=>['=',1]])->count();
             if($data) {
                 Robot::afterUserPutVideo($row['id'], $row['user_id']);
             }

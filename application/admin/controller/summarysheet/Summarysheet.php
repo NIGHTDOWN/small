@@ -46,8 +46,8 @@ class Summarysheet extends Backend
      */
     public function index()
     {
+        $model = model('SummarySheet');
         if ($this->request->isAjax()) {
-            $model = model('SummarySheet');
             // 搜索条件
             $param = json_decode(input('filter'),  true);
             list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
@@ -57,6 +57,8 @@ class Summarysheet extends Backend
 
             return json($list);
         }
+        $data = $model->getRow('register_total, activate_total', 'create_time desc');
+        $this->assign('data', $data);
         return $this->view->fetch('summarysheet/summarysheet/index');
     }
 

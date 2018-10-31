@@ -202,12 +202,9 @@ class SummarySheet extends Model
     {
         // app机器操作记录表
         $field[] = 'channel_id';
-
-        $list = $this->allRow($where, $field, 'day_time asc', 'day');
-
-//        dump($list);exit;
+        $list = $this->allRow($where, $field, 'day_time asc', 'day, channel_id');
+        // 提取渠道
         $listChannel = array_column($list, 'channel_id');
-
         // 按渠道分组
         $channel = $this->channelList($channel);
         $data = [];
@@ -222,9 +219,7 @@ class SummarySheet extends Model
                 }
             }
         }
-
-
-        // 取具体的数据列表 TODO 三个列表都合并一起
+        // 取具体的数据列表
         $result = [];
         if (empty($data)) {
             foreach ($timeData as $tk => $tv) {
@@ -240,18 +235,17 @@ class SummarySheet extends Model
                     // 如果元素内不包含当前日期就默认为0
                     if (!in_array($tv, $keyArr)) {
                         $result[$k][] = 0;
-//                    $result[$k][$field][] = 0;
                     }
                     foreach ($v as $vk => $vv) {
                         if ($vv['day'] == $tv) {
                             $result[$k][] = $vv[$column];
-//                        $result[$k][$field][] = $vv[$field];
                         }
                     }
                 }
             }
         }
 
+        // 若是周提取时间区间
         if (isset($param['show_time']) && $param['show_time'] == 1) {
             $timeData = $this->timeData($timeData);
         }
@@ -261,7 +255,6 @@ class SummarySheet extends Model
         } else {
             return [
                 'rows' => [
-//                    'list' => $list,
                     'list' => $result,
                     'time_data' => $timeData,
                     'operate' => $this->operate[$column]
@@ -337,6 +330,7 @@ class SummarySheet extends Model
      * @param $where
      * @param string $field
      * @param string $order
+     * @param $group
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
@@ -351,8 +345,24 @@ class SummarySheet extends Model
             ->order($order)
             ->group($group)
             ->select() ?: [];
-        // TODO 这里统计可能有误，需要用buildSql
         return $data;
+    }
+
+    /**
+     * 单条数据
+     * @param $field
+     * @param string $order
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function getRow($field, $order = '')
+    {
+        return Db::name('summary_sheet')
+            ->field($field)
+            ->order($order)
+            ->find() ?: [];
     }
 
     /**
@@ -456,14 +466,6 @@ class SummarySheet extends Model
     {
         // 搜索条件
         $param = json_decode(input('filter'),  true);
-//        if (isset($param['show_time'])) unset($param['show_time']);
-//        if (isset($param['operate_type'])) unset($param['operate_type']);
-//        if (isset($param['channel_id'])) unset($param['channel_id']);
-        // 统计列表
-//        list($param, $field, $column, $channel, $where, $timeData) = $this->filter(
-//            array_merge($param, ['show_time' => 0]));
-//        $list = $this->summaryList($fieldArr, $where, $order, $group);
-
         list($param, $field, $column, $channel, $where, $timeData) = $this->filter(
             $param);
         $list = $this->summaryList($field, $where, $order, $group);

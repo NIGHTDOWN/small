@@ -490,7 +490,12 @@ function get_day_in_range($range, $format, $time)
     $start_day = $range[0];
     $arr = [];
     for ($i = 0; $i < $days; $i++) {
-        $arr[] = date($format, $start_day + $i * $time);
+        if ($format == 'Y-W') {
+            $week = get_weeks_num($start_day + $i * $time);
+            $arr[] = date('Y-', $start_day + $i * $time) . $week;
+        } else {
+            $arr[] = date($format, $start_day + $i * $time);
+        }
     }
     return $arr;
 }
@@ -498,12 +503,16 @@ function get_day_in_range($range, $format, $time)
 /**
  * 周数对应的日期区间
  * @param $week
+ * @param $currentYear
  * @return array
  */
-function week_range($week)
+function week_range($week, $currentYear)
 {
     $time = $week * 7 * 24 * 60 *60; // 周数对应的时间戳
-    $firstDay = strtotime(date("Y",time()) . '0101'); // 今年的第一天
+    $firstDay = strtotime($currentYear . '0101'); // 当年的第一天
+    if (date('W', $firstDay) != 1) { // 如果当年的一月一日不是周一
+
+    }
     $weekStart = $time + $firstDay; // 算出周数所对应的那一天日期
     $weekEnd = $weekStart + (7 * 24 * 60 *60) - 1;
     return [$weekStart, $weekEnd];
@@ -527,4 +536,22 @@ function get_code_msg($code = 0, $type = 'app')
     }
 
     return isset($code_msgs[$config_file][$code]) ? $code_msgs[$config_file][$code] : '';
+}
+
+function get_weeks_num($time)
+{
+    $month = intval(date('m', $time));//当前时间的月份
+    $fyear = strtotime(date('Y-01-01', $time));//今年第一天时间戳
+    $fdate = intval(date('N', $fyear));//今年第一天 周几
+    $sysweek = intval(date('W', $time));//系统时间的第几周
+    //大于等于52 且 当前月为1时， 返回1
+    if (($sysweek >= 52 && $month == 1)) {
+        return 1;
+    } elseif ($fdate == 1) {
+        //如果今年的第一天是周一,返回系统时间第几周
+        return $sysweek;
+    } else {
+        //返回系统周+1
+        return $sysweek + 1;
+    }
 }

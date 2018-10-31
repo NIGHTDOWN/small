@@ -245,8 +245,8 @@ class Activity extends Model
         }
         // 已到开始时间的活动不能删除
         $now = time();
-        if ($now > $row['start_time']) {
-            $this->error = '已到开始时间的活动不能删除';
+        if ($now > $row['start_time']&&$now < $row['start_time']) {
+            $this->error = '不能删除正在进行的活动';
             return false;
         }
         $data = [

@@ -508,3 +508,23 @@ function week_range($week)
     $weekEnd = $weekStart + (7 * 24 * 60 *60) - 1;
     return [$weekStart, $weekEnd];
 }
+
+/**
+ * 获取code信息
+ * @param int $code
+ * @param string $type
+ * @return string
+ */
+function get_code_msg($code = 0, $type = 'app')
+{
+    static $code_msgs;
+    $config_file = $type == 'app' ?  'appcode' : 'managecode';
+    if (!$code_msgs) {
+        $code_msgs = [];
+    }
+    if (!isset($code_msgs[$config_file])) {
+        $code_msgs[$config_file] = config($config_file);
+    }
+
+    return isset($code_msgs[$config_file][$code]) ? $code_msgs[$config_file][$code] : '';
+}

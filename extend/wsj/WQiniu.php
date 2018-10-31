@@ -65,7 +65,7 @@ class WQiniu{
         if($config){
             self::$qiniuConfig = $config;
         }elseif (!self::$qiniuConfig){
-            self::$qiniuConfig = config('qiniu.');
+            self::$qiniuConfig = config('qiniu');
         }
         return self::$qiniuConfig;
     }

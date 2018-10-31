@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="__PUBLIC__/assets/libs/layui/css/layui.css" media="all">
+<link rel="stylesheet" href="/assets/libs/layui/css/layui.css" media="all">
 
 <style type="text/css">
   .layui-table-cell {
@@ -25,7 +25,7 @@
 
 <table id="tabel" lay-filter="test"></table>
 
-<script src="__PUBLIC__/assets/libs/layui/layui.all.js"></script>
+<script src="/assets/libs/layui/layui.all.js"></script>
 
 <script type="text/html" id="barDemo">
   {{# if (d.parent_id =="0"){}}
@@ -41,7 +41,7 @@ layui.use('table', function(){
   table.render({
     elem: '#tabel'
     ,height: 500
-    ,url: './{:url("opinion/feedback/detail")}/ids/{$ids}' //数据接口
+    ,url: '/admin/{:url("opinion/feedback/detail")}/ids/{$ids}' //数据接口
     ,method: 'POST'
     ,limits: [1, 10, 20]
     ,where: {

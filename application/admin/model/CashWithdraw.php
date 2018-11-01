@@ -60,10 +60,9 @@ class CashWithdraw extends Model
     {
         $map = ['status' => ['=', CommonWithdraw::STATUS['PAY_SUCCESS']]]; // 已到账状态
         if (!empty($param['start_time']) && !empty($param['end_time'])) {
-            $map[] = ['apply_time', 'between', [$param['start_time'], $param['end_time']]];
+            $map['apply_time'] = ['between', [$param['start_time'], $param['end_time']]];
         }
         $withdrawTotal = Db::name('cash_withdraw')->field("sum(price * apply_price) sum_count")->where($map)->find() ?: [];
-
         return isset($withdrawTotal['sum_count']) ? abs($withdrawTotal['sum_count']) : 0;
     }
 

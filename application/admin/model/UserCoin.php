@@ -185,12 +185,11 @@ class UserCoin extends Model
             'type' => ['=', 2],
             'mission_tag' => ['in', self::CONSUME_OPTIONS]
         ];
-        if (! empty($param['start_time']) && ! empty($param['end_time'])) {
-            $map[] = ['create_time', 'between', [$param['start_time'], $param['end_time']]];
+        if (!empty($param['start_time']) && ! empty($param['end_time'])) {
+            $map['create_time'] = ['between', [$param['start_time'], $param['end_time']]];
         }
         $consumeTotal = $this->where($map)->sum('amount');
-
-        return ! empty($consumeTotal) ? abs($consumeTotal) : 0;
+        return !empty($consumeTotal) ? abs($consumeTotal) : 0;
     }
 
     private static function tradeParams($user_id, $title, $amount, $params = [])

@@ -2,9 +2,11 @@
 
 namespace app\admin\controller\cash;
 
+use app\admin\model\CashWithdraw;
 use app\common\controller\Backend;
 use app\common\model\CashWithdraw as  CommonWithdraw;
 use think\Db;
+use think\Queue;
 
 /**
  * 
@@ -39,6 +41,7 @@ class Audit extends Backend
      */
     public function index()
     {
+//        CashWithdraw::pay(49);die;
         // 设置过滤方法
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax()) {

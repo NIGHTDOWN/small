@@ -159,10 +159,10 @@ class CashWithdraw extends Model
     {
         $now = time();
         $map = [
-            ['apply_time' ,'egt' ,strtotime(date('Y-m-1'))],
-            ['apply_time' ,'elt' ,$now],
-            ['user_id','eq' ,$user_id],
-            ['status','IN' ,[CashOrderModel::STATUS['PAYING'],CashOrderModel::STATUS['PAY_SUCCESS']]]
+            'apply_time' =>['egt' ,strtotime(date('Y-m-1'))],
+            'apply_time' =>['elt' ,$now],
+            'user_id'=>['eq' ,$user_id],
+            'status'=>['IN' ,[self::STATUS['PAYING'],self::STATUS['PAY_SUCCESS']]]
         ];
         $rs = Db::name('cash_withdraw')
             ->master()
@@ -205,7 +205,7 @@ class CashWithdraw extends Model
         $mon_start_time = strtotime(date('Y-m-d'));
         $cache_life_time = $mon_start_time + 3600 *24*30 -1 - $now;
         $num = Db::name('cash_withdraw')->master()->where([
-            ['user_id','eq',$user_id],['status','in',[CashOrderModel::STATUS['PAYING'],CashOrderModel::STATUS['PAY_SUCCESS'],CashOrderModel::STATUS['AUDIT_SUCCESS']]]
+            ['user_id','eq',$user_id],['status','in',[self::STATUS['PAYING'],self::STATUS['PAY_SUCCESS'],self::STATUS['AUDIT_SUCCESS']]]
         ])->whereTime('apply_time', 'month')->sum('apply_price');
         Cache::set($cache_key,$num,$cache_life_time);
         return (int)$num;
@@ -258,7 +258,7 @@ class CashWithdraw extends Model
         $mon_start_time = strtotime(date('Y-m-01'));
         $cache_life_time = $mon_start_time + 3600 * 24* 30   -1 - $now;
         $num = Db::name('cash_withdraw')->master()->where([
-            ['user_id','eq',$user_id],['status','in',[CashOrderModel::STATUS['PAYING'],CashOrderModel::STATUS['PAY_SUCCESS'],CashOrderModel::STATUS['AUDIT_SUCCESS']]]
+            ['user_id','eq',$user_id],['status','in',[self::STATUS['PAYING'],self::STATUS['PAY_SUCCESS'],self::STATUS['AUDIT_SUCCESS']]]
         ])->whereTime('apply_time', 'month')->count();
 
         Cache::set($cache_key,$num,$cache_life_time);

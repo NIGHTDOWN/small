@@ -43,16 +43,11 @@ class Coin extends Backend
         if ($this->request->isAjax()) {
             // 筛选时间格式化
             $timeData = input('get.filter');
-            $end_time = '';
-            $start_time  = '';
-            if (!strlen($timeData) > 3) {
-                $timeData = json_decode($timeData, true)['create_time'];
-                $timeData = explode(' - ', $timeData);
-                $start_time = $timeData[0];
-                $end_time = $timeData[1];
+            $timeData = json_decode($timeData, true);
+            if (isset($timeData['create_time'])) {
+                $timeData = explode(' - ', $timeData['create_time']);
+                $this->request->get(['start_time' => $timeData[0], 'end_time' => $timeData[1]]);
             }
-            // end
-            
             //如果发送的来源是Selectpage，则转发到Selectpage
             if ($this->request->request('keyField')) {
                 return $this->selectpage();
@@ -80,23 +75,26 @@ class Coin extends Backend
             }
 
             $list = collection($list)->toArray();
-            $result = array("total" => $total, "rows" => $list);
-
+            // 金币统计
+            $goldTotal = $this->goldTotal();
+            $coinData = [
+                'coin_user_total' => \app\common\model\CoreValue::getCoinValue('coin_total'), // 用户持有金币数
+                'raise_coin_total' => $goldTotal['statistics_total'], // 产生金币数
+                'consume_total' => $goldTotal['consume_total'], // 消费金币数
+                'withdraw_total' => $goldTotal['withdraw_total'], // 提现金币数
+            ];
+            $result = array("total" => $total, "rows" => $list, 'coin_total' => $coinData);
             return json($result);
         }
-        
-        // 金币统计
-        $goldTotal = $this->goldTotal();
-        $data = [
-            'coin_user_total' => \app\common\model\CoreValue::getCoinValue('coin_total'), // 用户持有金币数
-            'raise_coin_total' => $goldTotal['statistics_total'], // 产生金币数
-            'consume_total' => $goldTotal['consume_total'], // 消费金币数
-            'withdraw_total' => $goldTotal['withdraw_total'], // 提现金币数 
-        ];
-        $this->view->assign('data', $data);
+
         return $this->view->fetch();
     }
 
+    /**
+     * 设置参数
+     * @return string
+     * @throws \think\Exception
+     */
     public function set_param()
     {
         $data = [];
@@ -233,12 +231,12 @@ class Coin extends Backend
     /**
      * 获取金币统计
      */
-    protected function goldTotal($start_time = '', $end_time = '')
+    protected function goldTotal()
     {
         $param = [];
-        // 时间段
-        $param['start_time'] = strtotime($start_time) ?: '';
-        $param['end_time'] = strtotime($end_time) ?: '';
+        //  时间段
+        $param['start_time'] = strtotime(input('start_time')) ?: '';
+        $param['end_time'] = strtotime(input('end_time')) ?: '';
 
         // 消费金币数
         $consumeTotal = $this->model->getConsumeTotal($param);
@@ -247,6 +245,7 @@ class Coin extends Backend
         }
 
         // 提现金币数
+        /** @var \app\admin\model\CashWithdraw $withdrawModel */
         $withdrawModel = model('CashWithdraw');
         $withdrawTotal = $withdrawModel->getWithdrawTotal($param);
         if ($withdrawTotal === false) {
@@ -254,6 +253,7 @@ class Coin extends Backend
         }
 
         // 历史产生金币总数: 可根据时间段筛选
+        /** @var \app\admin\model\UserCoinStatistics $statisticsModel */
         $statisticsModel = model('UserCoinStatistics');
         $statisticsTotal = $statisticsModel->getCoinStatistics($param);
         if ($statisticsTotal === false) {
@@ -261,9 +261,9 @@ class Coin extends Backend
         }
 
         return [
-            'consume_total' => $consumeTotal,
-            'withdraw_total' => $withdrawTotal,
-            'statistics_total' => $statisticsTotal
+            'consume_total' => $consumeTotal, // 消费金币数
+            'withdraw_total' => $withdrawTotal, // 提现金币数
+            'statistics_total' => $statisticsTotal // 产生金币数
         ];
     }
 

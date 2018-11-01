@@ -7,10 +7,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 extend: {
                     index_url: 'user/coin/index',
                     set_param: 'user/coin/set_param',
-                    // add_url: 'user/coin/add',
-                    // edit_url: 'user/coin/edit',
-                    // del_url: 'user/coin/del',
-                    // multi_url: 'user/coin/multi',
                     table: 'user_coin',
                 }
             });
@@ -37,20 +33,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 ]
             });
 
-            
-
             // 为表格绑定事件
             Table.api.bindevent(table);
             Controller.api.buttons(table);
         },
-        add: function () {
-            Controller.api.bindevent();
-        },
-        edit: function () {
-            Controller.api.bindevent();
-        },
         api: {
             bindevent: function () {
+                //当表格数据加载完成时
                 Form.api.bindevent($("form[role=form]"));
             },
             buttons: function (table) {
@@ -64,6 +53,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 $(toolbar).on('click', '.btn-set_param', function () {
                     var url = options.extend.set_param;
                     Fast.api.open(url, __('设置参数'));
+                });
+                //当表格数据加载完成时
+                table.on('load-success.bs.table', function (e, data) {
+                    $('#coin_user_total').text(data.coin_total.coin_user_total);
+                    $('#raise_coin_total').text(data.coin_total.raise_coin_total);
+                    $('#consume_total').text(data.coin_total.consume_total);
+                    $('#withdraw_total').text(data.coin_total.withdraw_total);
                 });
             }
         }

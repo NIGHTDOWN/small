@@ -46,4 +46,9 @@ class SiteBanner extends Model
         'PC' => 1,
     ];
 
+    const CLIENT_TYPE_TEXT = [
+        0 => '手机',
+        1 => 'PC',
+    ];
+
 }

@@ -33,7 +33,7 @@ class MachineOperateStatistics extends Command
     }
 
     /**
-     * 执行 TODO 查询放到循环外去
+     * 执行
      * @param Input $input
      * @param Output $output
      * @return int|null|void
@@ -47,8 +47,8 @@ class MachineOperateStatistics extends Command
     {
         $model = model('SummarySheet');
         $this->operateStatus = $model->operateStatus;
-        // 渠道
-        $channel = Db::name('channel')->field('id, channel_name')->column('id, channel_name');
+//         渠道
+//        $channel = Db::name('channel')->field('id, channel_name')->column('id, channel_name');
         // 时间
         $timeStart = strtotime(date('y-m-d', time())) - 86400;
         $timeEnd = $timeStart + 86399;
@@ -60,10 +60,11 @@ class MachineOperateStatistics extends Command
         $machineCount = $this->machineOperateCount(['operate' => $this->operateStatus['activate']]);
         // 总注册量
         $usersCount = $this->machineOperateCount(['operate' => $this->operateStatus['register']]);
+
         if (!empty($data)) {
             $operate = model('MachineOperate')->operate;
             unset($operate['unknow']);
-            $list = array_map(function ($v) use ($channel, $operate, $machineCount, $usersCount) {
+            $list = array_map(function ($v) use ($operate, $machineCount, $usersCount) {
                 unset($v['id']);
                 // 搜索条件
                 $v['day_time'] = strtotime($v['day_time']);
@@ -80,7 +81,7 @@ class MachineOperateStatistics extends Command
                 $v['create_time'] = time();
                 $v['activate_total'] = $machineCount; // 总激活量
                 $v['register_total'] = $usersCount; // 总注册量
-                $v['active_rate'] =  $v['activate_total'] > 0 ? $v['active'] / $v['activate_total'] : 0; // 活跃度
+                $v['active_rate'] = $v['activate_total'] > 0 ? $v['active'] / $v['activate_total'] : 0; // 活跃度
                 $v['wastage'] = $this->wastage([
                     ['mp.create_time' => ['<', $v['day_time'] - (60 * 24 * 60 * 60)]],
                     ['mp.create_time' => ['>', $v['day_time']]],
@@ -96,13 +97,13 @@ class MachineOperateStatistics extends Command
             $num = 0;
             foreach ($list as $k => $v) {
                 $id = Db::name('summary_sheet')->insertGetId($v['base']);
-                if (! empty($id)) {
+                if (!empty($id)) {
                     ++$num;
                     $v['ext']['ss_id'] = $id;
                     $extAll[] = $v['ext'];
                 }
             }
-            ! empty($extAll) && Db::name('summary_sheet_ext')->insertAll($extAll);
+            !empty($extAll) && Db::name('summary_sheet_ext')->insertAll($extAll);
 
             echo "成功添加" . $num . "条数据";
         } else {
@@ -224,7 +225,7 @@ class MachineOperateStatistics extends Command
     private function deleteToday($map)
     {
         $toDay = Db::name('summary_sheet')->where($map)->column('id');
-        if (! empty($toDay)) {
+        if (!empty($toDay)) {
             Db::name('summary_sheet')->where(['id' => ['in', $toDay]])->delete();
             Db::name('summary_sheet_ext')->where(['ss_id' => ['in', $toDay]])->delete();
         }

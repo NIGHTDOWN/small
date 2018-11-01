@@ -45,6 +45,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
 
                 // 数据
                 var data_list = settings;
+
+                // 按百分比显示
+                var rate = data_list.rate;
+                var rate_lable = '{c}';
+                if (rate == '%') {
+                    rate_lable = '{c}%';
+                }
                 // 基于准备好的dom，初始化echarts实例
                 var myChart = Echarts.init(document.getElementById('echart'), 'walden');
                 // 类型
@@ -54,7 +61,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                     series_list.push({
                         name: i + data_list.operate,
                         type:'line',
-                        data: data_list.list[i]
+                        data: data_list.list[i],
+                        itemStyle: {
+                            normal: { // 数据显示样式
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: rate_lable
+                                }
+                            }
+                        }
                     });
                     legend.push(i + data_list.operate);
                 }
@@ -63,7 +79,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                     title: { // 标题
                         text: '渠道统计'
                     },
-                    tooltip: { // 坐标数据显示
+                    tooltip: { // 坐标点提示框数据显示
                         trigger: 'axis',
                     },
                     legend: { // 坐标轴提示器
@@ -73,7 +89,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
                     xAxis: { // x轴数据
                         data: data_list.time_data
                     },
-                    yAxis: {},
+                    yAxis:  [
+                        {
+                            type: 'value',
+                            axisLabel: {
+                                show: true,
+                                interval: 'auto',
+                                formatter: '{value}'+rate,
+                            },
+                            show: true,
+                        }
+                    ],
                     series: series_list, // 数据组
                 };
                 // 使用刚指定的配置项和数据显示图表。

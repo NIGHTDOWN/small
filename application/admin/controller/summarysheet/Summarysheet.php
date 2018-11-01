@@ -3,6 +3,7 @@
 namespace app\admin\controller\summarysheet;
 
 use app\common\controller\Backend;
+use think\Console;
 use think\Db;
 
 /**
@@ -70,7 +71,6 @@ class Summarysheet extends Backend
         $model = model('SummarySheet');
         // 搜索条件
         $param = json_decode(input('filter'), true);
-//        if (isset($param['show_time'])) unset($param['show_time']);
         list($param, $field, $column, $channel, $where, $timeData) = $model->filter($param);
 
         $flag = input('flag') ?? 1;
@@ -141,6 +141,14 @@ class Summarysheet extends Backend
     public function operateType()
     {
         return $this->operate;
+    }
+
+    /**
+     * 用户数据统计计划任务
+     */
+    public function test()
+    {
+        Console::call('MachineOperateStatistics');
     }
 
 }

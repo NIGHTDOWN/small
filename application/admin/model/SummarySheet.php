@@ -38,22 +38,6 @@ class SummarySheet extends Model
     ];
 
     /**
-     * 操作
-     * @var array
-     */
-    public $operateText = ['激活量', '注册量'];
-
-    /**
-     * 平台
-     */
-    public $type = [0 => '未知', 1 => '安卓', 2 => '苹果'];
-
-    /**
-     * 苹果设备
-     */
-    public $appleType = ['iphone', 'ios', 'mac', 'macbook', 'ipad', 'ipod'];
-
-    /**
      * 类型
      * @var array
      */
@@ -66,6 +50,15 @@ class SummarySheet extends Model
         'wastage_rate' => '流失率',
         'register_total' => '累计注册量',
         'activate_total' => '累计激活量',
+    ];
+
+    /**
+     * 操作状态
+     */
+    public $operateStatus = [
+        'activate' => 1,
+        'register' => 2,
+        'active' => 3
     ];
 
     /**
@@ -198,7 +191,7 @@ class SummarySheet extends Model
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function activeChannelList($export = 0, $where = [], $field = [], $channel = [], $column = '', $timeData = [], $param)
+    public function activeChannelList($export = 0, $where = [], $field = [], $channel = [], $column = '', $timeData = [], $param = [])
     {
         // app机器操作记录表
         $field[] = 'channel_id';

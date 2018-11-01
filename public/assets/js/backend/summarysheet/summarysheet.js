@@ -41,6 +41,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'echarts', 'echarts-t
             });
 
             echart.on('post-body.bs.table', function (e, settings, json, xhr) {
+                $('input[name=day]').attr('autocomplete', 'off')
+
                 // 数据
                 var data_list = settings;
                 // 基于准备好的dom，初始化echarts实例

@@ -22,6 +22,8 @@ class MachineOperateStatistics extends Command
 {
     protected $model = null;
 
+    protected $operateStatus = [];
+
     /**
      * 基本配置
      */
@@ -41,6 +43,8 @@ class MachineOperateStatistics extends Command
      */
     protected function execute(Input $input, Output $output)
     {
+        $model = model('SummarySheet');
+        $this->operateStatus = $model->operateStatus;
         // 渠道
         $channel = Db::name('channel')->field('id, channel_name')->column('id, channel_name');
         // 时间
@@ -49,9 +53,9 @@ class MachineOperateStatistics extends Command
         // 取渠道和版本分组
         $data = $this->data(['create_time' => ['between', [$timeStart, $timeEnd]]]);
         // 总激活量
-        $machineCount = $this->machineCount();
+        $machineCount = $this->machineOperateCount(['operate' => $this->operateStatus['activate']]);
         // 总注册量
-        $usersCount = $this->userCount();
+        $usersCount = $this->machineOperateCount(['operate' => $this->operateStatus['register']]);
         if (!empty($data)) {
             $operate = model('MachineOperate')->operate;
             unset($operate['unknow']);
@@ -111,16 +115,21 @@ class MachineOperateStatistics extends Command
      */
     private function ext($v, $machineCount)
     {
-        $operate = model('MachineOperate')->operate;
         // 周数据
         $day = date("Y-m-d", $v['day_time']);
         $weekEnd = strtotime($day . " sunday") + 86399;
         $weekStart = $weekEnd - (6 * 24 * 60 * 60);
         $weekMap = ['create_time' => ['between', [$weekStart, $weekEnd]]];
         $ext = [];
-        $ext['week_register'] = $this->userCount($weekMap);
-        $ext['week_activate'] = $this->machineCount($weekMap);
-        $ext['week_active'] = $this->machineOperateCount(array_merge($weekMap, ['operate' => $operate['active']]));
+        $ext['week_register'] = $this->machineOperateCount(
+            array_merge($weekMap, ['operate' => $this->operateStatus['register']])
+        );
+        $ext['week_activate'] = $this->machineOperateCount(
+            array_merge($weekMap, ['operate' => $this->operateStatus['activate']])
+        );
+        $ext['week_active'] = $this->machineOperateCount(
+            array_merge($weekMap, ['operate' => $this->operateStatus['active']])
+        );
         $ext['week_active_rate'] = $v['activate_total'] > 0 ? $ext['week_active'] / $v['activate_total'] : 0;
         $ext['week_wastage'] = $this->wastage([
             ['mp.create_time' => ['<', $weekStart - (60 * 24 * 60 * 60)]],
@@ -133,9 +142,15 @@ class MachineOperateStatistics extends Command
         $monthEnd = strtotime($monthStart . '+1 month -1 day') + 86399;
         $monthStart = strtotime($monthStart);
         $monthMap = ['create_time' => ['between', [$weekStart, $weekEnd]]];
-        $ext['month_register'] = $this->userCount($monthMap);
-        $ext['month_activate'] = $this->machineCount($monthMap);
-        $ext['month_active'] = $this->machineOperateCount(array_merge($monthMap, ['operate' => $operate['active']]));
+        $ext['month_register'] = $this->machineOperateCount(
+            array_merge($monthMap, ['operate' => $this->operateStatus['register']])
+        );
+        $ext['month_activate'] = $this->machineOperateCount(
+            array_merge($monthMap, ['operate' => $this->operateStatus['activate']])
+        );
+        $ext['month_active'] = $this->machineOperateCount(
+            array_merge($monthMap, ['operate' => $this->operateStatus['active']])
+        );
         $ext['month_active_rate'] = $v['activate_total'] > 0 ? $ext['week_active'] / $v['activate_total'] : 0;
         $ext['month_wastage'] = $this->wastage([
             ['mp.create_time' => ['<', $monthStart - (60 * 24 * 60 * 60)]],
@@ -143,6 +158,7 @@ class MachineOperateStatistics extends Command
             'mp.id is null'
         ]);
         $ext['month_wastage_rate'] = $machineCount > 0 ? $ext['week_wastage'] / $machineCount : 0;
+
         return $ext;
     }
 
@@ -158,31 +174,11 @@ class MachineOperateStatistics extends Command
     private function data($map)
     {
         $data = Db::name('MachineOperate')
-            ->field('channel_id, version_id, FROM_UNIXTIME(create_time, "%Y-%m-%d") day_time')
+            ->field('id, channel_id, version_id, FROM_UNIXTIME(create_time, "%Y-%m-%d") day_time')
             ->where($map)
             ->group('day_time, channel_id, version_id')
             ->select() ?: [];
         return $data;
-    }
-
-    /**
-     * 用户总量
-     * @param array $map
-     * @return int
-     */
-    private function userCount($map = [])
-    {
-        return Db::name('user')->where($map)->count() ?: 0;
-    }
-
-    /**
-     * 激活总量
-     * @param array $map
-     * @return int
-     */
-    private function machineCount($map = [])
-    {
-        return Db::name('machine')->where($map)->count() ?: 0;
     }
 
     /**

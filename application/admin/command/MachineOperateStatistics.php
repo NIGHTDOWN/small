@@ -175,7 +175,7 @@ class MachineOperateStatistics extends Command
     {
         $data = Db::name('MachineOperate')
             ->field('id, channel_id, version_id, FROM_UNIXTIME(create_time, "%Y-%m-%d") day_time')
-            ->where($map)
+//            ->where($map)
             ->group('day_time, channel_id, version_id')
             ->select() ?: [];
         return $data;

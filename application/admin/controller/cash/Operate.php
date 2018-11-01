@@ -4,6 +4,7 @@ namespace app\admin\controller\cash;
 
 use app\common\controller\Backend;
 
+use think\db;
 /**
  *
  *
@@ -69,14 +70,19 @@ class Operate extends Backend
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
-
+            $error_msg_ids = array_column($list,'error_msg_id');
+            if ($error_msg_ids) {
+                $error_msgs = Db::name('cash_order_error')->where('id','IN',$error_msg_ids)->column('msg','order_id');
+            }
             foreach ($list as $key => $value) {
                 $value->checkbox = $value->status == \app\admin\model\CashWithdraw::STATUS['AUDITING'] ? false : true;
-                $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment']);
+                $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment','comment','error_msg_id']);
                 $value->visible(['user']);
                 $value->getRelation('user')->visible(['nickname']);
+
             }
             $list = collection($list)->toArray();
+            $list = \app\admin\model\CashWithdraw::getStatusText($list);
             $result = array("total" => $total, "rows" => $list);
 
             return json($result);

@@ -66,11 +66,12 @@ class Audit extends Backend
                 
             foreach ($list as $key => $value) {
                 $value->checkbox = $value->status == \app\admin\model\CashWithdraw::STATUS['OPERATIVE'] ? false : true;
-                $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment']);
+                $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment','comment','error_msg_id']);
                 $value->visible(['user']);
                 $value->getRelation('user')->visible(['nickname']);
             }
             $list = collection($list)->toArray();
+            $list = \app\admin\model\CashWithdraw::getStatusText($list);
             $result = array("total" => $total, "rows" => $list);
 
             return json($result);

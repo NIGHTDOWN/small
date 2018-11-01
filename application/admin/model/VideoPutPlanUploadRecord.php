@@ -43,12 +43,6 @@ class VideoPutPlanUploadRecord extends Model
      */
     public function add($param)
     {
-        // $validate = validate('VideoPutPlanUploadRecord');
-        // $ret = $validate->scene('add')->check($data);
-        // if (!$ret) {
-        //     $this->error = $validate->getError();
-        //     return false;
-        // }
         $fileName = ROOT_PATH . 'public' . $param['file_name'];
         if (!file_exists($fileName)) {
              $this->error = '文件不存在';

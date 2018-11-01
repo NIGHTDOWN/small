@@ -101,13 +101,16 @@ class Putplan extends Backend
     {
         if ($this->request->isPost()) {
             $file = input('post.file_name');
-            $result = model('VideoPutPlanUploadRecord')->add(['file_name' => $fileInfo['basename']]);
+            /** @var \app\admin\model\VideoPutPlanUploadRecord $model */
+            $model = model('VideoPutPlanUploadRecord');
+            $result = $model->add(['file_name' => $file]);
             if ($result) {
                 $this->success();
             } else {
-                $this->error(model('VideoPutPlanUploadRecord')->getError());
+                $this->error($model->getError());
             }
         }
+
         return $this->view->fetch();
     }
 

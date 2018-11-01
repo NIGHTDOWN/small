@@ -1,7 +1,7 @@
 <?php
 
 namespace app\admin\controller\cash;
-
+use app\common\model\CashWithdraw as  CommonWithdraw;
 use app\common\controller\Backend;
 
 use think\db;
@@ -75,7 +75,7 @@ class Operate extends Backend
                 $error_msgs = Db::name('cash_order_error')->where('id','IN',$error_msg_ids)->column('msg','order_id');
             }
             foreach ($list as $key => $value) {
-                $value->checkbox = $value->status == \app\admin\model\CashWithdraw::STATUS['AUDITING'] ? false : true;
+                $value->checkbox = $value->status == CommonWithdraw::STATUS['AUDITING'] ? false : true;
                 $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment','comment','error_msg_id']);
                 $value->visible(['user']);
                 $value->getRelation('user')->visible(['nickname']);

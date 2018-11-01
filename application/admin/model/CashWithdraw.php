@@ -5,7 +5,11 @@ namespace app\admin\model;
 use think\Model;
 use think\Db;
 use think\Cache;
+use app\common\model\CashWithdraw as CommonWithdraw;
+use app\common\model\UserCoin as ModelUserCoin;
+use wsj\ali\AliSms;
 use think\Queue;
+
 class CashWithdraw extends Model
 {
     // 表名
@@ -26,32 +30,7 @@ class CashWithdraw extends Model
         // 'pay_time_text'
     ];
 
-    const STATUS_TEXT  = [
-        0 => '运营待审核',
-        1 => '已打款',
-        2 => '运营审核未通过',
-        3 => '已到账' ,
-        4 => '打款失败',
-        5 => '财务审核通过',
-        6 => '运营已审核',
-        7 => '财务审核未通过'
-    ];
 
-    const STATUS = [
-        'AUDITING'      => 0,
-        'PAYING'        => 1,
-        'AUDIT_FAIL'    => 2,
-        'PAY_SUCCESS'   => 3,
-        'PAY_FAIL'      => 4,
-        'AUDIT_SUCCESS' => 5,
-        'OPERATIVE'     => 6,
-        'OPERATE_FAIL'  => 7
-    ];
-
-    const PAYMENT_TEXT = [
-        0 => '支付宝',
-        1 => '微信',
-    ];
     const ORDER_SN_PRE = 'XYX';
 
     const ORDER_SN_LENGTH = 20;
@@ -79,7 +58,7 @@ class CashWithdraw extends Model
      */
     public function getWithdrawTotal($param)
     {
-        $map = ['status' => ['=', self::STATUS['PAY_SUCCESS']]]; // 已到账状态
+        $map = ['status' => ['=', CommonWithdraw::STATUS['PAY_SUCCESS']]]; // 已到账状态
         if (!empty($param['start_time']) && !empty($param['end_time'])) {
             $map[] = ['apply_time', 'between', [$param['start_time'], $param['end_time']]];
         }
@@ -119,17 +98,17 @@ class CashWithdraw extends Model
         // 1-运营，2-财务
         if ($type == 1) {
             $updateData['operator_id'] = $admin_id;
-            $updateData['status'] = self::STATUS['AUDIT_FAIL'];
+            $updateData['status'] = CommonWithdraw::STATUS['AUDIT_FAIL'];
         } elseif ($type == 2) {
             $updateData['admin_id'] = $admin_id;
-            $updateData['status'] = self::STATUS['OPERATE_FAIL'];
+            $updateData['status'] = CommonWithdraw::STATUS['OPERATE_FAIL'];
         } else {
             $this->error = 'type类型错误';
             return false;
         }
         $map = [
             'id' => ['in', $ids],
-            'status' => ['in', [self::STATUS['OPERATIVE'], self::STATUS['AUDITING']]]
+            'status' => ['in', [CommonWithdraw::STATUS['OPERATIVE'], CommonWithdraw::STATUS['AUDITING']]]
         ];
         $datas = Db::name('cash_withdraw')->where($map)->select();
         if (count($datas) <= 0) {
@@ -164,7 +143,7 @@ class CashWithdraw extends Model
     {
         $map = [
             'id' => ['IN', $ids],
-            'status' => ['eq', self::STATUS['AUDITING']]
+            'status' => ['eq', CommonWithdraw::STATUS['AUDITING']]
         ];
 
         $datas = Db::name('cash_withdraw')->where($map)->select();
@@ -173,7 +152,7 @@ class CashWithdraw extends Model
                 [
                     'operator_id' => $admin_id,
                     'admin_time' => time(),
-                    'status' => self::STATUS['OPERATIVE'],
+                    'status' => CommonWithdraw::STATUS['OPERATIVE'],
                 ]);
         }
 
@@ -182,6 +161,7 @@ class CashWithdraw extends Model
 
     public function adopt(Array $ids = [], $admin_id = 0)
     {
+        Cache::rm(self::ADOPT_LOCK_CACHE_KEY);
         if (!$ids) {
             $this->error = '审批数量错误';
             return false;
@@ -193,7 +173,7 @@ class CashWithdraw extends Model
         cache(self::ADOPT_LOCK_CACHE_KEY, 1, self::ADOPT_LOCK_CACHE_LIFE);
         $map = [
             'id' => ['IN', $ids],
-            'status' => ['eq', self::STATUS['OPERATIVE']]
+            'status' => ['eq', CommonWithdraw::STATUS['OPERATIVE']]
         ];
         $orders  = Db::name('cash_withdraw')
             ->master()
@@ -204,7 +184,6 @@ class CashWithdraw extends Model
             $this->error = '审批数量错误';
             return false;
         }
-
         foreach ($orders as $order) {
             Queue::push('app\common\job\CashOrderPay', ['order_id' => $order['id']], self::CASH_ORDER_PAY_QUEUE_NAME);
 
@@ -212,10 +191,9 @@ class CashWithdraw extends Model
                 [
                     'admin_id' => $admin_id,
                     'admin_time' => time(),
-                    'status' => self::STATUS['AUDIT_SUCCESS'],
+                    'status' => CommonWithdraw::STATUS['AUDIT_SUCCESS'],
                 ]);
         }
-
         Cache::rm(self::ADOPT_LOCK_CACHE_KEY);
         return true;
     }
@@ -229,24 +207,22 @@ class CashWithdraw extends Model
         $success = false;
         $msg = '';
         $error_code = '';
-        $end_order_status = CashOrderModel::STATUS['PAY_FAIL']; //最后订单状态
+        $end_order_status = CommonWithdraw::STATUS['PAY_FAIL']; //最后订单状态
+        $map ['id']=$order_id;
+        $map ['status']=CommonWithdraw::STATUS['AUDIT_SUCCESS'];
+
         $order = Db::name('cash_withdraw')
             ->master()
-            ->where([
-                ['id','eq',$order_id],
-                ['status' ,'eq',CashOrderModel::STATUS['AUDIT_SUCCESS']]
-            ])
+            ->where($map)
             ->find();
-
         if (!$order) {
             $msg = "未处理订单ID:{$order_id}不存在";
             goto end;
         }
-        $order_detail = self::calculate($order['user_id'],$order['apply_price'],$order['apply_time']);
-
-        if ($order_detail['money'] < self::MIN_WITHDRAW_MONEY) {
-            $end_order_status =  CashOrderModel::STATUS['AUDIT_FAIL'];
-            $msg = "未处理订单ID:{$order_id} 提现金额小于".self::MIN_WITHDRAW_MONEY;
+        $order_detail = CommonWithdraw::calculate($order['user_id'],$order['apply_price'],$order['apply_time']);
+        if ($order_detail['money'] < CommonWithdraw::MIN_WITHDRAW_MONEY) {
+            $end_order_status =  CommonWithdraw::STATUS['AUDIT_FAIL'];
+            $msg = "未处理订单ID:{$order_id} 提现金额小于".CommonWithdraw::MIN_WITHDRAW_MONEY;
             goto end;
         }
         try{
@@ -329,12 +305,14 @@ class CashWithdraw extends Model
         $update = Db::name('user_burse')->where('user_id' ,'eq' ,$order['user_id'])->update($update_data);
         //提现成功
 
-        self::incrUserApplyWithdrawNum($order['user_id'],$order['apply_price']);//增加当月已提现金额
+        CommonWithdraw::incrUserApplyWithdrawNum($order['user_id'],$order['apply_price']);//增加当月已提现金额
 
-        self::incrUserApplyWithdrawCount($order['user_id']);//增加当月提现次数
+        CommonWithdraw::incrUserApplyWithdrawCount($order['user_id']);//增加当月提现次数
 
         //短信
-        SmsSendTask::sendSms(User::getMobile($order['user_id']),SmsSendTask::TEMPLATE_CODE[2]);
+
+        AliSms::sendSms(User::getMobile($order['user_id']),SmsSendTask::TEMPLATE_CODE[2]);
+//        SmsSendTask::sendSms(User::getMobile($order['user_id']),SmsSendTask::TEMPLATE_CODE[2]);
         //系统消息
         send_sys_message('亲爱的小印象用户：您的提现申请已通过！提现金额将会在三天之内到账。如有疑问请咨询客服QQ：2852787060',1,$order['user_id']);
         return [
@@ -346,7 +324,7 @@ class CashWithdraw extends Model
         if (in_array($error_code,['PAYEE_USER_INFO_ERROR','NAME_MISMATCH'],true)){
             //如果失败原因是实名认证问题,发失败短信和系统消息
             //短信
-            SmsSendTask::sendSms(User::getMobile($order['user_id']),SmsSendTask::TEMPLATE_CODE[1]);
+            AliSms::sendSms(User::getMobile($order['user_id']),SmsSendTask::TEMPLATE_CODE[1]);
             //系统消息
             send_sys_message('亲爱的小印象用户：您的提现申请未成功到账。原因：您提现的账户信息与小印象账户实名信息不一致。感谢您的理解和支持。如有疑问请咨询客服QQ：2852787060',1,$order['user_id']);
         }
@@ -388,7 +366,7 @@ class CashWithdraw extends Model
         foreach ($list as $key => $row){
             if (isset($error_msgs[$row['id']])&&$error_msgs[$row['id']]!==''){
                 $list[$key]['status_text']="失败(".$error_msgs[$row['id']].")";
-            }elseif($row['status']==self::STATUS['AUDIT_FAIL']||$row['status']==self::STATUS['OPERATE_FAIL']){
+            }elseif($row['status']==CommonWithdraw::STATUS['AUDIT_FAIL']||$row['status']==CommonWithdraw::STATUS['OPERATE_FAIL']){
                 $list[$key]['status_text']="失败(".$row['comment'].")";
             }else{
 

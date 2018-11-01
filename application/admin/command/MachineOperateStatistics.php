@@ -60,6 +60,7 @@ class MachineOperateStatistics extends Command
             $operate = model('MachineOperate')->operate;
             unset($operate['unknow']);
             $list = array_map(function ($v) use ($channel, $operate, $machineCount, $usersCount) {
+                unset($v['id']);
                 // 搜索条件
                 $v['day_time'] = strtotime($v['day_time']);
                 $map = [

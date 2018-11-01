@@ -178,7 +178,7 @@ define(['jquery', 'bootstrap', 'toastr', 'layer', 'lang'], function ($, undefine
                     options.offset = [top.$(".tab-pane.active").scrollTop() + "px", "0px"];
                 }
                 var times = $(".layui-layer-iframe").attr('times')
-                if(typeof(times)==='undefined'||title=='选择') {
+                if(typeof(times)==='undefined') {
                     return Layer.open(options);
                 }
             },

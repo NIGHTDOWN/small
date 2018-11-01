@@ -30,6 +30,7 @@ class Redis extends Driver
      */
     public function __construct($options = [])
     {
+
         if (!extension_loaded('redis')) {
             throw new \BadFunctionCallException('not support: redis');
         }

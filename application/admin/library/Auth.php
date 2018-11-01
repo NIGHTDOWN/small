@@ -38,6 +38,7 @@ class Auth extends \fast\Auth
      */
     public function login($username, $password, $keeptime = 0)
     {
+    	
         $admin = Admin::get(['username' => $username]);
         if (!$admin) {
             $this->setError('Username is incorrect');
@@ -47,6 +48,7 @@ class Auth extends \fast\Auth
             $this->setError('Please try again after 1 day');
             return false;
         }
+       
         if ($admin->password != md5(md5($password) . $admin->salt)) {
             $admin->loginfailure++;
             $admin->save();

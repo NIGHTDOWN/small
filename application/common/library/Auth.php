@@ -259,14 +259,17 @@ class Auth
     {
         $field = Validate::is($account, 'email') ? 'email' : (Validate::regex($account, '/^1\d{10}$/') ? 'mobile' : 'username');
         $user = User::get([$field => $account]);
+     
         if (!$user)
         {
             $this->setError('Account is incorrect');
             return FALSE;
         }
 
-        if ($user->status != 'normal')
+//        if ($user->status != 'normal') // !=必定是false 
+        if ($user->status != '1')
         {
+        	  
             $this->setError('Account is locked');
             return FALSE;
         }

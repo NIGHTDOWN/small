@@ -173,8 +173,10 @@ class User extends Frontend
                 'password'  => $password,
                 '__token__' => $token,
             ];
+           
             $validate = new Validate($rule, $msg);
             $result = $validate->check($data);
+             
             if (!$result) {
                 $this->error(__($validate->getError()), null, ['token' => $this->request->token()]);
                 return FALSE;

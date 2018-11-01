@@ -16,17 +16,17 @@ return [
     // 数据库类型
     'type'            => Env::get('database.type', 'mysql'),
     // 服务器地址
-    //'hostname'        => Env::get('database.hostname', '47.106.176.188'),
-    'hostname'        => Env::get('database.hostname', '127.0.0.1'),
+//    'hostname'        => Env::get('database.hostname', '39.108.13.101'),
+   'hostname'        => Env::get('database.hostname', '127.0.0.1'),
     // 数据库名
     //'database'        => Env::get('database.database', 'new_actuive_com'),
     'database'        => Env::get('database.database', 'api_new'),
     // 用户名
     //'username'        => Env::get('database.username', 'new_actuive'),
-    'username'        => Env::get('database.username', 'api_new'),
+    'username'        => Env::get('database.username', 'root'),
     // 密码
     //'password'        => Env::get('database.password', 'epz8BKRrw4RmHhx6'),
-    'password'        => Env::get('database.password', '2CPaiNMHzkZwzBPp'),
+    'password'        => Env::get('database.password', 'root'),
     // 端口
     'hostport'        => Env::get('database.hostport', ''),
     // 连接dsn

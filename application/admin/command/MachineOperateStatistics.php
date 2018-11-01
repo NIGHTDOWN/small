@@ -110,7 +110,6 @@ class MachineOperateStatistics extends Command
         }
     }
 
-
     /**
      * 扩展数据处理
      * @param $v
@@ -225,8 +224,10 @@ class MachineOperateStatistics extends Command
     private function deleteToday($map)
     {
         $toDay = Db::name('summary_sheet')->where($map)->column('id');
-        Db::name('summary_sheet')->where(['id' => ['in', $toDay]])->delete();
-        Db::name('summary_sheet_ext')->where(['ss_id' => ['in', $toDay]])->delete();
+        if (! empty($toDay)) {
+            Db::name('summary_sheet')->where(['id' => ['in', $toDay]])->delete();
+            Db::name('summary_sheet_ext')->where(['ss_id' => ['in', $toDay]])->delete();
+        }
     }
 
 }

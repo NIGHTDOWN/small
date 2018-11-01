@@ -37,9 +37,11 @@ class MachineOperateStatistics extends Command
      * @param Input $input
      * @param Output $output
      * @return int|null|void
+     * @throws \think\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
     protected function execute(Input $input, Output $output)
     {
@@ -52,6 +54,8 @@ class MachineOperateStatistics extends Command
         $timeEnd = $timeStart + 86399;
         // 取渠道和版本分组
         $data = $this->data(['create_time' => ['between', [$timeStart, $timeEnd]]]);
+        // 把今天生成的所有数据清空
+        $this->deleteToday(['day_time' => ['between', [$timeStart, $timeEnd]]]);
         // 总激活量
         $machineCount = $this->machineOperateCount(['operate' => $this->operateStatus['activate']]);
         // 总注册量
@@ -174,7 +178,7 @@ class MachineOperateStatistics extends Command
      */
     private function data($map)
     {
-        $data = Db::name('MachineOperate')
+        $data = Db::name('machine_operate')
             ->field('id, channel_id, version_id, FROM_UNIXTIME(create_time, "%Y-%m-%d") day_time')
             ->where($map)
             ->group('day_time, channel_id, version_id')
@@ -210,6 +214,19 @@ class MachineOperateStatistics extends Command
     {
         $sql = Db::name('machine_operate')->where($map)->group('machine_id')->buildSql();
         return Db::query('select count(1) as tp_count from ' . $sql . ' as a')[0]['tp_count'];
+    }
+
+    /**
+     * 删除今天的
+     * @param $map
+     * @throws \think\Exception
+     * @throws \think\exception\PDOException
+     */
+    private function deleteToday($map)
+    {
+        $toDay = Db::name('summary_sheet')->where($map)->column('id');
+        Db::name('summary_sheet')->where(['id' => ['in', $toDay]])->delete();
+        Db::name('summary_sheet_ext')->where(['ss_id' => ['in', $toDay]])->delete();
     }
 
 }

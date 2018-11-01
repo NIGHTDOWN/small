@@ -14,7 +14,7 @@ use think\Validate;
 class User extends Api
 {
 
-    protected $noNeedLogin = ['loginSms', 'registerSms', 'login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third'];
+    protected $noNeedLogin = ['login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third'];
     protected $noNeedRight = '*';
 
     public function _initialize()

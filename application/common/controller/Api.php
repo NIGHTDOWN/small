@@ -349,7 +349,7 @@ class Api
         if (filter_var($code, FILTER_VALIDATE_INT) === false) {
             $code = -1;
         }
-        if(strlen($msg) == 0) {
+        if (strlen($msg) == 0) {
             $msg = get_code_msg($code, $type);
         }
         $result = [

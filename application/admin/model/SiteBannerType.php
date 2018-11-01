@@ -6,6 +6,8 @@ use think\Model;
 
 use think\Db;
 
+use app\common\model\SiteBanner as CommonSiteBanner;
+
 class SiteBannerType extends Model
 {
     // 表名
@@ -54,7 +56,7 @@ class SiteBannerType extends Model
     }
 
     public function allType(){
-        $data=Db::name('site_banner_type')->where('status','not in',[SiteBanner::TYPE_STATUS['DELETE'],SiteBanner::TYPE_STATUS['DISABLED']])->field(['id','type'])->order('id','desc')->column('type','id');
+        $data=Db::name('site_banner_type')->where('status','not in',[CommonSiteBanner::TYPE_STATUS['DELETE'],CommonSiteBanner::TYPE_STATUS['DISABLED']])->field(['id','type'])->order('id','desc')->column('type','id');
         return $data;
     }
 

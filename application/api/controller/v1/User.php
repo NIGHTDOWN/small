@@ -14,12 +14,30 @@ use think\Validate;
 class User extends Api
 {
 
-    protected $noNeedLogin = ['loginSms', 'registerSms', 'login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third'];
+    protected $noNeedLogin = ['login', 'mobilelogin', 'register', 'resetpwd', 'changeemail', 'changemobile', 'third'];
     protected $noNeedRight = '*';
 
     public function _initialize()
     {
         parent::_initialize();
+    }
+
+    /**
+     * 发送绑定手机验证码
+     */
+    public function bindMobileSms()
+    {
+        if ($this->request->isPost()) {
+            $mobile = input('mobile');
+            /** @var \app\api\model\Sms $model */
+            $model = model('Sms');
+            $rs = $model->UserBindMobile($mobile);
+            if ($rs) {
+                $this->apiResult();
+            } else {
+                $this->apiResult($model->getError());
+            }
+        }
     }
 
     /**

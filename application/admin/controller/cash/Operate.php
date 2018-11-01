@@ -1,17 +1,18 @@
 <?php
 
 namespace app\admin\controller\cash;
-
+use app\common\model\CashWithdraw as  CommonWithdraw;
 use app\common\controller\Backend;
 
+use think\db;
 /**
- * 
+ *
  *
  * @icon fa fa-circle-o
  */
 class Operate extends Backend
 {
-    
+
     /**
      * Withdraw模型对象
      * @var \app\admin\model\cash\Withdraw
@@ -26,13 +27,13 @@ class Operate extends Backend
         $this->model = new \app\admin\model\CashWithdraw();
 
     }
-    
+
     /**
      * 默认生成的控制器所继承的父类中有index/add/edit/del/multi五个基础方法、destroy/restore/recyclebin三个回收站方法
      * 因此在当前控制器中可不用编写增删改查的代码,除非需要自己控制这部分逻辑
      * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
      */
-    
+
 
     /**
      * 查看
@@ -69,14 +70,19 @@ class Operate extends Backend
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
-
+            $error_msg_ids = array_column($list,'error_msg_id');
+            if ($error_msg_ids) {
+                $error_msgs = Db::name('cash_order_error')->where('id','IN',$error_msg_ids)->column('msg','order_id');
+            }
             foreach ($list as $key => $value) {
-                $value->checkbox = $value->status == \app\admin\model\CashWithdraw::STATUS['AUDITING'] ? false : true;
-                $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment']);
+                $value->checkbox = $value->status == CommonWithdraw::STATUS['AUDITING'] ? false : true;
+                $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment','comment','error_msg_id']);
                 $value->visible(['user']);
                 $value->getRelation('user')->visible(['nickname']);
+
             }
             $list = collection($list)->toArray();
+            $list = \app\admin\model\CashWithdraw::getStatusText($list);
             $result = array("total" => $total, "rows" => $list);
 
             return json($result);
@@ -128,7 +134,7 @@ class Operate extends Backend
 
     /**
      * 默认文案
-     * 
+     *
      * @return [type] [description]
      */
     public function default_list()
@@ -147,9 +153,9 @@ class Operate extends Backend
         return $this->view->fetch();
     }
 
-   /**
-    * 添加提现文案
-    */
+    /**
+     * 添加提现文案
+     */
     public function add()
     {
         if ($this->request->isPost()) {
@@ -170,7 +176,7 @@ class Operate extends Backend
 
     /**
      * 更新文案
-     * 
+     *
      * @return [type] [description]
      */
     public function update()
@@ -189,7 +195,7 @@ class Operate extends Backend
 
     /**
      * 删除文案
-     * 
+     *
      * @return [type] [description]
      */
     public function delete()

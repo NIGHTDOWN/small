@@ -3,6 +3,7 @@
 namespace app\admin\controller\cash;
 
 use app\common\controller\Backend;
+use app\common\model\CashWithdraw as  CommonWithdraw;
 use think\Db;
 
 /**
@@ -63,14 +64,15 @@ class Audit extends Backend
                 ->order($sort, $order)
                 ->limit($offset, $limit)
                 ->select();
-                
+
             foreach ($list as $key => $value) {
-                $value->checkbox = $value->status == \app\admin\model\CashWithdraw::STATUS['OPERATIVE'] ? false : true;
-                $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment']);
+                $value->checkbox = ($value->status == CommonWithdraw::STATUS['OPERATIVE']) ? false : true;
+                $value->visible(['id', 'user_id', 'order_sn', 'apply_price', 'apply_time', 'status', 'payment','comment','error_msg_id']);
                 $value->visible(['user']);
                 $value->getRelation('user')->visible(['nickname']);
             }
             $list = collection($list)->toArray();
+            $list = \app\admin\model\CashWithdraw::getStatusText($list);
             $result = array("total" => $total, "rows" => $list);
 
             return json($result);

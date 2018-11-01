@@ -114,7 +114,6 @@ define(['jquery', 'bootstrap', 'toastr', 'layer', 'lang'], function ($, undefine
             },
             //打开一个弹出窗口
             open: function (url, title, options) {
-
                 title = title ? title : "";
                 url = Fast.api.fixurl(url);
                 url = url + (url.indexOf("?") > -1 ? "&" : "?") + "dialog=1";

@@ -9,7 +9,6 @@ use wsj\WQiniu;
 use app\common\model\HotVideo as HotVideoCommonModel;
 use app\common\model\ActivityTop as ActivityTopCommonModel;
 use app\common\model\Robot as RobotCommonModel;
-use app\common\model\VideoStatDay as VideoStatDayCommonModel;
 
 class Video extends Model
 {
@@ -129,9 +128,6 @@ class Video extends Model
         $oldCategoryId = $this->getAttr('category_id');
         $ret = $this->allowField(['category_id'])->save($data);
         if ($ret) {
-            if (!$oldCategoryId){
-                VideoStatDayCommonModel::statInc($this->getAttr('category_id'),'upload');
-            }
             if ($this->getAttr('recommend')) {
                 if ($oldCategoryId != $data['category_id']) {
                     VideoCommonModel::delTopVideoFromCache($this->getAttr('id'), $oldCategoryId);

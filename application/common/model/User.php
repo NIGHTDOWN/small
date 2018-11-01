@@ -282,4 +282,85 @@ class User Extends Model
         $elastic_search = new ElasticSearch();
         return $elastic_search->name('user')->delete($user_id);
     }
+
+    public static function createUserName()
+    {
+        return uniqid() . get_rand_string(4);
+    }
+
+    /**
+     * 创建唯一昵称(12位)
+     */
+    public static function createNickname()
+    {
+        $nickname = '';
+        while (true) {
+            $nickname = '用户' . get_rand_string(10);
+            $count_nickname = self::master()->where('nickname', $nickname)->count();
+            if (!$count_nickname) {
+                break;
+            }
+        }
+        return $nickname;
+    }
+
+    /**
+     * 创建密码
+     * @param $pwd
+     * @return bool|string
+     */
+    public static function createPassword($pwd)
+    {
+        return  password_hash($pwd, PASSWORD_DEFAULT);
+    }
+
+    /**
+     * 粉丝数增加
+     * @param $user_id
+     * @return int|true
+     */
+    public function incFansTotal($user_id)
+    {
+        return \think\Db::name('user')->where('id',$user_id)->setInc('fans_total');
+    }
+
+    /**
+     * 粉丝数减少
+     * @param $user_id
+     * @return int|true
+     */
+    public function decFansTotal($user_id)
+    {
+        return \think\Db::name('user')
+            ->where([
+                ['id', '=', $user_id],
+                ['fans_total', '>', 0],
+            ])
+            ->setDec('fans_total');
+    }
+
+    /**
+     * 关注数增加
+     * @param $user_id
+     * @return int|true
+     */
+    public function incFollowTotal($user_id)
+    {
+        return \think\Db::name('user')->where('id',$user_id)->setInc('follow_total');
+    }
+
+    /**
+     * 关注数减少
+     * @param $user_id
+     * @return int|true
+     */
+    public function decFollowTotal($user_id)
+    {
+        return \think\Db::name('user')
+            ->where([
+                ['id', '=', $user_id],
+                ['follow_total', '>', 0],
+            ])
+            ->setDec('follow_total');
+    }
 }

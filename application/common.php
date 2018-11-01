@@ -555,3 +555,31 @@ function get_weeks_num($time)
         return $sysweek + 1;
     }
 }
+
+/**
+ * 发送系统消息
+ * @param string $message 消息
+ * @param int $user_range 用户范围  0全部  1部分
+ * @param string $target_user_ids 英文逗号连接的用户ids(用户范围全部时可不传)
+ * @param array $app_action_info  app行为信息
+ * @param string $cover_img 图片
+ * @param int $is_now 是否立即发送  0不是  1是
+ * @param int $send_time 发送时间(不是立即发送的需要传)
+ * @return mixed
+ */
+function send_sys_message($message,$user_range,$target_user_ids,$app_action_info=[],$cover_img='',$is_now=1,$send_time=0)
+{
+    $data=[
+        'message'=>$message,
+        'app_action_info'=>$app_action_info?serialize($app_action_info):'',
+        'user_range'=>$user_range,
+        'target_user_ids'=>$target_user_ids,
+        'admin_id'=>0,
+        'cover_img'=>$cover_img,
+        'is_now'=>$is_now,
+        'send_time'=>$send_time,
+    ];
+    $logic=model('common/SysMessage');
+    $ret=$logic->sendSysMessage($data);
+    return $ret;
+}

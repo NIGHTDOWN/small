@@ -53,6 +53,18 @@ class ActiveTask extends Model
         return Cache::get($cache_key);
     }
 
-
+    /**
+     * 增加活跃值
+     * @param $type
+     * @param $user_id
+     * @throws \think\Exception
+     */
+    public static  function  incrActiveValue($type, $user_id)
+    {
+        $config = self::getActiveParam();
+        if ($config[$type] > 0) {
+            Db::name('user')->where('id','=', $user_id)->setInc('active_value', (int)$config[$type]);
+        }
+    }
 
 }

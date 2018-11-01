@@ -119,7 +119,7 @@ class Advertising extends Model
      */
     public function del()
     {
-        $ret=$this->limit(1)->delete();
+        $ret=$this->delete();
         if ($ret){
             AdCommonModel::deleteImageFile($this->getAttr('image'));
         }

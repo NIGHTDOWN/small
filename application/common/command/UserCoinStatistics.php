@@ -37,11 +37,11 @@ class UserCoinStatistics extends Command
         $endTime = $startTime + 86399;
         $count = Db::name('user_coin')
             ->where([
-                ['create_time', 'between', [$startTime, $endTime]],
-                ['type', '=', 1]
+                'type' => ['=', 1],
+                'create_time' => ['between', [$startTime, $endTime]]
             ])->sum('amount') ?: 0;
         // 是否已存在
-        $map = [['create_time', 'between', [$startTime, $endTime]]];
+        $map = ['create_time' => ['between', [$startTime, $endTime]]];
         $exist = Db::name('user_coin_statistics')->where($map)->column('id');
         // 添加到金币统计表
         $success = Db::name('user_coin_statistics')->insert(['count' => $count, 'create_time' => time()]);

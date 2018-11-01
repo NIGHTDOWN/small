@@ -78,7 +78,7 @@ class CoreValue extends Model
 
     public static function getCoinValue($name)
     {
-        $cache_key = config('cache.prefix') . self::CACHE_COIN_KEYS[$name];
+        $cache_key = config('site.cache_prefix') . self::CACHE_COIN_KEYS[$name];
         $val = self::getCacheInstance()->get($cache_key);
         if($val == null)
         {

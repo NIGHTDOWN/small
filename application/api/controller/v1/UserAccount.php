@@ -59,7 +59,7 @@ class UserAccount  extends Api
             $mobile = input('post.mobile/s');
             /** @var \app\api\model\Sms $logic */
             $logic = model('Sms');
-            $ret = $logic->getLoginSms($mobile);
+            $ret = $logic->sendSmsCode($mobile, 'code_login');
             if ($ret) {
                 $this->apiResult();
             } else {

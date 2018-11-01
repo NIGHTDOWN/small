@@ -41,6 +41,76 @@ class User extends Api
     }
 
     /**
+     * 发送验证码（设置支付密码）
+     */
+    public function setPayPwdSms()
+    {
+        if ($this->request->isPost()) {
+            /** @var \app\api\model\Sms $model */
+            $model = model('Sms');
+            $result = $model->sendSmsCode($this->auth->mobile, 'set_pay_password');
+            if ($result){
+                $this->apiResult();
+            }else{
+                $this->apiResult($model->getError());
+            }
+        }
+    }
+
+    /**
+     * 发送验证码(修改手机号)
+     */
+    public function updateMobileSms()
+    {
+        if ($this->request->isPost()) {
+            $mobile = input('mobile');
+            /** @var \app\api\model\Sms $model */
+            $model = model('Sms');
+            $result = $model->updateMobile($mobile);
+            if ($result) {
+                $this->apiResult();
+            } else {
+                $this->apiResult($model->getError());
+            }
+        }
+    }
+
+    /**
+     * 发送验证码(忘记支付密码)
+     */
+    public function forgetPayPwdSms()
+    {
+        if ($this->request->isPost()) {
+            $mobile = input('mobile');
+            /** @var \app\api\model\Sms $model */
+            $model = model('Sms');
+            $result = $model->sendSmsCode($mobile, 'update_pay_password');
+            if ($result) {
+                $this->apiResult();
+            } else {
+                $this->apiResult($model->getError());
+            }
+        }
+    }
+
+    /**
+     * 发送验证码(修改登录密码)
+     */
+    public function updatePwdSms()
+    {
+        if ($this->request->isPost()) {
+            /** @var \app\api\model\Sms $model */
+            $model = model('Sms');
+            $result = $model->sendSmsCode($this->auth->mobile, 'update_password');
+            if ($result) {
+                $this->apiResult();
+            } else {
+                $this->apiResult($model->getError());
+            }
+        }
+    }
+
+    /**
      * 会员中心
      */
     public function index()

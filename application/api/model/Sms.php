@@ -39,35 +39,8 @@ class Sms extends Model
     ];
 
     /**
-     * 获取登陆验证码
-     * @param $mobile
-     * @return bool
-     */
-    public function getLoginSms($mobile)
-    {
-        if (!$mobile) {
-            $this->error = 1805;
-            return false;
-        }
-        if (!$this->is_mobile($mobile)) {
-            $this->error = 1805;
-            return false;
-        }
-        $row = self::expireCode($mobile);
-        if ($row && ($row['create_time'] + Smslib::$expire) > time()) {
-            $this->error = 109;
-            return false;
-        }
-        $ret = Smslib::send($mobile, NULL, self::$template['code_login']);
-        if ($ret) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * 获取注册验证码
+     * 发送注册验证码
+     *
      * @param $mobile
      * @return bool
      */
@@ -77,7 +50,7 @@ class Sms extends Model
             $this->error = 1805;
             return false;
         }
-        if (!$this->is_mobile($mobile)) {
+        if (!is_mobile($mobile)) {
             $this->error = 1805;
             return false;
         }
@@ -94,12 +67,14 @@ class Sms extends Model
         if ($ret) {
             return true;
         } else {
+            $this->error = 110;
             return false;
         }
     }
 
     /**
      * 忘记登录密码
+     *
      * @param $mobile
      * @return bool
      */
@@ -109,7 +84,7 @@ class Sms extends Model
             $this->error = 1805;
             return false;
         }
-        if (!$this->is_mobile($mobile)) {
+        if (!is_mobile($mobile)) {
             $this->error = 1805;
             return false;
         }
@@ -126,12 +101,48 @@ class Sms extends Model
         if ($ret) {
             return true;
         } else {
+            $this->error = 110;
+            return false;
+        }
+    }
+
+    /**
+     * 发送验证码
+     *
+     * @param $mobile
+     * @param $type
+     * @return bool
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function sendSmsCode($mobile, $type)
+    {
+        if (!$mobile) {
+            $this->error = 1805;
+            return false;
+        }
+        if (!is_mobile($mobile)) {
+            $this->error = 1805;
+            return false;
+        }
+        $row = self::expireCode($mobile);
+        if ($row && ($row['create_time'] + Smslib::$expire) > time()) {
+            $this->error = 109;
+            return false;
+        }
+        $ret = Smslib::send($mobile, NULL, self::$template[$type]);
+        if ($ret) {
+            return true;
+        } else {
+            $this->error = 110;
             return false;
         }
     }
 
     /**
      * 绑定手机号
+     *
      * @param $mobile
      * @return bool
      */
@@ -141,7 +152,7 @@ class Sms extends Model
             $this->error = 1805;
             return false;
         }
-        if (!$this->is_mobile($mobile)) {
+        if (!is_mobile($mobile)) {
             $this->error = 1805;
             return false;
         }
@@ -160,23 +171,58 @@ class Sms extends Model
             $this->error = 109;
             return false;
         }
-        $ret = Smslib::send($mobile, NULL, self::$template['update_password']);
+        $ret = Smslib::send($mobile, NULL, self::$template['binding_mobile']);
         if ($ret) {
             return true;
         } else {
+            $this->error = 110;
             return false;
         }
     }
 
     /**
-     * 验证手机号码
+     * 修改手机号
      * @param $mobile
      * @return bool
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
-    function is_mobile($mobile)
+    public function updateMobile($mobile)
     {
-        return preg_match("/^[1][3-9][0-9]{9}$/", $mobile) ? true : false;
+        if (!$mobile) {
+            $this->error = 1805;
+            return false;
+        }
+        if (!is_mobile($mobile)) {
+            $this->error = 1805;
+            return false;
+        }
+        if (self::isUseMobile($mobile)) {
+            $this->error = 551;
+            return false;
+        }
+        // 用户是否已经绑定手机号
+        $auth = \app\common\library\Auth::instance();
+        if (Db::name('user')->where('id', $auth->getUserinfo()['id'])->value('mobile')) {
+            $this->error = 550;
+            return false;
+        }
+        $row = self::expireCode($mobile);
+        if ($row && ($row['create_time'] + Smslib::$expire) > time()) {
+            $this->error = 109;
+            return false;
+        }
+        $ret = Smslib::send($mobile, NULL, self::$template['update_mobile']);
+        if ($ret) {
+            return true;
+        } else {
+            $this->error = 110;
+            return false;
+        }
     }
+
 
     /**
      * 检查手机号码是否使用

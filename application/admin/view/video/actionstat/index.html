@@ -1,0 +1,120 @@
+<div class="panel panel-default panel-intro">
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="one">
+                <div class="widget-body no-padding">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="info-box bg-aqua">
+                                <span class="info-box-icon"><i class="fa fa-upload"></i></span>
+
+                                <div class="info-box-content">
+                                    <span class="info-box-text">总分享数</span>
+                                    <span class="info-box-number">{$total.share_total}</span>
+
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 20%"></div>
+                                    </div>
+                                    <span class="progress-description">
+                                        用户累计分享次数
+                                    </span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="info-box bg-green">
+                                <span class="info-box-icon"><i class="fa fa-thumbs-o-up"></i></span>
+
+                                <div class="info-box-content">
+                                    <span class="info-box-text">总点赞数</span>
+                                    <span class="info-box-number">{$total.like_total}</span>
+
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 20%"></div>
+                                    </div>
+                                    <span class="progress-description">
+                                        所有点赞操作的总数
+                                      </span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="info-box bg-yellow">
+                                <span class="info-box-icon"><i class="fa fa-play"></i></span>
+
+                                <div class="info-box-content">
+                                    <span class="info-box-text">总播放数</span>
+                                    <span class="info-box-number">{$total.view_total}</span>
+
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 20%"></div>
+                                    </div>
+                                    <span class="progress-description">
+                                        历史累计播放数
+                                      </span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="info-box bg-red">
+                                <span class="info-box-icon"><i class="fa fa-comments-o"></i></span>
+
+                                <div class="info-box-content">
+                                    <span class="info-box-text">总评论数</span>
+                                    <span class="info-box-number">{$total.comment_total}</span>
+
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 20%"></div>
+                                    </div>
+                                    <span class="progress-description">
+                                    所有评论操作的数量
+                                  </span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="page-header">
+                                <h4 class="no-margin">行为统计</h4>
+                            </div>
+                            <div id="datefilter">
+                                <form action="" role="form" novalidate class="form-inline">
+                                    <a href="javascript:;" class="btn btn-primary btn-refresh"><i class="fa fa-refresh"></i></a>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input type="text" class="form-control input-inline datetimerange btn-filter" id="date" placeholder="指定日期" style="width:270px;" />
+                                    </div>
+                                    <div  class="input-group">
+                                        <?php echo build_select('category_id',$categoryList,0,['placeholder'=>'选择分类','class'=>'form-control input-inline btn-filter','id'=>'category_id']) ?>
+                                    </div>
+                                    <div  class="input-group">
+                                        <?php echo build_select('channel',[''=>'选择渠道','test'=>'test','test2'=>'test2'],0,['placeholder'=>'选择渠道','class'=>'form-control input-inline btn-filter','id'=>'channel']) ?>
+                                    </div>
+                                    <div  class="input-group">
+                                        <button type="submit" class="btn btn-success" formnovalidate="" id="submit">提交</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="echart" style="height:500px;width:100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

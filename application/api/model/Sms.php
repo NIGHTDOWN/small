@@ -8,6 +8,7 @@
 
 namespace app\api\model;
 
+use think\Db;
 use think\Model;
 use app\common\library\Sms as Smslib;
 
@@ -52,6 +53,11 @@ class Sms extends Model
             $this->error = 1805;
             return false;
         }
+        $row = self::expireCode($mobile);
+        if ($row && ($row['create_time'] + Smslib::$expire) > time()) {
+            $this->error = 109;
+            return false;
+        }
         $ret = Smslib::send($mobile, NULL, self::$template['code_login']);
         if ($ret) {
             return true;
@@ -73,6 +79,15 @@ class Sms extends Model
         }
         if (!$this->is_mobile($mobile)) {
             $this->error = 1805;
+            return false;
+        }
+        if (self::isUseMobile($mobile)) {
+            $this->error = 111;
+            return false;
+        }
+        $row = self::expireCode($mobile);
+        if ($row && ($row['create_time'] + Smslib::$expire) > time()) {
+            $this->error = 109;
             return false;
         }
         $ret = Smslib::send($mobile, NULL, self::$template['register']);
@@ -98,6 +113,53 @@ class Sms extends Model
             $this->error = 1805;
             return false;
         }
+        if (!self::isUseMobile($mobile)) {
+            $this->error = 134;
+            return false;
+        }
+        $row = self::expireCode($mobile);
+        if ($row && ($row['create_time'] + Smslib::$expire) > time()) {
+            $this->error = 109;
+            return false;
+        }
+        $ret = Smslib::send($mobile, NULL, self::$template['update_password']);
+        if ($ret) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 绑定手机号
+     * @param $mobile
+     * @return bool
+     */
+    public function UserBindMobile($mobile)
+    {
+        if (!$mobile) {
+            $this->error = 1805;
+            return false;
+        }
+        if (!$this->is_mobile($mobile)) {
+            $this->error = 1805;
+            return false;
+        }
+        if (self::isUseMobile($mobile)) {
+            $this->error = 551;
+            return false;
+        }
+        // 用户是否已经绑定手机号
+        $auth = \app\common\library\Auth::instance();
+        if (Db::name('user')->where('id', $auth->getUserinfo()['id'])->value('mobile')) {
+            $this->error = 550;
+            return false;
+        }
+        $row = self::expireCode($mobile);
+        if ($row && ($row['create_time'] + Smslib::$expire) > time()) {
+            $this->error = 109;
+            return false;
+        }
         $ret = Smslib::send($mobile, NULL, self::$template['update_password']);
         if ($ret) {
             return true;
@@ -111,7 +173,50 @@ class Sms extends Model
      * @param $mobile
      * @return bool
      */
-    function is_mobile($mobile){
+    function is_mobile($mobile)
+    {
         return preg_match("/^[1][3-9][0-9]{9}$/", $mobile) ? true : false;
     }
+
+    /**
+     * 检查手机号码是否使用
+     * @param $mobile
+     * @return bool
+     * @throws \think\Exception
+     */
+    public static function isUseMobile($mobile)
+    {
+        $count = Db::name('user')->where('mobile', 'eq', $mobile)->count();
+        if ($count) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 检查验证码是否过期
+     * @param $mobile
+     * @return bool
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function expireCode($mobile)
+    {
+        $now = time();
+        $map = [
+            'mobile' => ['eq'. $mobile],
+            'type' => ['eq', 0],
+            'status' => ['eq', 0],
+            'expire_time' => ['gt', $now],
+        ];
+        $row = Db::name('Sms')->where($map)->order('id','desc')->find();
+        if ($row) {
+            return $row;
+        } else {
+            return false;
+        }
+    }
+
 }

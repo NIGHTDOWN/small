@@ -23,6 +23,24 @@ class User extends Api
     }
 
     /**
+     * 发送绑定手机验证码
+     */
+    public function bindMobileSms()
+    {
+        if ($this->request->isPost()) {
+            $mobile = input('mobile');
+            /** @var \app\api\model\Sms $model */
+            $model = model('Sms');
+            $rs = $model->UserBindMobile($mobile);
+            if ($rs) {
+                $this->apiResult();
+            } else {
+                $this->apiResult($model->getError());
+            }
+        }
+    }
+
+    /**
      * 会员中心
      */
     public function index()
